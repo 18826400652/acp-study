@@ -9,6 +9,7 @@ import { renderExam } from './views/exam.js';
 import { renderResult } from './views/result.js';
 import { renderWrong, renderWrongPractice } from './views/wrong.js';
 import { renderSettings } from './views/settings.js';
+import { setupPwa, offerPendingUpdate, requestPersist, isWeChat } from './pwa.js';
 
 // 每个任务往这里注册自己的视图；没注册的路由回退到首页
 const VIEWS = {
@@ -96,6 +97,7 @@ function render() {
   view.scrollTop = 0;
   state.routeName = route.name;
   updateChrome(route.name);
+  if (route.name !== 'exam') offerPendingUpdate();
 }
 
 function showFatal(err) {
@@ -119,6 +121,11 @@ async function boot() {
   }
   window.addEventListener('hashchange', render);
   render();
+  requestPersist();
+  if (isWeChat(navigator.userAgent)) {
+    showBanner('wechat', '微信里无法添加到主屏：点右上角「···」选择「在浏览器打开」');
+  }
+  setupPwa({ isExamRunning: () => state.progress.examDraft !== null });
 }
 
 boot();
