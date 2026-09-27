@@ -9,5 +9,8 @@
     "validate": "node scripts/validate-data.mjs",
     "e2e": "playwright test",
     "size": "node scripts/check-size.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
   }
 }

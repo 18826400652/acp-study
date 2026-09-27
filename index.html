@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16181d" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="阿里云大模型 ACP 认证备考：速记卡片、分考点练习、模拟考、错题本">
+  <title>ACP 备考</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="app">
+    <header class="appbar">
+      <h1 class="appbar-title" id="title">ACP 备考</h1>
+      <a class="appbar-action" id="settings-link" href="#/settings" aria-label="设置">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+      </a>
+    </header>
+    <div id="banners" class="banners"></div>
+    <main id="view" class="view"><p class="loading">加载中…</p></main>
+    <nav class="tabbar" aria-label="主导航">
+      <a class="tab" href="#/" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 3.5l8.5 7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"/></svg>
+        <span>首页</span>
+      </a>
+      <a class="tab" href="#/learn" data-tab="learn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2 2 0 0 1 6 3.5h13.5v15H6a2 2 0 0 0-2 2z"/><path d="M4 20.5v-15M8.5 8h7M8.5 11.5h5"/></svg>
+        <span>学习</span>
+      </a>
+      <a class="tab" href="#/exam" data-tab="exam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2.5M9.5 2.5h5"/></svg>
+        <span>模拟考</span>
+      </a>
+      <a class="tab" href="#/wrong" data-tab="wrong">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-6-4-6 4z"/><path d="m9.8 7.8 4.4 4.4m0-4.4-4.4 4.4"/></svg>
+        <span>错题本</span>
+      </a>
+    </nav>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
