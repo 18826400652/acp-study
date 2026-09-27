@@ -112,7 +112,7 @@
       "SKILL.md：frontmatter 管“要不要用”，body 管“怎么做”",
       "description 要写清做什么、何时触发",
       "渐进式披露：执行到哪一步才读对应子文件",
-      "AgentScope 用 register_agent_skill 注册 Skill"
+      "框架层用 register_agent_skill 注册 Skill"
     ],
     "source": "3_5_用Skill将能力固化为可复用流程"
   },
@@ -141,5 +141,18 @@
       "白盒化评测为关键组件单独建测试集"
     ],
     "source": "3_6_用评测驱动Agent开发"
+  },
+  {
+    "id": "agent-mm-c12",
+    "domain": "agent-mm",
+    "title": "Qwen Code 日常工作方式",
+    "points": [
+      "EPCC：Explore → Plan → Code → Commit",
+      "审批模式 plan/default/auto-edit/yolo，最小权限",
+      "/compress 任务中省空间，/clear 任务间划界限",
+      "QWEN.md 是跨会话持久记忆，应精简如目录",
+      "自定义命令手动触发，MCP 接工具，Skill 按需加载"
+    ],
+    "source": "3_7_Qwen_Code实践"
   }
 ]
