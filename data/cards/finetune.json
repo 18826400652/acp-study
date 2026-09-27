@@ -37,5 +37,83 @@
       "GPU 云服务器/ACK：可控性强，但运维复杂度高"
     ],
     "source": "4_2_部署模型"
+  },
+  {
+    "id": "finetune-c04",
+    "domain": "finetune",
+    "title": "蒸馏数据合成",
+    "points": [
+      "流程：生成提问→教师标注→质量过滤→格式化",
+      "提问多样：8 意图×4 部门，约 30% 多意图",
+      "教师标注 temperature=0.1，降低随机性",
+      "结果校验：JSON 解析、必填字段、取值范围",
+      "训练格式 messages，assistant 为期望输出"
+    ],
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
+  },
+  {
+    "id": "finetune-c05",
+    "domain": "finetune",
+    "title": "请求理解评测指标",
+    "points": [
+      "输出是严格 JSON，不适合 BLEU、RAGAS",
+      "JSON 合规率：可解析且字段齐全，是基本门槛",
+      "intents F1：意图多选，兼顾精确率和召回率",
+      "route 准确率：最直接影响下游系统行为",
+      "看语义正确，意图顺序不同也算对"
+    ],
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
+  },
+  {
+    "id": "finetune-c06",
+    "domain": "finetune",
+    "title": "ms-swift 训练参数",
+    "points": [
+      "split_dataset_ratio 0.1：切 10% 作验证集",
+      "lora_rank 8：<200 条可降 4，>2000 条可升 16",
+      "learning_rate 5e-5：不降调 1e-4，震荡调 1e-5",
+      "num_train_epochs 5：验证损失上升就减少",
+      "batch_size 8：显存不足减到 4"
+    ],
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
+  },
+  {
+    "id": "finetune-c07",
+    "domain": "finetune",
+    "title": "训练常见问题排查",
+    "points": [
+      "loss 大幅震荡：降学习率，增大 batch 或梯度累积",
+      "loss 基本不降：查样本模板、label、参数是否生效",
+      "loss 正常但 JSON 不稳：统一 schema，清理代码块",
+      "意图漏判：补多意图和易混淆样本",
+      "CUDA OOM：batch 降到 4 或 2，缩短 max_length"
+    ],
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
+  },
+  {
+    "id": "finetune-c08",
+    "domain": "finetune",
+    "title": "蒸馏效果与能力边界",
+    "points": [
+      "JSON 合规率：基座 48%，蒸馏后 100%",
+      "蒸馏 F1 70.4%、route 77%，未追平教师",
+      "要更高精度：换 1.5B 或 4B 模型做学生",
+      "易错：依赖型多意图、罕见组合、极度含糊",
+      "0.6B 是预处理器，不是小号通用助手"
+    ],
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
+  },
+  {
+    "id": "finetune-c09",
+    "domain": "finetune",
+    "title": "蒸馏成本收益与决策",
+    "points": [
+      "API 日成本约 32 元，与请求量严格线性",
+      "T4 按 3.6 元/小时：8 小时运行月成本 864 元",
+      "打平点：8 小时约 1.8 万次/日，24 小时约 5.4 万",
+      "非成本理由：延迟、数据安全、离线、稳定性",
+      "部分商业模型条款禁止用其输出训练竞品"
+    ],
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
   }
 ]
