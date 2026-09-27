@@ -76,5 +76,31 @@
       "“探索-固化”：先自主探索，再固化为固定流程"
     ],
     "source": "3_2_让Agent学会规划与执行"
+  },
+  {
+    "id": "agent-mm-c07",
+    "domain": "agent-mm",
+    "title": "记忆管理三策略",
+    "points": [
+      "大模型无状态，InMemoryMemory 回传完整历史",
+      "固定窗口截断：Formatter 设 max_tokens，易丢早期信息",
+      "滚动摘要：旧对话压成摘要，有额外调用成本",
+      "向量化召回：存储-检索-组合，复杂度最高",
+      "历史过长会超窗口、成本上升、注意力稀释"
+    ],
+    "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-c08",
+    "domain": "agent-mm",
+    "title": "长期记忆与主动记忆管理",
+    "points": [
+      "AgentScope 用 Mem0LongTermMemory 做长期记忆",
+      "static_control：每次回复前后自动存取记忆",
+      "agent_control：Agent 自主决定何时记、何时读",
+      "短期记忆保会话连贯，长期记忆跨会话检索",
+      "有选择地记忆，持续治理，按场景决定记什么"
+    ],
+    "source": "3_4_用Memory让Agent积累经验"
   }
 ]

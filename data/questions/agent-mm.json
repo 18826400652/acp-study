@@ -304,5 +304,96 @@
     "answer": [0, 2, 3],
     "explanation": "课程目标中明确提出多 Agent 系统的成本意识（3-5 倍 Token 消耗）（A 对）；总结指出多智能体系统虽然会增加调用成本和延迟，但通过提高最终产出的“可用性”，避免了因低质量输出导致的重复尝试和隐性成本，是对高质量结果的有效投资（C 对，B 错）；追求“全能”的单个 Agent 在处理需跨多个专业领域的复杂任务时，往往会因知识边界和认知负荷而表现不佳（D 对）。E 错：课后测验解析指出，让一个全能 Agent 在同一个上下文中扮演多个角色容易注意力涣散，违背了多 Agent 各自拥有独立上下文、专注各自任务的核心价值。",
     "source": "3_3_用多Agent实现团队协作"
+  },
+  {
+    "id": "agent-mm-021",
+    "domain": "agent-mm",
+    "type": "single",
+    "stem": "在 AgentScope 中实现“固定窗口截断”记忆策略，课程的做法是？",
+    "options": [
+      "为 ReActAgent 设置 max_iters 参数，限制对话轮数",
+      "初始化 Formatter 时传入 max_tokens，并提供 token 计数器",
+      "继承 MemoryBase 自定义 Memory 类，超长时丢弃旧消息",
+      "为 Mem0LongTermMemory 设置 static_control 模式"
+    ],
+    "answer": [1],
+    "explanation": "课程指出在 AgentScope 中截断功能由 Formatter 组件实现：初始化 Formatter（如 DashScopeChatFormatter）时传入 max_tokens 参数限制上下文长度，并且需要提供 token 计数器（示例用 HuggingFaceTokenCounter），否则不会触发截断，故 B 正确。A 错：max_iters 限制的是 ReAct 推理-行动循环的最大迭代次数，与记忆截断无关；C 是课程为“滚动摘要”给出的概念性实现思路（继承 agentscope.memory.MemoryBase），因为该功能尚未内置；D 是长期记忆在每次回复前后自动存取的工作模式。",
+    "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-022",
+    "domain": "agent-mm",
+    "type": "single",
+    "stem": "关于“滚动摘要（Rolling Summary）”记忆策略，下列说法正确的是？",
+    "options": [
+      "AgentScope 已内置该功能，只需设置一个参数即可启用",
+      "它把每轮对话转成向量存入数据库，再按相似度检索",
+      "它会引入额外的 API 调用成本，且摘要质量直接影响后续对话",
+      "它最适合信息价值随时间快速衰减的闲聊场景"
+    ],
+    "answer": [2],
+    "explanation": "课程列出滚动摘要的边界条件：它引入了额外的 API 调用成本（用于生成摘要），并且摘要的质量直接影响后续对话，故 C 正确。A 错：课程明确说 AgentScope 尚未内置此功能，需要通过自定义 Memory 类实现；B 描述的是向量化召回；D 是固定窗口截断的适用场景，滚动摘要适用于需要长期保持目标一致性的任务，如项目规划、长篇内容创作。",
+    "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-023",
+    "domain": "agent-mm",
+    "type": "single",
+    "stem": "使用 AgentScope 的 Mem0LongTermMemory 时，希望由 Agent 自己决定何时记录、何时检索长期记忆，应如何配置？",
+    "options": [
+      "将 long_term_memory_mode 设为 static_control",
+      "将 memory 参数由 InMemoryMemory 换成 Mem0LongTermMemory",
+      "为 Formatter 设置 max_tokens 并提供 token 计数器",
+      "将 long_term_memory_mode 设为 agent_control"
+    ],
+    "answer": [3],
+    "explanation": "课程指出将 long_term_memory_mode 设为 agent_control 后，ReActAgent 会自动获得 record_to_memory 和 retrieve_from_memory 两个工具，再在系统提示词中引导它使用，Agent 就能自行决定何时记忆、何时回忆，故 D 正确。A 的 static_control 是在每次 Agent 回复前后自动、被动地保存和检索记忆；B 错：示例中长期记忆通过 long_term_memory 参数传入，memory 参数仍是管理短期记忆的 InMemoryMemory；C 是固定窗口截断的实现方式。",
+    "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-024",
+    "domain": "agent-mm",
+    "type": "single",
+    "stem": "某闲聊机器人的对话信息价值随时间快速衰减，团队希望用实现最简单、计算开销最小的方式把上下文长度控制在可控范围内。按课程，最合适的记忆策略是？",
+    "options": [
+      "固定窗口截断",
+      "滚动摘要",
+      "向量化召回",
+      "agent_control 主动记忆管理"
+    ],
+    "answer": [0],
+    "explanation": "课程指出固定窗口截断实现极其简单、计算开销小，能保证上下文长度永远在可控范围内，适用于信息价值随时间快速衰减的场景，例如闲聊机器人或简单的客服问答，故 A 正确。B 需要额外调用大模型生成摘要，适合需要长期保持目标一致性的任务；C 系统复杂度最高，要引入 Embedding 模型和向量数据库；D 还要额外的 LLM 推理来决定是否调用记忆工具，对这一场景而言开销过大。",
+    "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-025",
+    "domain": "agent-mm",
+    "type": "multi",
+    "stem": "课程在“记忆使用建议”中提出了有选择地记忆、持续治理和场景化应用。下列符合这些建议的有？",
+    "options": [
+      "记忆越多越好，应把每一轮对话都写入长期记忆以免遗漏",
+      "建立写入准入机制，如仅在用户显式要求或信息重要性高于阈值时才写入",
+      "定期清理过时信息、合并重复条目、校验事实，并提供查看、修改、删除接口",
+      "在要求风格一致的课程文档工作流中，也应记录每位用户的个性化偏好",
+      "产品事实信息（如 API 参数、功能限制）可以记录，并定期审查其有效性"
+    ],
+    "answer": [1, 2, 4],
+    "explanation": "B 对应“有选择地记忆”：积累大量低价值或噪声信息会干扰后续检索效果，应建立记忆写入的准入机制，agent_control 模式就是实现方法之一；C 对应“持续治理”：记忆是一类动态的数据资产，需要定期清理过时信息、合并重复条目、校验事实准确性，并为用户提供主动管理记忆的接口；E 对应“场景化应用”：产品的事实信息可以记录并定期审查有效性。A 错：课程明确指出记忆并非越多越好；D 错：课程指出在要求风格一致的课程文档工作流中，不应记录个性化的偏好。",
+    "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-026",
+    "domain": "agent-mm",
+    "type": "multi",
+    "stem": "关于 Agent 的短期记忆与长期记忆，下列说法正确的有？",
+    "options": [
+      "短期记忆的核心职责是持久化存储关键信息，并支持跨会话检索",
+      "大模型是无状态的，Agent 的每一次 reply 本质上都是一次独立的 API 调用",
+      "向量化召回只需一个列表存放对话历史，是三种策略中实现最简单的",
+      "AgentScope 的 InMemoryMemory 每次把对话历史连同新消息一起发给模型"
+    ],
+    "answer": [1, 3],
+    "explanation": "课程指出大模型本身是无状态的，Agent 的每一次 reply 本质上都是一次独立的 API 调用，天然继承了无状态性（B 对）；AgentScope 的 InMemoryMemory 就是“把包含完整历史的列表和新消息一起发给模型”这一朴素方案的实现（D 对）。A 错：持久化存储关键信息、支持跨会话检索是长期记忆的职责，短期记忆的核心职责是维持当前会话的连贯性；C 错：向量化召回引入了 Embedding 模型和向量数据库，是系统复杂度最高的策略。",
+    "source": "3_4_用Memory让Agent积累经验"
   }
 ]
