@@ -34,7 +34,9 @@ const DATA = ['data/domains.json'].concat(
 );
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(SHELL.concat(DATA))));
+  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(
+    SHELL.concat(DATA).map((u) => new Request(u, { cache: 'reload' })),
+  )));
 });
 
 self.addEventListener('activate', (event) => {
@@ -59,7 +61,7 @@ async function cacheFirst(request) {
 }
 
 function staleWhileRevalidate(event) {
-  const network = fetch(event.request).then(async (response) => {
+  const network = fetch(event.request, { cache: 'no-cache' }).then(async (response) => {
     if (response.ok) {
       const cache = await caches.open(CACHE_VERSION);
       await cache.put(event.request, response.clone());
