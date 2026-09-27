@@ -37,5 +37,70 @@
       "stdio 适合本地调试，Streamable HTTP 适合远端共享"
     ],
     "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c04",
+    "domain": "app-dev",
+    "title": "用 OpenAI SDK 调用千问",
+    "points": [
+      "API Key 存环境变量，避免分享代码泄露",
+      "base_url 指向百炼 DashScope 兼容模式地址",
+      "system 设定角色和任务，user 输入问题",
+      "stream=True 开启流式，逐块读 delta.content",
+      "extra_body 传 enable_search 可联网搜索"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c05",
+    "domain": "app-dev",
+    "title": "多轮对话与历史管理",
+    "points": [
+      "模型只看本次传入的 messages，需传完整历史",
+      "每条消息含 role 与 content 两个字段",
+      "模型回复以 assistant 角色追加进历史",
+      "轮次过多占用上下文窗口，可截断或摘要",
+      "生产环境把历史持久化到数据库，支持跨会话"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c06",
+    "domain": "app-dev",
+    "title": "解码策略与停止条件",
+    "points": [
+      "近似确定性解码：贪心解码、Beam Search",
+      "随机采样解码：Top-p、Top-k，在线服务常默认",
+      "选出的 token 追加到输入末尾继续预测",
+      "停止条件：EOS 终止符、最大长度、停用词",
+      "Qwen3 的终止符是 <|im_end|>"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c07",
+    "domain": "app-dev",
+    "title": "top_k、seed 与残余随机性",
+    "points": [
+      "top_k 只保留前 k 个 Token，归一化后采样",
+      "top_k=1 输出更确定，但缺少变化和创意",
+      "相同 seed 且参数不变，尽可能返回相同结果",
+      "分布式系统等因素使结果无法保证完全一致",
+      "Qwen-Max 默认 temperature 0.7、top_p 0.8"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c08",
+    "domain": "app-dev",
+    "title": "私域知识与上下文工程",
+    "points": [
+      "模型知识来自公开训练数据，不含公司内部文档",
+      "上下文窗口像内存，容量有限，超限会报错",
+      "硬塞知识导致效率低、成本高、信息干扰",
+      "关键不在“喂”多少，而在“喂”得准",
+      "核心技术：RAG、Prompt、Tool、Memory"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
   }
 ]
