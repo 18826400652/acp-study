@@ -103,7 +103,7 @@ data/
 - `manifest.json` 设置 `display: standalone`，提供 192 和 512 两种尺寸的图标，并包含 maskable 图标。
 - 在微信内置浏览器中（UA 含 `MicroMessenger`）显示提示条「点右上角 ··· 在浏览器打开，可添加到主屏」。
 - 兼容目标：Chrome / Edge 80+、华为、小米、OPPO、vivo 系统浏览器、微信 X5/XWeb 内核。不使用 `:has()`、容器查询、顶层 `await` 等较新特性。
-- 体积预算：整站传输量小于 500KB（未压缩的 JS 加 CSS 小于 60KB）。
+- 体积预算：整站小于 500KB；未压缩的 JS 加 CSS 小于 150KB（中文界面文案在 UTF-8 下每字 3 字节；GitHub Pages 自动 gzip 后约 35KB）。
 
 ## 8. 测试与质量
 
