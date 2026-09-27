@@ -112,7 +112,7 @@
       "SKILL.md：frontmatter 管“要不要用”，body 管“怎么做”",
       "description 要写清做什么、何时触发",
       "渐进式披露：执行到哪一步才读对应子文件",
-      "框架层用 register_agent_skill 注册 Skill"
+      "AgentScope：用 register_agent_skill 注册"
     ],
     "source": "3_5_用Skill将能力固化为可复用流程"
   },

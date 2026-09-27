@@ -390,10 +390,10 @@
       "短期记忆的核心职责是持久化存储关键信息，并支持跨会话的智能检索",
       "大模型无状态，Agent 每次 reply 本质上都是一次独立的 API 调用",
       "向量化召回只需一个列表存放对话历史，是三种策略中实现最简单的一种",
-      "InMemoryMemory 每次把对话历史连同新消息一起发给模型"
+      "使用 InMemoryMemory 时，Agent 每次把历史记录连同新消息一起发给模型"
     ],
     "answer": [1, 3],
-    "explanation": "课程指出大模型本身是无状态的，Agent 的每一次 reply 本质上都是一次独立的 API 调用，天然继承了无状态性（B 对）；AgentScope 的 InMemoryMemory 就是“把包含完整历史的列表和新消息一起发给模型”这一朴素方案的实现（D 对）。A 错：持久化存储关键信息、支持跨会话检索是长期记忆的职责，短期记忆的核心职责是维持当前会话的连贯性；C 错：向量化召回引入了 Embedding 模型和向量数据库，是系统复杂度最高的策略。",
+    "explanation": "课程指出大模型本身是无状态的，Agent 的每一次 reply 本质上都是一次独立的 API 调用，天然继承了无状态性（B 对）；AgentScope 的 InMemoryMemory 就是“每次都把完整对话历史一起发给模型”这一朴素方案的实现——调用时 Agent 会自动把 InMemoryMemory 中的历史记录和新消息一起发给模型（D 对）。A 错：持久化存储关键信息、支持跨会话检索是长期记忆的职责，短期记忆的核心职责是维持当前会话的连贯性；C 错：向量化召回引入了 Embedding 模型和向量数据库，是系统复杂度最高的策略。",
     "source": "3_4_用Memory让Agent积累经验"
   },
   {
@@ -724,13 +724,13 @@
     "stem": "关于 Qwen Code 的 QWEN.md 与 Skill，下列说法正确的有？",
     "options": [
       "项目根目录的 QWEN.md 会在 Agent 每次启动时自动读取",
-      "Skill 的 Body 只在被触发时加载，不会常驻上下文",
+      "Skill 是一个目录，目录名即 Skill 名，其中必须包含 SKILL.md",
       "/init 生成的 QWEN.md 草稿可以直接使用，无需审阅修改",
       "Skill 可放在 .qwen/skills/ 或 ~/.qwen/skills/，用 /skills 查看",
       "QWEN.md 总长度建议控制在 200 行以内，以免挤占上下文"
     ],
     "answer": [0, 1, 3, 4],
-    "explanation": "A：QWEN.md 是放在项目根目录下的 Markdown 文件，Agent 每次启动时自动读取并加入系统上下文，是 Qwen Code 实现持久记忆的方式。B：Qwen Code 启动时只读取所有 Skill 的 name 和 description，Body 只在被触发时才加载，这与始终生效的 QWEN.md 不同。D：Skill 存储在项目级（.qwen/skills/）和用户级（~/.qwen/skills/）两个位置，可用 /skills 命令查看。E：课程建议 QWEN.md 总长度控制在 200 行以内，超过后它本身会占用过多上下文空间。C 错：/init 生成的只是 Agent 的“第一印象”，可能遗漏重要约束或误判设计意图，需要像审查代码一样审阅修改。",
+    "explanation": "A：QWEN.md 是放在项目根目录下的 Markdown 文件，Agent 每次启动时自动读取并加入系统上下文，是 Qwen Code 实现持久记忆的方式。B：课程指出一个 Skill 是一个目录，目录名即 Skill 名，其中必须包含一个 SKILL.md 文件（由 YAML frontmatter 和 Body 两部分组成）。D：Skill 存储在项目级（.qwen/skills/）和用户级（~/.qwen/skills/）两个位置，可用 /skills 命令查看。E：课程建议 QWEN.md 总长度控制在 200 行以内，超过后它本身会占用过多上下文空间。C 错：/init 生成的只是 Agent 的“第一印象”，可能遗漏重要约束或误判设计意图，需要像审查代码一样审阅修改。",
     "source": "3_7_Qwen_Code实践"
   }
 ]
