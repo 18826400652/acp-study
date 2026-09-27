@@ -2,6 +2,11 @@ export const COUNT_TOLERANCE = 3;
 export const OPTION_RANGE = { min: 3, max: 6 };
 export const POINT_RANGE = { min: 3, max: 5 };
 export const CARD_RANGE = { min: 10, max: 15 };
+export const BALANCE_MIN = { single: 8, multi: 6 };
+export const SINGLE_LETTER_MAX_SHARE = 0.4;
+export const MULTI_POSITION_MAX_SHARE = 0.75;
+const LETTERS = 'ABCDEF';
+const pct = (x) => Math.round(x * 100);
 const ALL_CORRECT_RE = /以上(都|均|全部|皆)?(对|正确|是)/;
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -99,16 +104,65 @@ function checkDomains(domains) {
   return errs;
 }
 
-export function validateData({ domains, cards, questions }, { allowPartial = false } = {}) {
+function countBy(list, keyFn) {
+  const counts = {};
+  list.forEach((item) => [].concat(keyFn(item)).forEach((k) => { counts[k] = (counts[k] || 0) + 1; }));
+  return counts;
+}
+
+function checkBalance(domainId, qs) {
+  const errs = [];
+  const where = `questions/${domainId}.json`;
+  const withAnswer = qs.filter((q) => Array.isArray(q.answer) && q.answer.length);
+  const singles = withAnswer.filter((q) => q.type === 'single');
+  if (singles.length >= BALANCE_MIN.single) {
+    const counts = countBy(singles, (q) => q.answer[0]);
+    Object.keys(counts).forEach((i) => {
+      const share = counts[i] / singles.length;
+      if (share > SINGLE_LETTER_MAX_SHARE) {
+        errs.push(`${where}: 单选题正确答案 ${LETTERS[i]} 占 ${pct(share)}%，超过 ${pct(SINGLE_LETTER_MAX_SHARE)}%`);
+      }
+    });
+  }
+  const multis = withAnswer.filter((q) => q.type === 'multi');
+  if (multis.length >= BALANCE_MIN.multi) {
+    const counts = countBy(multis, (q) => q.answer);
+    Object.keys(counts).forEach((i) => {
+      const share = counts[i] / multis.length;
+      if (share > MULTI_POSITION_MAX_SHARE) {
+        errs.push(`${where}: 多选题选项 ${LETTERS[i]} 在 ${pct(share)}% 的题目中为正确答案，超过 ${pct(MULTI_POSITION_MAX_SHARE)}%`);
+      }
+    });
+    const sizes = Object.keys(countBy(multis, (q) => q.answer.length));
+    if (sizes.length < 2) errs.push(`${where}: 多选题正确答案个数全部为 ${sizes[0]} 个，应有变化`);
+  }
+  return errs;
+}
+
+function checkDuplicateStems(domains, questions) {
+  const errs = [];
+  const seen = new Map();
+  domains.forEach((d) => (questions[d.id] || []).forEach((q) => {
+    if (!q || typeof q.stem !== 'string') return;
+    const key = q.stem.replace(/\s+/g, '');
+    if (seen.has(key)) errs.push(`questions/${d.id}.json ${q.id}: 题干与 ${seen.get(key)} 重复`);
+    else seen.set(key, q.id);
+  }));
+  return errs;
+}
+
+export function validateData({ domains, cards, questions }, { allowPartial = false, strictDomains = null } = {}) {
   const errors = checkDomains(domains);
   const chapters = new Set([].concat(...domains.map((d) => d.chapters || [])));
   const seen = new Set();
+  const countsFor = (id) => (strictDomains ? strictDomains.indexOf(id) !== -1 : !allowPartial);
   domains.forEach((d) => {
     const qs = questions[d.id] || [];
     const cs = cards[d.id] || [];
     qs.forEach((q) => errors.push(...checkQuestion(q, d.id, chapters, seen)));
     cs.forEach((c) => errors.push(...checkCard(c, d.id, chapters, seen)));
-    if (!allowPartial) errors.push(...checkCounts(d, qs, cs));
+    errors.push(...checkBalance(d.id, qs));
+    if (countsFor(d.id)) errors.push(...checkCounts(d, qs, cs));
   });
-  return errors;
+  return errors.concat(checkDuplicateStems(domains, questions));
 }

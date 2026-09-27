@@ -6,7 +6,7 @@ const DOMAINS = [{
   id: 'rag', name: '检索增强', short: 'RAG', weight: 100, target: { single: 5, multi: 4 }, chapters: ['2_5_x'],
 }];
 const q = (n, over = {}) => ({
-  id: `rag-${String(n).padStart(3, '0')}`, domain: 'rag', type: 'single', stem: '题干',
+  id: `rag-${String(n).padStart(3, '0')}`, domain: 'rag', type: 'single', stem: `题干${n}`,
   options: ['甲', '乙', '丙', '丁'], answer: [0], explanation: '解析', source: '2_5_x', ...over,
 });
 const card = (n, over = {}) => ({
@@ -74,4 +74,41 @@ test('count rules apply in strict mode only', () => {
 
 test('domain weights must sum to 100', () => {
   expectError({ ...valid(), domains: [{ ...DOMAINS[0], weight: 90 }] }, '权重之和');
+});
+
+test('--domain style strict mode checks counts only for listed domains', () => {
+  const data = valid();
+  const two = {
+    domains: [DOMAINS[0], { ...DOMAINS[0], id: 'prompt', weight: 0, chapters: ['2_5_x'] }],
+    questions: { rag: data.questions.rag.slice(0, 1), prompt: [] },
+    cards: { rag: data.cards.rag, prompt: [] },
+  };
+  const errors = validateData(two, { strictDomains: ['prompt'] });
+  assert.ok(errors.some((e) => e.includes('questions/prompt.json: single 题数 0')), errors.join('\n'));
+  assert.ok(!errors.some((e) => e.includes('questions/rag.json: single')), errors.join('\n'));
+});
+
+test('duplicate stems across the bank are rejected (whitespace-insensitive)', () => {
+  const data = valid();
+  const dup = { ...data, questions: { rag: data.questions.rag.concat([q(7, { stem: ' 题 干 1 ' })]) } };
+  expectError(dup, '题干与 rag-001 重复');
+});
+
+test('single-choice answers must not pile up on one letter', () => {
+  const singles = Array.from({ length: 10 }, (_, i) => q(i + 1, { stem: `题干${i}`, answer: [i < 5 ? 0 : i % 4] }));
+  const multis = [q(11, { stem: 'm1', type: 'multi', answer: [0, 1] }), q(12, { stem: 'm2', type: 'multi', answer: [1, 2] })];
+  const data = { ...valid(), questions: { rag: singles.concat(multis) } };
+  expectError(data, '单选题正确答案 A 占', { allowPartial: true });
+});
+
+test('multi-choice answers must vary in position and count', () => {
+  const multis = Array.from({ length: 6 }, (_, i) => q(i + 1, { stem: `多${i}`, type: 'multi', answer: [0, 1 + (i % 3)] }));
+  const data = { ...valid(), questions: { rag: multis } };
+  const errors = validateData(data, { allowPartial: true });
+  assert.ok(errors.some((e) => e.includes('多选题选项 A 在 100% 的题目中为正确答案')), errors.join('\n'));
+  assert.ok(errors.some((e) => e.includes('多选题正确答案个数全部为 2 个')), errors.join('\n'));
+});
+
+test('balance checks stay quiet below their sample-size thresholds', () => {
+  assert.deepEqual(validateData(valid(), { allowPartial: true }), []);
 });

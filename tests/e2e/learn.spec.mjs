@@ -6,7 +6,7 @@ import {
 test('cards: swipe and buttons move between cards; marking advances', async ({ page }, testInfo) => {
   await page.goto('./#/learn');
   await page.locator('.domain-link[href="#/learn/rag"]').click();
-  await expect(page.locator('.crumb')).toContainText('1/3');
+  await expect(page.locator('.crumb')).toHaveText(/ · 1\/\d+$/);
 
   const box = await page.locator('.flashcard').boundingBox();
   const y = box.y + box.height / 2;
@@ -14,12 +14,12 @@ test('cards: swipe and buttons move between cards; marking advances', async ({ p
   await page.mouse.down();
   await page.mouse.move(box.x + box.width * 0.15, y, { steps: 6 });
   await page.mouse.up();
-  await expect(page.locator('.crumb')).toContainText('2/3');
+  await expect(page.locator('.crumb')).toHaveText(/ · 2\/\d+$/);
 
   await page.getByRole('button', { name: '上一张' }).click();
-  await expect(page.locator('.crumb')).toContainText('1/3');
+  await expect(page.locator('.crumb')).toHaveText(/ · 1\/\d+$/);
   await page.getByRole('button', { name: '已掌握' }).click();
-  await expect(page.locator('.crumb')).toContainText('2/3');
+  await expect(page.locator('.crumb')).toHaveText(/ · 2\/\d+$/);
   await page.getByRole('button', { name: '上一张' }).click();
   await expect(page.locator('.flashcard-state')).toHaveText('已掌握');
   await expectNoHorizontalOverflow(page);
@@ -51,14 +51,15 @@ test('practice: a wrong answer shows the correct one and the explanation', async
 });
 
 test('practice: multi-choice toggles options on and off', async ({ page }) => {
-  const q = (await loadQuestions(page, 'rag')).filter((x) => x.type === 'multi')[0];
+  const bank = await loadQuestions(page, 'rag');
   await page.goto('./#/practice/rag');
-  for (let i = 0; i < 5 && (await currentQid(page)) !== q.id; i += 1) {
+  const typeChip = page.locator('.q-meta .chip').first();
+  for (let i = 0; i < bank.length && (await typeChip.textContent()) !== '多选'; i += 1) {
     await choose(page, [0]);
     await page.getByRole('button', { name: '提交答案' }).click();
     await page.getByRole('button', { name: '下一题' }).click();
   }
-  await expect(page.locator('.question')).toHaveAttribute('data-qid', q.id);
+  await expect(typeChip).toHaveText('多选');
   await choose(page, [0, 1]);
   await expect(page.locator('.option[aria-checked="true"]')).toHaveCount(2);
   await choose(page, [1]);

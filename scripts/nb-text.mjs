@@ -1,5 +1,10 @@
 import fs from 'node:fs/promises';
 
+process.stdout.on('error', (err) => {
+  if (err.code === 'EPIPE') process.exit(0);
+  throw err;
+});
+
 const file = process.argv[2];
 if (!file) {
   console.error('用法：node scripts/nb-text.mjs <notebook.ipynb>');
