@@ -102,5 +102,56 @@
       "核心技术：RAG、Prompt、Tool、Memory"
     ],
     "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c09",
+    "domain": "app-dev",
+    "title": "工具调用方案的演进",
+    "points": [
+      "硬编码：只适合唯一工具且每次都要调用",
+      "关键词 if/elif 路由脆弱、难以维护",
+      "意图识别：提示词列出工具，由大模型选择",
+      "决策夹杂自然语言难解析，需结构化 JSON",
+      "Function Calling：服务商把流程内置进 API"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c10",
+    "domain": "app-dev",
+    "title": "引导-校验-重试闭环",
+    "points": [
+      "定义结构：JSON Schema 或 Pydantic 模型",
+      "提示词附完整 Schema 和一到两个合规范例",
+      "用同一个 Schema 严格校验模型输出",
+      "失败时回传错误信息和错误输出，要求重生成"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c11",
+    "domain": "app-dev",
+    "title": "ReAct 与 AgentScope",
+    "points": [
+      "ReAct：思考—行动—观察循环",
+      "工具结果经第二次 API 调用传回模型",
+      "Toolkit 注册带文档字符串的函数，自动生成 Schema",
+      "ReActAgent 自动解析 tool_calls、执行并包装结果",
+      "支持多模型、异步调用和多轮工具调用"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c12",
+    "domain": "app-dev",
+    "title": "MCP 落地：Server 与 Client",
+    "points": [
+      "MCP 由 Anthropic 提出，类比 USB 接口",
+      "FastMCP 用 @mcp.tool() 把函数注册为工具",
+      "Client 启动时自动拉取工具清单",
+      "StdIOStatefulClient 需显式 connect/close",
+      "线上改用 HttpStatelessClient（HTTP）"
+    ],
+    "source": "3_1_Agent基础与工具调用"
   }
 ]

@@ -470,5 +470,309 @@
     "answer": [0, 2],
     "explanation": "课程第 3 节指出：根本原因在于大模型的知识来源于训练数据，通常是公开的互联网信息，不包含公司内部文档（A）；最直观的思路是在运行时把内部知识临时告诉它，课程 3.1 节把项目管理工具说明加入 System Prompt 后，模型就能准确回答（C）。B 错：更大的模型权重里同样没有公司内部资料，就像硬盘里没有预装这些内容。D 错：temperature 只控制输出随机性，无法补充模型不知道的知识。",
     "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-032",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "答疑机器人已能回答员工手册里的问题，但无法搜索互联网上的最新资料，也无法查询数据库。课程认为这属于什么问题？",
+    "options": [
+      "RAG 的检索召回率不足，需要优化切片和 embedding 模型",
+      "上下文窗口太小，装不下互联网上的资料",
+      "大模型本身的局限：只能基于已有文本进行对话，无法主动与外部环境交互",
+      "temperature 设置过低，模型不敢生成知识库之外的内容"
+    ],
+    "answer": [2],
+    "explanation": "课程 3.1 前言明确：这不是 RAG 的问题，而是大模型本身的局限——它只能基于已有文本进行对话，无法主动与外部环境交互；人们希望利用它的理解和推理能力去“指挥”外部工具，这正是工具调用要解决的问题，故 C 正确。A 错：课程特别指出这不是 RAG 的问题。B 错：问题在于模型无法主动获取外部信息，而不是窗口容量。D 错：temperature 只影响输出随机性，无法让模型访问外部数据。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-033",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程目标把 Agent 为什么能“动手”归结为四件事。它们的正确顺序是？",
+    "options": [
+      "工具定义 → 工具选择 → 输出格式约束 → 工具执行",
+      "工具选择 → 工具定义 → 工具执行 → 输出格式约束",
+      "工具定义 → 输出格式约束 → 工具执行 → 工具选择",
+      "输出格式约束 → 工具定义 → 工具选择 → 工具执行"
+    ],
+    "answer": [0],
+    "explanation": "课程目标写明：Agent 能“动手”依靠工具定义→工具选择→输出格式约束→工具执行四件事，故 A 正确。这也对应课程的推进顺序：先定义工具，再让大模型做意图识别（工具选择），然后用结构化输出约束决策格式，最后由程序执行工具。B、C、D 打乱了顺序：没有工具定义就无从选择，没有格式约束程序就难以解析决策并执行。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-034",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "在提示词中列出可用工具，让大模型选择工具并给出入参（意图识别）后，程序准备用代码解析模型的决策。课程指出此时会遇到什么问题？",
+    "options": [
+      "模型无法理解工具列表，只能按关键词匹配工具",
+      "模型会在服务端直接执行所选工具，程序拿不到决策结果",
+      "模型只能返回工具名，无法给出调用参数",
+      "模型返回的结果夹杂自然语言且没有固定格式，程序难以稳定解析"
+    ],
+    "answer": [3],
+    "explanation": "课程 3.1 节指出：大模型返回的决策夹杂着自然语言且没有固定格式（如“好的，工具是 search_arxiv_paper”“search_arxiv_paper(query=...)”），因为模型倾向于生成多样化文本，而程序需要易于解析的确定格式，于是引出结构化 JSON 输出，故 D 正确。A 错：关键词匹配是前面被淘汰的路由方案，大模型能理解工具列表。B 错：模型只做决策，不执行工具。C 错：课程提示词明确要求模型给出入参，示例输出中也包含参数。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-035",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程用 Pydantic 实现结构化输出时，定义了 ToolCall = Union[WebSearchCall, SearchArxivCall]。这样定义的含义是？",
+    "options": [
+      "模型需要同时调用这两个工具，并分别返回两组参数",
+      "模型最终的决策是这两种工具调用中的一种，校验时按对应的工具名和参数结构验证",
+      "两个工具共用同一个参数模型，因此 tool_name 字段可以任意填写",
+      "Union 会把两个工具合并成一个新工具，交给模型执行"
+    ],
+    "answer": [1],
+    "explanation": "课程代码注释写明：使用 Union 类型，表示模型最终的决策是这两种调用中的一种；每种调用模型用 Literal 把 tool_name 与对应的参数模型绑定，再用 TypeAdapter 校验模型输出，故 B 正确。A 错：Union 表示“其一”，不是“同时”。C 错：tool_name 由 Literal 限定为固定工具名，写错会校验失败。D 错：Union 只是类型声明，用于校验，不会合并或执行工具。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-036",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "在“引导-校验-重试”闭环的课程代码中，模型输出无法通过 JSON 解析或 Pydantic 校验时，程序会怎么处理？",
+    "options": [
+      "第一次校验失败就直接返回 None，不再调用模型",
+      "调高 temperature，用原始提示词重新请求一次",
+      "把上次的错误输出（assistant 消息）和错误信息（user 消息）追加到对话历史，要求模型严格按 JSON 重新输出，最多重试 max_retries 次",
+      "用正则表达式从自然语言中提取工具名，跳过校验直接执行"
+    ],
+    "answer": [2],
+    "explanation": "课程 3.2 节：校验失败时，程序捕获错误信息，把它连同模型上一次的错误输出作为修正线索再发给模型，要求重新生成；代码中把 raw_output 作为 assistant 消息、“格式错误……请严格按照JSON格式重新输出”作为 user 消息追加，循环最多 max_retries 次，故 C 正确。A 错：只有全部重试都失败后才返回 None。B 错：课程代码调用时 temperature=0，也没有通过调高温度来重试。D 错：跳过校验违背了“用相同 Schema 严格验证”的原则。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-037",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程如何描述 Function Calling 与前面手动实现的“意图识别 → 结构化输出 → 验证与重试”流程之间的关系？",
+    "options": [
+      "Function Calling 是 MCP 协议的一部分，只有接入 MCP Server 才能使用",
+      "为简化开发，许多大模型服务商（如阿里云、OpenAI）已把这一能力内置到 API 中",
+      "Function Calling 让模型在服务端直接执行函数，因此不再需要结构化输出",
+      "Function Calling 只是给提示词加了一段固定模板，参数格式仍需开发者自行约束"
+    ],
+    "answer": [1],
+    "explanation": "课程 4.1 节：手动实现的“意图识别→结构化输出→验证与重试”完整实现较为复杂，为简化开发，许多大模型服务商（阿里云、OpenAI、Anthropic、Google 等）已在 API 中内置这一能力，即函数调用（Function Calling）或工具调用（Tool Calling），故 B 正确。A 错：Function Calling 早于 MCP 介绍，MCP 解决的是工具的发现与管理问题。C 错：函数仍由开发者代码执行，模型返回的是符合 Schema 的参数 JSON。D 错：课程说明模型会返回包含函数名和符合 Schema 参数的 tool_calls，格式约束由 API 能力提供。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-038",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程指出，Function Calling 的工具结果需要通过第二次 API 调用传回给模型。由此形成的 ReAct 模式指的是？",
+    "options": [
+      "先检索知识库、再执行工具的“检索—行动”两步流程",
+      "由开发者预先写死调用哪些工具及调用顺序，模型只负责生成最终回复",
+      "模型在一次调用中同时完成工具执行和回复生成",
+      "模型观察工具结果、思考任务是否完成，再决定给出最终答案还是继续调用工具的“思考—行动—观察”循环"
+    ],
+    "answer": [3],
+    "explanation": "课程 4.2 节：工具结果通过第二次 API 调用传回，意味着大模型会观察工具调用的结果，思考任务是否完成，然后决定给出最终答案还是继续行动（调用更多工具），这种“思考—行动—观察”循环就是 ReAct 模式，按此模式工作的 Agent 称为 ReAct Agent，故 D 正确。A 是对名称的臆测，与课程定义不符。B 描述的是硬编码方案。C 错：工具由开发者执行，结果要通过第二次调用传回模型。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-039",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "在 AgentScope 中，要让 ReActAgent 使用一个自定义 Python 函数作为工具，课程的做法是？",
+    "options": [
+      "编写带文档字符串的函数（返回 ToolResponse），用 Toolkit 的 register_tool_function 注册，再把 toolkit 传给 ReActAgent",
+      "手写该函数的完整 JSON Schema，放进 ReActAgent 的 sys_prompt 中",
+      "把函数部署成 MCP Server，因为 AgentScope 只能通过 MCP 使用工具",
+      "在 DashScopeChatFormatter 中注册函数，由 formatter 负责执行工具"
+    ],
+    "answer": [0],
+    "explanation": "课程示例：定义带文档字符串的 search_arxiv_paper 函数并返回 ToolResponse，创建 Toolkit 后调用 register_tool_function 注册，再通过 toolkit 参数配给 ReActAgent；框架会自动解析生成 JSON Schema，故 A 正确。B 错：课程强调只需写普通 Python 函数，无需手写 Schema。C 错：MCP 只是 AgentScope 接入工具的方式之一，普通函数可直接注册。D 错：formatter 负责适配模型 API 的消息格式，不负责注册或执行工具。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-040",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "MCP 的核心思想是“谁提供工具，谁定义工具”。它把工具定义的职责做了怎样的转移？",
+    "options": [
+      "从工具服务（提供方）转移到 Agent（消费方），由 Agent 统一编写 Schema",
+      "从 Agent（消费方）转移到工具服务（提供方），由 MCP Server 声明工具的名称、描述和参数",
+      "从开发者转移到大模型，由模型根据工具名自动推断参数结构",
+      "从工具服务转移到大模型服务商，由服务商在 API 中统一内置所有工具"
+    ],
+    "answer": [1],
+    "explanation": "课程 5.2 节：Anthropic 提出的 MCP（Model Context Protocol）核心思想是“谁提供工具，谁定义工具”，把工具定义的职责从 Agent（消费方）转移到工具服务（提供方）；MCP Server 负责声明工具的名称、描述和参数，MCP Client 负责连接 Server 并拉取工具定义，故 B 正确。A 方向说反了，正是 Function Calling 模式下 Agent 侧硬编码 Schema 的做法。C、D 均不符合课程描述。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-041",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程用 USB 协议类比 MCP。按这个类比，Function Calling 和 MCP 分别相当于什么？",
+    "options": [
+      "Function Calling 像外部 USB 接口，MCP 像主板上的内部总线",
+      "两者都相当于 USB 接口，只是传输速度不同",
+      "Function Calling 像主板上的内部总线，定义 CPU 如何与特定组件通信；MCP 像外部 USB 接口，是让第三方设备轻松接入的开放标准",
+      "Function Calling 像外设的驱动程序，MCP 像计算机的操作系统"
+    ],
+    "answer": [2],
+    "explanation": "课程“关联思考：USB 协议”：Function Calling 就像主板上的内部总线，定义 CPU 如何与某个特定组件通信；MCP 则像外部的 USB 接口，定义了一个开放标准，让无数第三方设备能轻松接入生态、即插即用，故 C 正确。A 把两者对调了。B、D 不是课程的类比，也没有体现“内部通信机制”与“开放接入标准”的区别。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-042",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程用 MCP 官方 Python SDK 的 FastMCP 把 web_search 改造成本地 MCP Server。把普通函数注册为 MCP 工具的方式是？",
+    "options": [
+      "调用 toolkit.register_tool_function(web_search)",
+      "让函数返回 ToolResponse 对象",
+      "在 tools 参数中为函数编写 JSON Schema",
+      "给函数加上 @mcp.tool() 装饰器"
+    ],
+    "answer": [3],
+    "explanation": "课程 5.3.1 节：创建 mcp = FastMCP(\"MockWebSearch\") 实例后，用 @mcp.tool() 装饰器把普通函数注册为 MCP 工具，再通过 mcp.run(transport=\"stdio\") 以 stdio 方式启动，故 D 正确。A 和 B 是 AgentScope 注册和返回本地工具的写法（Toolkit、ToolResponse），不是 MCP Server 端的注册方式。C 是 OpenAI SDK Function Calling 在 Agent 侧定义工具的方式，正是 MCP 要避免的硬编码。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-043",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "课程代码中，使用 AgentScope 的 StdIOStatefulClient 连接本地 MCP Server 时，需要额外注意什么？",
+    "options": [
+      "必须提供服务 url 和 Authorization 请求头",
+      "注册到 Toolkit 前要显式 await connect() 建立连接，用完后还要显式 close() 关闭",
+      "需要先手动把 Server 的工具 Schema 复制到 Toolkit 中",
+      "只能连接百炼托管的 MCP 服务，不能连接本地脚本"
+    ],
+    "answer": [1],
+    "explanation": "课程代码注释写明：stdio 有状态客户端需要显式连接（await web_search_client.connect()），用完后需要显式关闭（await web_search_client.close()）；它通过 command=sys.executable 与 args 以子进程方式启动本地 MCP Server 脚本，故 B 正确。A 是线上 HttpStatelessClient 的配置。C 错：register_mcp_client 会让 Client 自动向 Server 拉取工具清单。D 错：StdIOStatefulClient 正是用于连接本地脚本启动的 Server。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-044",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "本地用 stdio 验证好 MCP Client 后，要接入百炼托管的线上 WebSearch MCP 服务，课程中 Client 代码的关键变化是？",
+    "options": [
+      "改用 HttpStatelessClient，设置 transport=\"streamable_http\"，并提供服务 url 和携带 API Key 的鉴权 headers",
+      "继续使用 StdIOStatefulClient，只把 args 改成线上服务的地址",
+      "放弃 Toolkit，直接在 tools 参数中写入 WebSearch 的 JSON Schema",
+      "重写 ReActAgent 的推理循环，改为手动解析 tool_calls"
+    ],
+    "answer": [0],
+    "explanation": "课程 5.3.2 节：只需稍微修改 Client 的传输方式——改用 HttpStatelessClient，transport=\"streamable_http\"，url 指向百炼的 WebSearch MCP 服务，headers 中携带 \"Bearer \" 加 DASHSCOPE_API_KEY 进行鉴权；Toolkit 注册和 ReActAgent 的创建方式不变，故 A 正确。B 错：stdio 用于在本机启动 Server 进程，不能连接远端 URL。C 退回了 Agent 侧硬编码 Schema 的做法。D 错：框架的 ReAct 循环无需改动。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-045",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "关于课程中早期工具调用方案（硬编码、关键词路由）的局限，下列说法正确的有？",
+    "options": [
+      "硬编码方案无法把工具执行结果交给大模型进行总结",
+      "硬编码方案每次收到请求都执行 web_search，只适用于“有且仅有一个工具，且每次对话都必须调用它”的场景",
+      "基于 if/elif 和关键词匹配的路由器脆弱且难以维护，需要不断添加新的判断分支",
+      "用户说“我想看看那篇 Attention is All You Need 讲了什么”时，因不含预设关键词，关键词路由器无法识别出应调用的工具",
+      "关键词路由器的主要问题是调用大模型的次数太多、成本过高"
+    ],
+    "answer": [1, 2, 3],
+    "explanation": "课程 1.2 节：硬编码方案只适用于“有且仅有一个工具，且每次对话都必须调用它”的场景（B）；2.1 节：if/elif 关键词路由器脆弱且难以维护，需要不断添加 elif 判断（C），像“我想看看那篇 Attention is All You Need 讲了什么”这样不含预设关键词的请求就无法识别（D）。A 错：硬编码方案正是把用户请求和工具结果拼接后发给大模型生成总结性回复。E 错：关键词路由器完全由代码规则判断，不调用大模型。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-046",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "按课程“引导-校验-重试”闭环中“定义结构”和“构建提示词”两步的要求，下列做法正确的有？",
+    "options": [
+      "用 JSON Schema 或 Pydantic 等库精确定义输出必须包含哪些字段、每个字段的类型",
+      "Schema 只用于写进提示词，校验模型输出时改用更宽松的规则以减少重试",
+      "在提示词中附上完整的 Schema 定义，并提供一到两个完全符合该 Schema 的输出范例",
+      "范例越多越好，最好把所有可能的用户请求都列为示例",
+      "在提示词中要求模型严格按 JSON 结构输出，不要包含任何额外的自然语言解释"
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "课程 3.2 节：定义结构——用 JSON Schema 或 Pydantic 精确定义字段和类型，是整个流程的基石（A）；构建提示词——附上完整 Schema，并提供一到两个完全符合 Schema 的范例，“指令 + 范例”让模型更透彻理解要求（C）；课程提示词中写明“必须严格按照以下 JSON 结构输出，不要包含任何额外的自然语言解释”（E）。B 错：课程要求用相同的 Schema 严格验证。D 错：课程给出的是一到两个范例，并非越多越好。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-047",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "关于 OpenAI SDK Function Calling 中的“工具定义”和“调用决策”，下列说法正确的有？",
+    "options": [
+      "只要传入了 tools 参数，模型每次都一定会调用工具",
+      "在 tools 参数中用 JSON Schema 描述每个工具的 name、description 和 parameters",
+      "模型决定调用工具时，响应中的 tool_calls 字段包含要调用的函数名和符合 Schema 的参数 JSON",
+      "tools 参数中可以直接传入 Python 函数对象，由 SDK 自动生成 Schema",
+      "课程代码用 json.loads 解析 tool_call.function.arguments，得到函数参数"
+    ],
+    "answer": [1, 2, 4],
+    "explanation": "课程 4.1 节：工具定义是在 tools 参数中用 JSON Schema 描述每个工具的 name、description 和 parameters（B）；调用决策是模型根据用户输入和工具定义自动决策是否调用，需要时在 tool_calls 中返回函数名和符合 Schema 的参数 JSON（C）；示例代码用 json.loads(tool_call.function.arguments) 取得参数（E）。A 错：模型会自动决策“是否需要”调用，所以代码要先检查 response_message.tool_calls 是否存在。D 错：OpenAI SDK 示例中是手写 JSON Schema，由框架根据函数文档字符串自动生成 Schema 的是 AgentScope。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-048",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "Function Calling 流程中，模型返回了 tool_calls，开发者执行完函数后，课程代码在发起第二次 API 调用前对 messages 做了哪些处理？",
+    "options": [
+      "把模型第一次返回的消息（含 tool_calls）追加到 messages 中",
+      "追加一条 role 为 tool 的消息，content 为函数的执行结果",
+      "在 tool 消息中带上 tool_call_id，与对应的工具调用关联",
+      "删除最初的 user 消息，只保留工具结果，以节省上下文"
+    ],
+    "answer": [0, 1, 2],
+    "explanation": "课程示例代码先 messages.append(response_message)，把模型的决策（含 tool_calls）放回对话（A）；再追加 {\"tool_call_id\": tool_call.id, \"role\": \"tool\", \"name\": function_name, \"content\": tool_result}，即 role 为 tool、content 为执行结果（B），并用 tool_call_id 与对应调用关联（C）；然后用这份 messages 发起第二次调用，由模型生成最终回复。D 错：代码保留了原始 user 消息，模型需要结合用户请求和工具结果才能作答。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-049",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "课程列出了 AgentScope 的核心优势。下列属于课程所列优势的有？",
+    "options": [
+      "只针对 DashScope（通义千问）API 做了深度优化，不兼容其他模型 API",
+      "开箱即用的 ReAct Agent，内置完整的“思考-行动-观察”循环逻辑",
+      "通过 Toolkit 类统一管理工具函数，自动解析 JSON Schema",
+      "所有核心功能都支持异步调用，提升性能",
+      "支持多轮工具调用：一次调用不够时，Agent 会自动继续思考并调用更多工具，直到完成任务"
+    ],
+    "answer": [1, 2, 3, 4],
+    "explanation": "课程列出的 AgentScope 优势包括：开箱即用的 ReAct Agent（B）、通过 Toolkit 灵活管理工具并自动解析 JSON Schema（C）、异步支持（D），与手动实现相比还支持多轮工具调用（E）；此外还有多模型支持和自动状态管理。A 错：课程明确 AgentScope 兼容 OpenAI、DashScope（通义千问）、Anthropic 等主流 LLM API。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-050",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "课程在引出 MCP 之前，分析了 Function Calling 模式下工具复用的挑战。下列属于课程所述挑战的有？",
+    "options": [
+      "Function Calling 无法返回参数，模型只能给出要调用的工具名",
+      "在 Agent 侧硬编码了 web_search 特定版本的 Schema，维护成本很高",
+      "工具服务无法主动“接入”AI 生态，只能被动等待每个 Agent 开发者自行发现",
+      "工具提供方无法保证各 Agent 开发者对其 Schema 的描述质量"
+    ],
+    "answer": [1, 2, 3],
+    "explanation": "课程 5.1 节从两个角度分析：Agent 侧硬编码了 web_search 特定版本的 Schema，维护成本很高（B）；从工具提供方看，web_search 服务无法主动“接入”AI 生态，只能被动等待每个 Agent 开发者自行发现（C），也无法保证开发者对其 Schema 的描述质量（D）。A 错：Function Calling 的 tool_calls 同时包含函数名和符合 Schema 的参数 JSON。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-051",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "关于 MCP 运行时 Client 与 Server 的协作，下列说法正确的有？",
+    "options": [
+      "Agent 启动时，MCP Client 自动连接 MCP Server，拉取工具清单（名称、描述、参数）",
+      "拿到工具清单后，后续的选择工具、生成参数、执行调用、返回结果等流程与 Function Calling 类似",
+      "引入 MCP 后，改由 MCP Server 替代大模型决定本次应调用哪个工具",
+      "Agent 只需集成 MCP Client，就能动态发现 Server 声明的最新能力定义，无需在代码中硬编码工具 Schema"
+    ],
+    "answer": [0, 1, 3],
+    "explanation": "课程 5.3.1 节：Agent 启动时，MCP Client 自动连接 MCP Server，拉取工具清单（名称、描述、参数）（A）；拿到清单后，后续流程与 Function Calling 类似——选择工具、生成参数、执行调用、返回结果（B）。5.2 节：Agent 只需集成 MCP Client，就能动态发现并拉取 Server 声明的最新能力定义，无需硬编码工具 Schema（D）。C 错：MCP 解耦的是工具的定义与使用，选择调用哪个工具仍由大模型决策。",
+    "source": "3_1_Agent基础与工具调用"
   }
 ]
