@@ -1,0 +1,20 @@
+[
+  { "id": "app-dev", "name": "大模型应用开发", "short": "应用开发", "weight": 17,
+    "target": { "single": 34, "multi": 17 },
+    "chapters": ["2_1_用大模型构建新人答疑机器人", "2_2_扩展答疑机器人的知识范围", "3_0_从回答问题到解决问题", "3_1_Agent基础与工具调用"] },
+  { "id": "prompt", "name": "大模型提示词工程", "short": "提示词", "weight": 15,
+    "target": { "single": 30, "multi": 15 },
+    "chapters": ["2_3_优化提示词改善答疑机器人回答质量"] },
+  { "id": "rag", "name": "大模型检索增强", "short": "RAG", "weight": 20,
+    "target": { "single": 40, "multi": 20 },
+    "chapters": ["2_2_扩展答疑机器人的知识范围", "2_4_自动化评测答疑机器人的表现", "2_5_优化RAG应用提升问答准确度"] },
+  { "id": "finetune", "name": "大模型微调", "short": "微调", "weight": 16,
+    "target": { "single": 32, "multi": 16 },
+    "chapters": ["4_1_用蒸馏让小模型掌握专业能力", "4_2_部署模型"] },
+  { "id": "agent-mm", "name": "多Agent及多模态应用", "short": "多Agent", "weight": 16,
+    "target": { "single": 32, "multi": 16 },
+    "chapters": ["3_2_让Agent学会规划与执行", "3_3_用多Agent实现团队协作", "3_4_用Memory让Agent积累经验", "3_5_用Skill将能力固化为可复用流程", "3_6_用评测驱动Agent开发", "3_7_Qwen_Code实践", "3_8_Harness_Loop打造可上线业务能力"] },
+  { "id": "production", "name": "生产环境应用实践", "short": "生产实践", "weight": 16,
+    "target": { "single": 32, "multi": 16 },
+    "chapters": ["4_0_走向生产环境", "4_3_大模型应用生产实践", "4_4_大模型应用安全合规", "5_1_培养品味用AI为业务提效"] }
+]

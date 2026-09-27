@@ -1,0 +1,79 @@
+[
+  {
+    "id": "rag-001",
+    "domain": "rag",
+    "type": "single",
+    "stem": "Ragas 评测显示某 RAG 应用的 Context Recall 和 Context Precision 都较高，但 Answer Correctness 较低。按课程建议，应优先从哪里优化？",
+    "options": [
+      "补充知识库内容，确保每条测试样本都有对应的知识支撑",
+      "优化提示词、调整 temperature 等生成参数，或更换性能更强的大模型",
+      "在检索阶段加入 rerank，提升相关文本段的排名",
+      "更换 embedding 模型，提升对深层语义的召回能力"
+    ],
+    "answer": [1],
+    "explanation": "课程指出 Answer Correctness 是 RAG 系统的整体综合指标；如果它较低而 Context Recall、Context Precision 两项较高，说明检索阶段表现良好、生成阶段出了问题，应尝试优化 prompt、调整大模型生成超参数（如 temperature）、更换更强的大模型甚至微调，故 B 正确。A、D 是课程针对 Context Recall 低时的优化措施；C 是针对 Context Precision 低（相关文本段排名靠后）的措施。这三项都作用于检索阶段，而此时检索指标并不差。",
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-002",
+    "domain": "rag",
+    "type": "single",
+    "stem": "关于 HyDE（Hypothetical Document Embeddings）检索增强方法，下列描述正确的是？",
+    "options": [
+      "把复杂问题分解成多个子问题，按顺序多次检索后整合出完整答案",
+      "先召回较多的文档切片，再用排序模型重排并筛选出最相关的几条",
+      "从用户问题中提取标签，先按标签过滤，再做向量相似度检索",
+      "先让大模型针对问题编写一份“假想答案文档”，用它检索真实文档，再基于真实文档生成答案"
+    ],
+    "answer": [3],
+    "explanation": "课程描述 HyDE 的工作方式：先让大模型基于问题编一个“假想的答案文档”，再用这个假想文档来检索真实文档，最后用检索到的真实文档生成实际答案，故 D 正确。A 是多步骤查询（StepDecomposeQueryTransform + MultiStepQueryEngine）；B 是检索后的重排序（ReRank）；C 是“提取标签增强检索”（标签过滤 + 向量检索）。它们都是课程介绍的其他检索优化手段，而不是 HyDE。",
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-003",
+    "domain": "rag",
+    "type": "single",
+    "stem": "公司新成立了“数据分析部”，但知识库中还没有任何相关文档。用户询问该部门职责时，RAG 应用给出了幻觉回答。按课程“意图空间与知识空间”的分析，应优先怎么做？",
+    "options": [
+      "优化召回算法，避免召回不相关的知识点",
+      "升级到更新版本的 embedding 模型",
+      "主动补充缺漏的知识，持续跟进用户意图空间的变化",
+      "增加每次召回的文档切片数量，扩大检索范围"
+    ],
+    "answer": [2],
+    "explanation": "这属于“未被覆盖的意图空间”：缺乏知识库内容支撑，课程明确此时不论如何改进工程算法，RAG 应用都无法准确回答，需要主动补充缺漏的知识，不断跟进用户意图空间的变化，故 C 正确。A 针对的是“未被利用的知识空间”（召回无关内容干扰回答）；B、D 都是工程或算法层面的优化，知识库里根本没有答案时无济于事。",
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-004",
+    "domain": "rag",
+    "type": "multi",
+    "stem": "以下哪些属于课程中“检索前”阶段的改进策略？",
+    "options": [
+      "问题扩写：为问题补充更多信息，让检索结果更全面",
+      "重排序（ReRank）：对召回的切片重新排序并过滤",
+      "基于用户画像扩展上下文：结合提问者岗位等信息改写问题",
+      "滑动窗口检索：命中某切片后补充其前后相邻的切片",
+      "反问用户：当问题有歧义时先询问用户的真实意图"
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "课程按切入时机把检索召回阶段的解法分为两类：检索前需要还原用户的真实意图，策略包括问题改写、问题扩写、基于用户画像扩展上下文、提取标签、反问用户、思考并规划多次检索等，故 A、C、E 正确。B、D 属于检索后策略：重排序用于剔除实际相关性不够高的切片，滑动窗口检索用于补充相邻上下文、避免因过度切分丢失语义连接。",
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-005",
+    "domain": "rag",
+    "type": "multi",
+    "stem": "关于 Ragas 的评测指标，下列说法正确的有？",
+    "options": [
+      "计算 Answer Correctness 只需要 question 和 answer，不需要 ground_truth",
+      "Context Recall 衡量 ground_truth 中有多少比例的观点能在检索到的 contexts 中找到依据",
+      "Context Precision 不仅看相关 context 的占比，还考虑相关 context 是否排名靠前",
+      "Context Recall 得分低时，首选的优化手段是在检索后加入 rerank",
+      "Faithfulness 评估生成的答案与检索到的参考资料之间的事实一致性"
+    ],
+    "answer": [1, 2, 4],
+    "explanation": "B、C、E 与课程定义一致。A 错：Answer Correctness 由 answer 与 ground_truth 的语义相似度和事实准确度加权得出（0.25×语义相似度 + 0.75×事实准确度），必须准备 ground_truth。D 错：rerank 是课程针对 Context Precision 低（相关文本段排名靠后）的措施；Context Recall 低时应先检查知识库是否完备，再考虑更换 embedding 模型或做 query 改写。",
+    "source": "2_4_自动化评测答疑机器人的表现"
+  }
+]

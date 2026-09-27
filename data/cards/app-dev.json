@@ -1,0 +1,41 @@
+[
+  {
+    "id": "app-dev-c01",
+    "domain": "app-dev",
+    "title": "大模型文本生成五阶段",
+    "points": [
+      "分词：文本编码为 token，token 常是子词或字符片段",
+      "向量化：用 token ID 查 Embedding 矩阵，再加位置编码",
+      "推理：多层解码器得到隐藏状态，映射为 logits",
+      "解码：softmax 得到概率，按解码策略选下一个 token",
+      "自回归：遇 EOS、长度上限或停用词才停止"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c02",
+    "domain": "app-dev",
+    "title": "temperature、top_p 与随机性",
+    "points": [
+      "temperature 越低，概率分布越尖锐，输出越确定",
+      "top_p 按累计概率截取候选集，越小输出越稳定",
+      "明确答案（如代码）调低，创意文案调高",
+      "建议不要同时调整 temperature 和 top_p",
+      "即使 temperature=0 且 seed 相同，也不保证完全一致"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c03",
+    "domain": "app-dev",
+    "title": "Function Calling 与 MCP",
+    "points": [
+      "FC 在 tools 参数中用 JSON Schema 描述工具",
+      "模型只返回 tool_calls，函数由开发者代码执行",
+      "工具结果以 tool 消息回传，形成 ReAct 循环",
+      "MCP：谁提供工具谁定义，Client 动态拉取工具",
+      "stdio 适合本地调试，Streamable HTTP 适合远端共享"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  }
+]

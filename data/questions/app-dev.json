@@ -1,0 +1,79 @@
+[
+  {
+    "id": "app-dev-001",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "关于课程介绍的大模型文本生成流程（文本分词→Token 向量化→大模型推理→解码与自回归→输出文本），下列说法正确的是？",
+    "options": [
+      "Token 一定对应一个完整的词语，因此流式输出时不会出现一个词被拆开输出的情况",
+      "Transformer 能直接感知 token 的先后顺序，因此不需要额外添加位置信息",
+      "Token ID 的数值大小本身没有语义，需要用 ID 在 Embedding 矩阵中查表转换为向量",
+      "流式输出让模型边想边答，因此最终答案的质量通常低于非流式输出"
+    ],
+    "answer": [2],
+    "explanation": "课程指出 token ID 只是编号，ID 500 并不比 ID 50 在语义上更“重要”；要用 token ID 在 Embedding 矩阵中查表取出对应向量，模型才能理解语义，故 C 正确。A 错：token 通常是子词或字符片段，流式显示时一个词被分成几部分输出是正常现象。B 错：基础 Transformer 本身不直接处理时序信息，需要额外添加位置编码（Positional Encoding）。D 错：流式输出只改变内容的展示方式，思考过程和最终答案质量都不变。",
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-002",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "使用 OpenAI SDK 的 Function Calling 时，模型在响应中返回了 tool_calls 字段。接下来应该发生什么？",
+    "options": [
+      "由开发者的代码解析函数名和参数、实际执行函数，把结果包装成 role 为 tool 的消息，再次调用 API 让模型生成最终回复",
+      "无需处理：模型已在服务端执行完函数，tool_calls 中直接包含了函数的执行结果",
+      "由开发者把 tool_calls 的内容作为最终答案直接返回给用户，本轮对话结束",
+      "由开发者把 tool_calls 放进 system 消息，要求模型自行模拟出函数的执行结果"
+    ],
+    "answer": [0],
+    "explanation": "课程中 Function Calling 的“执行与返回”环节明确由开发者完成：解析 tool_calls 中的函数名和参数、在代码中实际执行对应函数、把执行结果包装成 role 为 tool 的 message、再次调用 API，由模型基于工具结果生成最终回复，故 A 正确。B 错：模型只负责调用决策，返回函数名和符合 Schema 的参数 JSON，并不执行函数。C 错：tool_calls 只是调用意图，不是给用户的答案。D 错：工具结果必须来自真实执行，让模型“模拟”结果等于让它编造信息。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-003",
+    "domain": "app-dev",
+    "type": "single",
+    "stem": "团队已把 web_search 改造成 MCP Server，计划部署在远端，供多个 Agent、多个用户共同调用。MCP Client 应采用哪种方式接入？",
+    "options": [
+      "stdio：Client 在本机启动 Server 进程，双方通过标准输入输出通信",
+      "stdio：把 Server 分别复制到每个 Agent 所在的机器上，各自在本机启动",
+      "放弃 MCP，改回在每个 Agent 的 tools 参数中分别写死 web_search 的 JSON Schema",
+      "Streamable HTTP：Server 部署在远端，Client 通过 URL 连接该 MCP Server"
+    ],
+    "answer": [3],
+    "explanation": "课程总结了两种传输方式：stdio 适合 MCP Server 与 Client 在同一台机器上的本地开发调试；Streamable HTTP 适合 MCP Server 部署在远端、多个 Agent 或多个用户共用同一个 MCP Server 的生产环境，故 D 正确。A、B 都是本机模式，B 每台机器各跑一份也不再是“共用同一个 Server”。C 退回了 MCP 要解决的问题：在 Agent 侧硬编码工具 Schema，维护成本高，也无法动态发现工具的最新定义。",
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-004",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "把大量公司文档直接塞进提示词（上下文）让大模型回答私域问题，课程指出会带来哪些问题？",
+    "options": [
+      "内容一旦超过模型上下文窗口的最大限制，就会导致错误",
+      "上下文越长，模型处理所需时间越长，用户等待时间增加",
+      "塞入的文档会被写入模型权重，影响模型对其他用户的回答",
+      "大部分模型按输入和输出的文本量计费，冗长的上下文意味着更高成本",
+      "上下文中大量与问题无关的信息会干扰模型判断，导致回答质量下降"
+    ],
+    "answer": [0, 1, 3, 4],
+    "explanation": "课程指出上下文窗口像内存一样容量有限，输入超过最大限制会导致错误（A）；简单粗暴地塞信息还会带来效率低（B）、成本高（D）、信息干扰（E）三类隐性问题。因此关键不在于“喂”多少，而在于“喂”得准，这就是上下文工程。C 错：提示词中的知识只是在运行时临时提供给模型，不会改变模型权重，也不会影响其他请求。",
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-005",
+    "domain": "app-dev",
+    "type": "multi",
+    "stem": "既然 AgentScope 等框架已经封装好了 ReAct Agent 和工具调用，课程认为仍然值得理解手动实现 Function Calling 流程的原因有哪些？",
+    "options": [
+      "框架内部执行的就是“调用模型→解析 tool_calls→执行函数→再次调用模型”这套流程，了解机制才能调试问题",
+      "手动实现在任何情况下都比使用框架运行得更快、更省 Token",
+      "生产环境常需实现权限验证、缓存、重试、日志监控等特殊逻辑，理解底层才能扩展框架",
+      "部分模型或平台不支持标准 Function Calling 格式时，手动实现可作为降级方案",
+      "框架无法自动管理对话历史，工具调用记录必须由开发者手动维护"
+    ],
+    "answer": [0, 2, 3],
+    "explanation": "课程给出的三个理由是：理解底层原理以便调试（A）、满足权限验证/缓存/重试/日志监控等自定义需求（C）、在不支持标准 Function Calling 的模型或平台上作为降级方案（D）。B 错：课程从未说手动实现性能更好，学习它是为了理解与扩展。E 错：课程明确 AgentScope 会自动记录用户消息、工具调用、工具结果等状态，无需手动维护。",
+    "source": "3_1_Agent基础与工具调用"
+  }
+]
