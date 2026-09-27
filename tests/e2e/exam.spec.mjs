@@ -38,12 +38,12 @@ test('mock exam: answer, submit, see result, wrong book filled', async ({ page }
   await expectNoHorizontalOverflow(page);
   await snap(page, testInfo, 'exam-result');
 
-  // `.tab[data-tab="wrong"]` 路由到的错题本页面（js/views/wrong.js）由 Task 10 实现；在这里
-  // VIEWS.wrong 还未注册，点击后会回退渲染首页，基于 DOM 的断言会与 hashchange 竞态、时灵时不灵。
-  // 改为直接读本地存储验证错题已收录，这是本任务范围内可验证的真实行为。
   const raw = await page.evaluate(() => window.localStorage.getItem('acp-progress-v1'));
   const progress = JSON.parse(raw);
   expect(Object.keys(progress.wrong).length).toBeGreaterThan(0);
+
+  await page.locator('.tab[data-tab="wrong"]').click();
+  await expect(page.locator('.review-list > li').first()).toBeVisible();
 
   await page.locator('.tab[data-tab="exam"]').click();
   await expect(page.locator('.history li')).toHaveCount(1);
