@@ -15,7 +15,7 @@ function downloadJson(data, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function importFile(ctx, input, status) {
+async function importFile(ctx, input, dateInput, status) {
   const file = input.files && input.files[0];
   if (!file) return;
   let parsed;
@@ -34,6 +34,7 @@ async function importFile(ctx, input, status) {
   }
   if (!window.confirm('导入会覆盖当前全部进度，确定吗？')) return;
   ctx.update(() => res.value);
+  dateInput.value = res.value.examDate || '';
   status.textContent = '导入成功';
 }
 
@@ -46,7 +47,7 @@ export function renderSettings(ctx) {
   });
   const fileInput = h('input', { class: 'visually-hidden', type: 'file', id: 'import-file', accept: 'application/json,.json' });
   fileInput.addEventListener('change', () => {
-    importFile(ctx, fileInput, status).catch((err) => {
+    importFile(ctx, fileInput, dateInput, status).catch((err) => {
       console.error(err);
       status.textContent = '导入失败：读取文件出错';
     });

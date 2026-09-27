@@ -47,6 +47,8 @@ test('export, clear, reject a bad file, then import restores progress', async ({
   page.on('dialog', (dlg) => dlg.accept());
   await answerFirstWrong(page, 'rag');
   await page.goto('./#/settings');
+  await page.locator('#exam-date').fill('2026-12-20');
+  await expect(page.locator('.settings-status')).toHaveText('考试日期已保存');
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('button', { name: '导出进度' }).click(),
@@ -57,6 +59,7 @@ test('export, clear, reject a bad file, then import restores progress', async ({
 
   await page.getByRole('button', { name: '清空全部进度' }).click();
   await expect(page.locator('.settings-status')).toHaveText('已清空全部进度');
+  await expect(page.locator('#exam-date')).toHaveValue('');
   await page.goto('./#/wrong');
   await expect(page.locator('.empty')).toBeVisible();
 
@@ -65,6 +68,7 @@ test('export, clear, reject a bad file, then import restores progress', async ({
   await expect(page.locator('.settings-status')).toContainText('导入失败');
   await page.locator('#import-file').setInputFiles(file);
   await expect(page.locator('.settings-status')).toHaveText('导入成功');
+  await expect(page.locator('#exam-date')).toHaveValue('2026-12-20');
   await page.goto('./#/wrong');
   await expect(page.locator('.review-list > li')).toHaveCount(1);
 });
