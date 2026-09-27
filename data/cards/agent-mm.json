@@ -102,5 +102,31 @@
       "有选择地记忆，持续治理，按场景决定记什么"
     ],
     "source": "3_4_用Memory让Agent积累经验"
+  },
+  {
+    "id": "agent-mm-c09",
+    "domain": "agent-mm",
+    "title": "Skill 的结构与加载",
+    "points": [
+      "Prompt 是会话级别的，Skill 是可复用的文件模块",
+      "SKILL.md：frontmatter 管“要不要用”，body 管“怎么做”",
+      "description 要写清做什么、何时触发",
+      "渐进式披露：执行到哪一步才读对应子文件",
+      "AgentScope 用 register_agent_skill 注册 Skill"
+    ],
+    "source": "3_5_用Skill将能力固化为可复用流程"
+  },
+  {
+    "id": "agent-mm-c10",
+    "domain": "agent-mm",
+    "title": "写好 Skill 与团队化管理",
+    "points": [
+      "五步：判断值不值→提取内容→写指令→配工具→验证迭代",
+      "3 步内能在 GUI 完成的操作不应封装为 Skill",
+      "自由度匹配风险：数据库迁移用精确脚本",
+      "脚本输出结构化 JSON，带修复线索、优雅降级",
+      "领域团队所有权 + Skills-as-Code（PR、CI 评测）"
+    ],
+    "source": "3_5_用Skill将能力固化为可复用流程"
   }
 ]
