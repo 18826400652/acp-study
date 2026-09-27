@@ -3,10 +3,15 @@ import { createStore, browserStorage } from './storage.js';
 import { parseHash, TAB_OF } from './router.js';
 import { h, showBanner } from './ui.js';
 import { renderHome } from './views/home.js';
+import { renderLearnIndex, renderCards } from './views/learn.js';
+import { renderDomainPractice } from './views/practice.js';
 
 // 每个任务往这里注册自己的视图；没注册的路由回退到首页
 const VIEWS = {
   home: (ctx) => renderHome(ctx),
+  learn: (ctx) => renderLearnIndex(ctx),
+  cards: (ctx, p) => renderCards(ctx, p.domain),
+  practice: (ctx, p) => renderDomainPractice(ctx, p.domain),
 };
 
 const TITLES = {
