@@ -18,7 +18,8 @@ export function createStore(storage) {
     let raw;
     try {
       raw = storage.getItem(STORAGE_KEY);
-    } catch {
+    } catch (err) {
+      console.error('读取本地存储失败：', err);
       return { progress: emptyProgress(), ok: false, error: STORAGE_UNAVAILABLE };
     }
     if (raw === null) return { progress: emptyProgress(), ok: true };
@@ -36,7 +37,8 @@ export function createStore(storage) {
     try {
       storage.setItem(STORAGE_KEY, JSON.stringify(progress));
       return true;
-    } catch {
+    } catch (err) {
+      console.error('写入本地存储失败：', err);
       return false;
     }
   }

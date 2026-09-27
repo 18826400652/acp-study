@@ -44,7 +44,8 @@ test('a valid JSON with a bad shape is also backed up and reset', () => {
   assert.equal(storage.peek(CORRUPT_KEY), '{"schemaVersion":42}');
 });
 
-test('unavailable storage reports ok:false and save returns false', () => {
+test('unavailable storage reports ok:false and save returns false', (t) => {
+  const errorSpy = t.mock.method(console, 'error', () => {});
   for (const s of [throwing, null]) {
     const store = createStore(s);
     const res = store.load();
@@ -52,4 +53,5 @@ test('unavailable storage reports ok:false and save returns false', () => {
     assert.equal(res.error, STORAGE_UNAVAILABLE);
     assert.equal(store.save(emptyProgress()), false);
   }
+  assert.ok(errorSpy.mock.callCount() >= 4);
 });
