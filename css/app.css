@@ -30,6 +30,7 @@
   --dur: 150ms;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 20px rgba(0, 0, 0, 0.06);
+  --hero-divider: rgba(246, 244, 239, 0.35);
   --font: system-ui, -apple-system, "Noto Sans CJK SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   color-scheme: light dark;
 }
@@ -52,6 +53,7 @@
     --warn: #e8c15a;
     --warn-soft: #3a3018;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --hero-divider: rgba(22, 24, 29, 0.35);
   }
 }
 
@@ -169,7 +171,7 @@ button, input { font: inherit; color: inherit; }
 .hero-number { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .hero-unit { font-size: 15px; font-weight: 700; margin-left: 4px; }
 .hero-link { margin-top: var(--space-1); font-weight: 800; }
-.hero-stats { display: grid; align-content: center; gap: var(--space-2); padding-left: var(--space-3); border-left: 1px solid rgba(127, 127, 127, 0.4); }
+.hero-stats { display: grid; align-content: center; gap: var(--space-2); padding-left: var(--space-3); border-left: 1px solid var(--hero-divider); }
 .stat { display: flex; flex-direction: column; }
 .stat-value { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .stat-label { font-size: 12px; opacity: 0.7; }
