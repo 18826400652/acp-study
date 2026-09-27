@@ -5,6 +5,8 @@ import { h, showBanner } from './ui.js';
 import { renderHome } from './views/home.js';
 import { renderLearnIndex, renderCards } from './views/learn.js';
 import { renderDomainPractice } from './views/practice.js';
+import { renderExam } from './views/exam.js';
+import { renderResult } from './views/result.js';
 
 // 每个任务往这里注册自己的视图；没注册的路由回退到首页
 const VIEWS = {
@@ -12,6 +14,8 @@ const VIEWS = {
   learn: (ctx) => renderLearnIndex(ctx),
   cards: (ctx, p) => renderCards(ctx, p.domain),
   practice: (ctx, p) => renderDomainPractice(ctx, p.domain),
+  exam: (ctx) => renderExam(ctx),
+  examResult: (ctx, p) => renderResult(ctx, p.id),
 };
 
 const TITLES = {
