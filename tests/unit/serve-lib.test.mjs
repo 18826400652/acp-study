@@ -32,6 +32,11 @@ test('malformed percent-encoding is rejected', () => {
   assert.equal(resolveSafe(ROOT, '/acp-study/%E0%A4%A', BASE), null);
 });
 
+test('dotfile path segments are rejected', () => {
+  assert.equal(resolveSafe(ROOT, '/acp-study/.git/config', BASE), null);
+  assert.equal(resolveSafe(ROOT, '/acp-study/.superpowers/notes.md', BASE), null);
+});
+
 test('mimeFor maps known extensions and falls back to octet-stream', () => {
   assert.equal(mimeFor('a/b.js'), 'text/javascript; charset=utf-8');
   assert.equal(mimeFor('x.JSON'), 'application/json; charset=utf-8');

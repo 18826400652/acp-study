@@ -96,21 +96,26 @@ function render() {
     return;
   }
   runCleanups();
-  const renderView = VIEWS[route.name] || VIEWS.home;
-  const view = document.getElementById('view');
-  view.textContent = '';
-  view.append(...[].concat(renderView(makeContext(), route.params)).filter(Boolean));
-  view.scrollTop = 0;
-  state.routeName = route.name;
-  updateChrome(route.name);
-  if (route.name !== 'exam') offerPendingUpdate();
+  try {
+    const renderView = VIEWS[route.name] || VIEWS.home;
+    const view = document.getElementById('view');
+    view.textContent = '';
+    view.append(...[].concat(renderView(makeContext(), route.params)).filter(Boolean));
+    view.scrollTop = 0;
+    state.routeName = route.name;
+    updateChrome(route.name);
+    if (route.name !== 'exam') offerPendingUpdate();
+  } catch (err) {
+    console.error(err);
+    showFatal(err);
+  }
 }
 
 function showFatal(err) {
   const view = document.getElementById('view');
   view.textContent = '';
   view.append(h('div', { class: 'empty' },
-    h('p', {}, `题库加载失败：${err.message}`),
+    h('p', {}, `页面出错：${err.message}`),
     h('button', { class: 'btn btn-primary', type: 'button', onClick: () => window.location.reload() }, '重试')));
 }
 

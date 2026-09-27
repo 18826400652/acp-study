@@ -15,10 +15,12 @@
     npm run e2e            # 安卓视口端到端测试
     npm run size           # 体积预算
 
+本地服务器默认只监听 `127.0.0.1`；用手机在同一 Wi-Fi 下访问，用 `HOST=0.0.0.0 npm run serve`。
+
 ## 发布
 
 1. 修改题库或代码后，把 `sw.js` 里的 `CACHE_VERSION` 加 1（例如 `acp-v1` → `acp-v2`），否则手机上不会提示更新。
-2. 跑通 `npm test`、`npm run validate`、`npm run e2e`。
+2. 跑通 `npm test`、`npm run validate`（题库补全前用 `npm run validate -- --allow-partial`）、`npm run e2e`。
 3. `git push`，GitHub Pages 会在 1–2 分钟内生效。
 
 ## 数据

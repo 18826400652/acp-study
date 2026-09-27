@@ -6,10 +6,10 @@ const at = (width, height, colorScheme) => ({ ...android, viewport: { width, hei
 export default defineConfig({
   testDir: 'tests/e2e',
   outputDir: 'test-results',
-  use: { baseURL: 'http://localhost:5173/acp-study/', trace: 'retain-on-failure' },
+  use: { baseURL: 'http://127.0.0.1:5173/acp-study/', trace: 'retain-on-failure' },
   webServer: {
     command: 'node scripts/serve.mjs',
-    url: 'http://localhost:5173/acp-study/',
+    url: 'http://127.0.0.1:5173/acp-study/',
     reuseExistingServer: true,
   },
   projects: [

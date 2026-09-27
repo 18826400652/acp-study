@@ -20,6 +20,8 @@ export function resolveSafe(root, url, base) {
   } catch {
     return null;
   }
+  const segments = decoded.split('/').filter(Boolean);
+  if (segments.some((seg) => seg.startsWith('.'))) return null;
   const rel = decoded.endsWith('/') ? decoded + 'index.html' : decoded;
   const rootResolved = path.resolve(root);
   const full = path.resolve(rootResolved, '.' + rel);

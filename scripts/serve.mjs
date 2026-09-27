@@ -6,6 +6,7 @@ import { resolveSafe, mimeFor } from './serve-lib.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT) || 5173;
+const HOST = process.env.HOST || '127.0.0.1';
 const BASE = '/acp-study';
 
 const server = http.createServer(async (req, res) => {
@@ -32,6 +33,6 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  process.stdout.write(`Serving ${ROOT} at http://localhost:${PORT}${BASE}/\n`);
+server.listen(PORT, HOST, () => {
+  process.stdout.write(`Serving ${ROOT} at http://${HOST}:${PORT}${BASE}/\n`);
 });
