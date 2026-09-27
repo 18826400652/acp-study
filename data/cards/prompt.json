@@ -45,7 +45,7 @@
     "points": [
       "模板预设角色、注意事项等信息，约束模型行为",
       "开发者只需配置输入参数，即可创建标准化应用",
-      "LlamaIndex 默认模板含 {context_str} 与 {query_str}",
+      "默认模板变量：{context_str} 与 {query_str}",
       "context_str 换成检索到的上下文，query_str 换成用户问题",
       "默认模板是通用模板，答疑机器人需重写以约束行为"
     ],
