@@ -115,5 +115,44 @@
       "部分商业模型条款禁止用其输出训练竞品"
     ],
     "source": "4_1_用蒸馏让小模型掌握专业能力"
+  },
+  {
+    "id": "finetune-c10",
+    "domain": "finetune",
+    "title": "vLLM 部署与压测",
+    "points": [
+      "vllm serve 启动服务，接口兼容 OpenAI API",
+      "--gpu-memory-utilization 0.7，显存溢出就调小",
+      "关闭终端即终止服务，可用 nohup 后台运行",
+      "蒸馏模型用 checkpoint-*-merged，端口改 8001",
+      "wrk 并发 1→10：QPS 约 6 倍，延迟增约 30%"
+    ],
+    "source": "4_2_部署模型"
+  },
+  {
+    "id": "finetune-c11",
+    "domain": "finetune",
+    "title": "云上部署方式取舍",
+    "points": [
+      "百炼：一键部署，千问优先，但支持模型有限",
+      "FC：秒级扩缩容，有冷启动，适合低频非实时",
+      "PAI-EAS：固定成本较高，可用 Spot 模式节省",
+      "ECS：完全可控、无冷启动，可配 ESS 与 SLB",
+      "ACS：K8s 中直接获取 GPU 容器，免集群运维"
+    ],
+    "source": "4_2_部署模型"
+  },
+  {
+    "id": "finetune-c12",
+    "domain": "finetune",
+    "title": "部署决策与部署形态",
+    "points": [
+      "非技术团队→百炼；算法工程师→PAI-EAS",
+      "DevOps 成熟团队→ACK 或 GPU 云服务器",
+      "公共云：模型封装为 API 供调用，类似 SaaS",
+      "专有云：数据安全和控制权更高，需维护成本",
+      "端云协同：端侧小模型初处理，云端大模型深处理"
+    ],
+    "source": "4_2_部署模型"
   }
 ]
