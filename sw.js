@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'acp-v9';
+const CACHE_VERSION = 'acp-v10';
 const SHELL = [
   './',
   'index.html',
@@ -19,6 +19,8 @@ const SHELL = [
   'js/scoring.js',
   'js/crypto.js',
   'js/interview.js',
+  'js/keystore.js',
+  'js/iv-session.js',
   'js/views/domain-row.js',
   'js/views/home.js',
   'js/views/learn.js',
@@ -28,6 +30,10 @@ const SHELL = [
   'js/views/result.js',
   'js/views/wrong.js',
   'js/views/settings.js',
+  'js/views/bank-switch.js',
+  'js/views/iv-unlock.js',
+  'js/views/iv-home.js',
+  'js/views/iv-domain-row.js',
 ];
 const DOMAINS = ['app-dev', 'prompt', 'rag', 'finetune', 'agent-mm', 'production'];
 const DATA = ['data/domains.json'].concat(

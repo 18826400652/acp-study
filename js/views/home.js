@@ -1,8 +1,9 @@
 import { h, formatPercent } from '../ui.js';
 import { statsFor, domainStats, recommend, daysUntil } from '../progress.js';
 import { domainRow } from './domain-row.js';
+import { bankSwitch } from './bank-switch.js';
 
-function stat(value, label) {
+export function stat(value, label) {
   return h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, value), h('span', { class: 'stat-label' }, label));
 }
 
@@ -18,20 +19,23 @@ function countdown(examDate) {
     h('span', { class: 'hero-number' }, String(Math.abs(days)), h('span', { class: 'hero-unit' }, '天')));
 }
 
-function recommendLink(rec, ctx) {
-  const link = (href, title, sub) => h('a', { class: 'recommend', href },
+export function recommendCard(href, title, sub) {
+  return h('a', { class: 'recommend', href },
     h('span', { class: 'recommend-kicker' }, '今日推荐'),
     h('span', { class: 'recommend-title' }, title),
     h('span', { class: 'recommend-sub' }, sub));
+}
+
+function recommendLink(rec, ctx) {
   if (rec.kind === 'wrong') {
     const n = Object.keys(ctx.getProgress().wrong).length;
-    return link('#/wrong/practice', `复习错题（${n} 道）`, '连续答对 2 次即移出错题本');
+    return recommendCard('#/wrong/practice', `复习错题（${n} 道）`, '连续答对 2 次即移出错题本');
   }
   if (rec.kind === 'domain') {
     const d = ctx.data.domains.filter((x) => x.id === rec.domain)[0];
-    return link(`#/learn/${d.id}`, `学习：${d.name}`, '先过速记卡片，再做练习');
+    return recommendCard(`#/learn/${d.id}`, `学习：${d.name}`, '先过速记卡片，再做练习');
   }
-  return link('#/exam', '来一套模拟考', '75 题 · 120 分钟 · 80 分及格');
+  return recommendCard('#/exam', '来一套模拟考', '75 题 · 120 分钟 · 80 分及格');
 }
 
 export function renderHome(ctx) {
@@ -39,6 +43,7 @@ export function renderHome(ctx) {
   const { domains, questions } = ctx.data;
   const overall = statsFor(progress, questions);
   return [
+    bankSwitch('acp'),
     h('section', { class: 'hero' }, countdown(progress.examDate),
       h('div', { class: 'hero-stats' },
         stat(formatPercent(overall.accuracy), '整体正确率'),
