@@ -224,6 +224,26 @@ button, input { font: inherit; color: inherit; }
 .flashcard-source { font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
 .card-actions, .pager, .exam-nav { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 
+/* ===== 面试卡片 ===== */
+.chip-bad { background: var(--bad-soft); color: var(--bad); }
+.iv-no { display: flex; align-items: center; gap: var(--space-2); font-size: 13px; font-weight: 800; letter-spacing: 0.04em; color: var(--accent); }
+.iv-part { border-top: 1px solid var(--line); }
+.iv-part > summary { display: flex; align-items: center; min-height: var(--tap); font-weight: 800; list-style: none; cursor: pointer; }
+.iv-part > summary::-webkit-details-marker { display: none; }
+.iv-part > summary::after { content: "＋"; margin-left: auto; color: var(--ink-2); }
+.iv-part[open] > summary::after { content: "－"; }
+.iv-part-body { display: grid; gap: var(--space-2); padding-bottom: var(--space-3); line-height: 1.65; overflow-wrap: anywhere; }
+.iv-part-body p, .iv-part-body ul, .iv-part-body ol, .iv-intro p { margin: 0; }
+.iv-part-body ul, .iv-part-body ol { display: grid; gap: var(--space-1); padding-left: 1.2em; }
+.iv-part-body code, .iv-intro code { padding: 0 4px; border-radius: 4px; background: var(--surface-2); font-size: 0.9em; overflow-wrap: anywhere; }
+mark.todo { padding: 0 2px; border-radius: 4px; background: var(--todo-soft); color: var(--todo); font-weight: 700; }
+.iv-intro { display: grid; gap: var(--space-2); font-size: 14px; color: var(--ink-2); }
+.iv-intro > summary { display: flex; align-items: center; min-height: var(--tap); font-weight: 700; cursor: pointer; }
+.grade-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+.grade-unknown { background: var(--bad-soft); color: var(--bad); }
+.grade-fuzzy { background: var(--warn-soft); color: var(--warn); }
+.grade-known { background: var(--ok-soft); color: var(--ok); }
+
 /* ===== 题目 ===== */
 .question { display: grid; gap: var(--space-3); }
 .q-meta { display: flex; align-items: center; gap: var(--space-2); }

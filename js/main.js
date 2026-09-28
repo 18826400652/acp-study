@@ -10,6 +10,7 @@ import { renderResult } from './views/result.js';
 import { renderWrong, renderWrongPractice } from './views/wrong.js';
 import { renderSettings } from './views/settings.js';
 import { renderIvHome } from './views/iv-home.js';
+import { renderIvLearnIndex, renderIvCards } from './views/iv-learn.js';
 import { renderUnlock } from './views/iv-unlock.js';
 import { bankSwitch } from './views/bank-switch.js';
 import { setupPwa, offerPendingUpdate, requestPersist, isWeChat } from './pwa.js';
@@ -33,6 +34,8 @@ const VIEWS = {
   },
   interview: {
     home: (ctx) => renderIvHome(ctx),
+    learn: (ctx) => renderIvLearnIndex(ctx),
+    cards: (ctx, p) => renderIvCards(ctx, p.domain, p.filter),
     practice: (ctx, p) => renderDomainPractice(ctx, p.domain),
     settings: (ctx) => renderSettings(ctx),
     wrong: (ctx) => renderWrong(ctx),

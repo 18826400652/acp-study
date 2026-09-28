@@ -34,6 +34,8 @@ const SHELL = [
   'js/views/iv-unlock.js',
   'js/views/iv-home.js',
   'js/views/iv-domain-row.js',
+  'js/rich.js',
+  'js/views/iv-learn.js',
 ];
 const DOMAINS = ['app-dev', 'prompt', 'rag', 'finetune', 'agent-mm', 'production'];
 const DATA = ['data/domains.json'].concat(
