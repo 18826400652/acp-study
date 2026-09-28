@@ -59,11 +59,11 @@ export function renderPractice(ctx, { title, questions, emptyText, doneHref }) {
 
 export function renderDomainPractice(ctx, domainId) {
   const domain = ctx.data.domains.filter((d) => d.id === domainId)[0];
-  if (!domain) return emptyState('没有找到这个考点。', '#/learn', '返回考点列表');
+  if (!domain) return emptyState('没有找到这个考点。', ctx.link('learn'), '返回考点列表');
   return renderPractice(ctx, {
     title: domain.name,
     questions: ctx.data.questions.filter((q) => q.domain === domainId),
     emptyText: '这个考点还没有题目。',
-    doneHref: `#/learn/${domainId}`,
+    doneHref: ctx.link(`learn/${domainId}`),
   });
 }

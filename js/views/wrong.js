@@ -23,7 +23,7 @@ export function renderWrong(ctx) {
     const shown = filter === 'all' ? all : all.filter((q) => q.domain === filter);
     root.textContent = '';
     if (!all.length) {
-      root.append(emptyState('错题本是空的。答错的题会自动收进来。', '#/learn', '去练习'));
+      root.append(emptyState('错题本是空的。答错的题会自动收进来。', ctx.link('learn'), '去练习'));
       return;
     }
     root.append(
@@ -33,7 +33,7 @@ export function renderWrong(ctx) {
           const n = all.filter((q) => q.domain === d.id).length;
           return n ? chip(d.short, d.id, n) : null;
         })),
-      h('a', { class: 'btn btn-primary btn-block', href: filter === 'all' ? '#/wrong/practice' : `#/wrong/practice/${filter}` },
+      h('a', { class: 'btn btn-primary btn-block', href: filter === 'all' ? ctx.link('wrong/practice') : ctx.link(`wrong/practice/${filter}`) },
         `只刷错题（${shown.length} 道）`),
       h('p', { class: 'muted' }, '连续答对 2 次后自动移出错题本。点开题目可看答案和解析。'),
       h('ol', { class: 'review-list' }, shown.map((q) => h('li', {}, reviewDetails(q, [], [
@@ -52,6 +52,6 @@ export function renderWrongPractice(ctx, domainId) {
     title: '错题练习',
     questions,
     emptyText: '没有需要复习的错题。',
-    doneHref: '#/wrong',
+    doneHref: ctx.link('wrong'),
   });
 }

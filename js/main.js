@@ -1,6 +1,6 @@
 import { loadData } from './data.js';
 import { createStore, browserStorage } from './storage.js';
-import { parseHash, TAB_OF } from './router.js';
+import { parseHash, linkFor, TAB_OF } from './router.js';
 import { h, showBanner } from './ui.js';
 import { renderHome } from './views/home.js';
 import { renderLearnIndex, renderCards } from './views/learn.js';
@@ -59,6 +59,8 @@ function makeContext() {
     update,
     navigate,
     onLeave: (fn) => { state.cleanups.push(fn); },
+    bank: 'acp',
+    link: (path) => linkFor('acp', path),
   };
 }
 
