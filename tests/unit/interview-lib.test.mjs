@@ -11,7 +11,8 @@ import { unlockWithPassword, decryptWithKey } from '../../js/crypto.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const FIXTURE = path.join(ROOT, 'tests', 'fixtures', 'interview');
-const A_TEXT = fs.readFileSync(path.join(FIXTURE, 'qbank', 'A-sample.md'), 'utf8');
+// 统一成 LF：Windows 上 git 可能把夹具检出为 CRLF
+const A_TEXT = fs.readFileSync(path.join(FIXTURE, 'qbank', 'A-sample.md'), 'utf8').replace(/\r\n/g, '\n');
 const PASSWORD = 'fixture-password-2026';
 
 test('parseInline recognises bold, code and todo spans', () => {
