@@ -11,6 +11,7 @@ import { renderWrong, renderWrongPractice } from './views/wrong.js';
 import { renderSettings } from './views/settings.js';
 import { renderIvHome } from './views/iv-home.js';
 import { renderIvLearnIndex, renderIvCards } from './views/iv-learn.js';
+import { renderMock, renderMockResult } from './views/iv-mock.js';
 import { renderUnlock } from './views/iv-unlock.js';
 import { bankSwitch } from './views/bank-switch.js';
 import { setupPwa, offerPendingUpdate, requestPersist, isWeChat } from './pwa.js';
@@ -37,6 +38,8 @@ const VIEWS = {
     learn: (ctx) => renderIvLearnIndex(ctx),
     cards: (ctx, p) => renderIvCards(ctx, p.domain, p.filter),
     practice: (ctx, p) => renderDomainPractice(ctx, p.domain),
+    mock: (ctx) => renderMock(ctx),
+    mockResult: (ctx, p) => renderMockResult(ctx, p.id),
     settings: (ctx) => renderSettings(ctx),
     wrong: (ctx) => renderWrong(ctx),
     wrongPractice: (ctx, p) => renderWrongPractice(ctx, p.domain),

@@ -320,6 +320,13 @@ mark.todo { padding: 0 2px; border-radius: 4px; background: var(--todo-soft); co
 .review-item[open] .review-stem { display: block; }
 .review-item > .question { padding: 0 var(--space-3) var(--space-3); }
 
+/* ===== 模拟面试 ===== */
+.iv-result { border-top-color: var(--accent); }
+.grade-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+.grade-summary .stat { align-items: center; }
+.iv-review-body { padding: 0 var(--space-3) var(--space-3); }
+.review-item .review-mark.chip { flex: none; }
+
 /* ===== 设置 ===== */
 .settings-group { display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-l); background: var(--surface); }
 .settings-group h2 { font-size: 16px; font-weight: 800; }

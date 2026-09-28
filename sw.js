@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'acp-v10';
+const CACHE_VERSION = 'acp-v11';
 const SHELL = [
   './',
   'index.html',
@@ -36,6 +36,7 @@ const SHELL = [
   'js/views/iv-domain-row.js',
   'js/rich.js',
   'js/views/iv-learn.js',
+  'js/views/iv-mock.js',
 ];
 const DOMAINS = ['app-dev', 'prompt', 'rag', 'finetune', 'agent-mm', 'production'];
 const DATA = ['data/domains.json'].concat(
