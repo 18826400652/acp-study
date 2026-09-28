@@ -55,3 +55,18 @@ test('unavailable storage reports ok:false and save returns false', (t) => {
   }
   assert.ok(errorSpy.mock.callCount() >= 4);
 });
+
+test('createStore can use another key, empty value and validator', () => {
+  const storage = fakeStorage({ other: '{"bank":"x"}' });
+  const store = createStore(storage, {
+    key: 'other',
+    empty: () => ({ fresh: true }),
+    validate: (raw) => (raw.bank === 'ok' ? { ok: true, value: raw } : { ok: false, error: '不对' }),
+  });
+  const res = store.load();
+  assert.deepEqual(res.progress, { fresh: true });
+  assert.match(res.error, /不对/);
+  assert.equal(storage.peek('other-corrupt'), '{"bank":"x"}');
+  assert.equal(store.save({ bank: 'ok' }), true);
+  assert.deepEqual(store.load(), { progress: { bank: 'ok' }, ok: true });
+});

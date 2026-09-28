@@ -140,7 +140,7 @@ const isDraft = (d) => isObject(d) && typeof d.startedAt === 'number' && Array.i
 const isExamRecord = (e) => isDraft(e) && typeof e.id === 'string' && typeof e.score === 'number'
   && typeof e.max === 'number' && typeof e.passed === 'boolean' && isObject(e.byDomain);
 
-function findProblem(raw) {
+export function answersProblem(raw) {
   const values = (o) => Object.keys(o).map((k) => o[k]);
   if (!isObject(raw.answers) || !values(raw.answers).every((h) => Array.isArray(h) && h.every(isAttempt))) {
     return '作答记录（answers）格式错误';
@@ -148,6 +148,13 @@ function findProblem(raw) {
   if (!isObject(raw.wrong) || !values(raw.wrong).every((s) => Number.isInteger(s) && s >= 0)) {
     return '错题本（wrong）格式错误';
   }
+  return null;
+}
+
+function findProblem(raw) {
+  const values = (o) => Object.keys(o).map((k) => o[k]);
+  const base = answersProblem(raw);
+  if (base) return base;
   if (!isObject(raw.cards) || !values(raw.cards).every((s) => CARD_STATES.indexOf(s) !== -1)) {
     return '卡片状态（cards）格式错误';
   }
@@ -161,6 +168,7 @@ function findProblem(raw) {
 
 export function validateImport(raw) {
   if (!isObject(raw)) return { ok: false, error: '文件内容不是进度数据' };
+  if (raw.bank !== undefined) return { ok: false, error: '这不是 ACP 题库的进度文件' };
   if (raw.schemaVersion !== SCHEMA_VERSION) return { ok: false, error: `不支持的进度版本：${raw.schemaVersion}` };
   const problem = findProblem(raw);
   if (problem) return { ok: false, error: problem };
