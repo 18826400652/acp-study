@@ -17,6 +17,7 @@ const SHELL = [
   'js/progress.js',
   'js/exam.js',
   'js/scoring.js',
+  'js/crypto.js',
   'js/views/domain-row.js',
   'js/views/home.js',
   'js/views/learn.js',
