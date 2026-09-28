@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'acp-v11';
+const CACHE_VERSION = 'acp-v12';
 const SHELL = [
   './',
   'index.html',
