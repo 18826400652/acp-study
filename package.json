@@ -9,7 +9,9 @@
     "validate": "node scripts/validate-data.mjs",
     "e2e": "playwright test",
     "size": "node scripts/check-size.mjs",
-    "bump": "node scripts/bump-cache.mjs"
+    "bump": "node scripts/bump-cache.mjs",
+    "build:interview": "node scripts/build-interview.mjs",
+    "decrypt:interview": "node scripts/decrypt-interview.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"
