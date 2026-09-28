@@ -43,11 +43,15 @@ const DATA = ['data/domains.json'].concat(
   DOMAINS.map((d) => `data/cards/${d}.json`),
   DOMAINS.map((d) => `data/questions/${d}.json`),
 );
+// 运行期才有的可选文件：解密密文不预置，构建后才存在，且新版本发布时不应因它缺失而装机失败
+const OPTIONAL = ['data/interview.enc'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(
     SHELL.concat(DATA).map((u) => new Request(u, { cache: 'reload' })),
-  )));
+  ).then(() => Promise.all(
+    OPTIONAL.map((u) => cache.add(new Request(u, { cache: 'reload' })).catch(() => undefined)),
+  ))));
 });
 
 self.addEventListener('activate', (event) => {
