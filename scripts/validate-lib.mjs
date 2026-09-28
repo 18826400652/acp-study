@@ -5,6 +5,7 @@ export const CARD_RANGE = { min: 10, max: 15 };
 export const BALANCE_MIN = { single: 8, multi: 6 };
 export const SINGLE_LETTER_MAX_SHARE = 0.4;
 export const MULTI_POSITION_MAX_SHARE = 0.75;
+export const KEY_LONGEST_MAX_SHARE = 0.35;
 const LETTERS = 'ABCDEF';
 const pct = (x) => Math.round(x * 100);
 const ALL_CORRECT_RE = /以上(都|均|全部|皆)?(对|正确|是)/;
@@ -110,6 +111,20 @@ function countBy(list, keyFn) {
   return counts;
 }
 
+function isKeyStrictlyLongest(q) {
+  if (!Array.isArray(q.options)) return false;
+  const key = q.options[q.answer[0]];
+  if (typeof key !== 'string') return false;
+  return q.options.every((o, i) => i === q.answer[0] || (typeof o === 'string' && o.length < key.length));
+}
+
+function checkKeyLength(where, singles) {
+  const share = singles.filter(isKeyStrictlyLongest).length / singles.length;
+  return share > KEY_LONGEST_MAX_SHARE
+    ? [`${where}: 单选题中正确答案最长的占 ${pct(share)}%，超过 ${pct(KEY_LONGEST_MAX_SHARE)}%`]
+    : [];
+}
+
 function checkBalance(domainId, qs) {
   const errs = [];
   const where = `questions/${domainId}.json`;
@@ -123,6 +138,7 @@ function checkBalance(domainId, qs) {
         errs.push(`${where}: 单选题正确答案 ${LETTERS[i]} 占 ${pct(share)}%，超过 ${pct(SINGLE_LETTER_MAX_SHARE)}%`);
       }
     });
+    errs.push(...checkKeyLength(where, singles));
   }
   const multis = withAnswer.filter((q) => q.type === 'multi');
   if (multis.length >= BALANCE_MIN.multi) {

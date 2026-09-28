@@ -112,3 +112,25 @@ test('multi-choice answers must vary in position and count', () => {
 test('balance checks stay quiet below their sample-size thresholds', () => {
   assert.deepEqual(validateData(valid(), { allowPartial: true }), []);
 });
+
+function keyLengthBank(longKeyCount) {
+  const singles = Array.from({ length: 8 }, (_, i) => {
+    const answer = i % 4;
+    const options = ['甲甲', '乙乙', '丙丙', '丁丁'];
+    if (i < longKeyCount) options[answer] = '正确答案明显更长';
+    return q(i + 1, { stem: `长度${i}`, answer: [answer], options });
+  });
+  const multis = [q(9, { stem: 'm1', type: 'multi', answer: [0, 1] }), q(10, { stem: 'm2', type: 'multi', answer: [1, 2] })];
+  return { ...valid(), questions: { rag: singles.concat(multis) } };
+}
+
+test('single-choice keys must not usually be the strictly longest option', () => {
+  expectError(keyLengthBank(3), '单选题中正确答案最长的占 38%，超过 35%', { allowPartial: true });
+});
+
+test('key-length check stays quiet at or below 35% and ignores ties', () => {
+  const data = keyLengthBank(2);
+  data.questions.rag[2].options = ['正确答案明显更长', '乙乙', '正确答案明显更长', '丁丁'];
+  const errors = validateData(data, { allowPartial: true });
+  assert.ok(!errors.some((e) => e.includes('正确答案最长')), errors.join('\n'));
+});
