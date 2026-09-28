@@ -14,6 +14,7 @@ test('switching banks asks for the password and rejects a wrong one', async ({ p
   await page.locator('#iv-password').fill('wrong-password-000');
   await page.getByRole('button', { name: '解锁' }).click();
   await expect(page.getByRole('alert')).toHaveText('密码不对');
+  await expect(page.locator('.unlock .muted')).toHaveText('刚改过密码？联网后刷新页面再试。');
   await expect(page.getByRole('button', { name: '解锁' })).toBeEnabled();
   await expectNoHorizontalOverflow(page);
   await expectTabbarVisible(page);
@@ -55,10 +56,21 @@ test('a rebuilt bank with a new salt asks for the password again', async ({ page
   await expect(page.locator('.domain-row')).toHaveCount(2);
 });
 
-test('a missing bank file explains itself and offers a way back', async ({ page }) => {
+test('a missing bank file explains itself, retries and offers a way back', async ({ page }) => {
   await page.unroute('**/data/interview.enc');
   await page.route('**/data/interview.enc', (route) => route.fulfill({ status: 404, body: 'Not found' }));
   await page.goto('./#/iv');
+  await expect(page.locator('.empty')).toContainText('面试题库还没有生成');
+
+  // 重试：换一条成功响应路由，点重试后不用刷新页面就能拿到密码框
+  await serveEnvelope(page);
+  await page.getByRole('button', { name: '重试' }).click();
+  await expect(page.locator('#iv-password')).toBeVisible();
+
+  // 一次失败的加载不会被缓存住：再来一次 404，仍然显示同样的错误
+  await page.unroute('**/data/interview.enc');
+  await page.route('**/data/interview.enc', (route) => route.fulfill({ status: 404, body: 'Not found' }));
+  await page.reload();
   await expect(page.locator('.empty')).toContainText('面试题库还没有生成');
   await page.getByRole('link', { name: '回到 ACP 题库' }).click();
   await expect(page.locator('.domain-row')).toHaveCount(6);

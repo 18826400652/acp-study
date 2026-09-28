@@ -197,7 +197,12 @@ function openInterview() {
     mount(renderUnlock({ supported: true, onUnlock: (password) => session.unlock(password).then(onUnlocked) }));
   }).catch((err) => {
     console.error(err);
-    if (stillOnInterview()) mount([bankSwitch('interview'), emptyState(err.message, '#/', '回到 ACP 题库')]);
+    if (!stillOnInterview()) return;
+    mount([
+      bankSwitch('interview'),
+      emptyState(err.message, '#/', '回到 ACP 题库'),
+      h('button', { class: 'btn btn-secondary btn-block', type: 'button', onClick: () => render() }, '重试'),
+    ]);
   });
 }
 

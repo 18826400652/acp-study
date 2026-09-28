@@ -9,19 +9,22 @@ export function renderUnlock({ supported, onUnlock }) {
   const input = h('input', { class: 'field-input', type: 'password', id: 'iv-password', autocomplete: 'current-password' });
   const button = h('button', { class: 'btn btn-primary btn-block', type: 'submit' }, '解锁');
   const status = h('p', { class: 'unlock-status', role: 'alert' });
+  const hint = h('p', { class: 'muted' });
   const form = h('form', { class: 'settings-group unlock' },
     h('h2', {}, '面试题库已加密'),
     h('label', { class: 'field-label', for: 'iv-password' }, '输入密码后在本机解密，之后这台手机不用再输'),
-    input, button, status);
+    input, button, status, hint);
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     if (!input.value) return;
     button.disabled = true;
     button.textContent = '解锁中…';
     status.textContent = '';
+    hint.textContent = '';
     onUnlock(input.value).catch((err) => {
       if (!(err instanceof WrongKeyError)) console.error(err);
       status.textContent = err instanceof WrongKeyError ? '密码不对' : `解锁失败：${err.message}`;
+      hint.textContent = err instanceof WrongKeyError ? '刚改过密码？联网后刷新页面再试。' : '';
       button.disabled = false;
       button.textContent = '解锁';
     });
