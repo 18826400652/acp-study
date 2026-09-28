@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   loadSources, buildPayload, leakTerms, leakTermStats, readExtraTerms, findLeaks, repoTextFiles, encryptInterview,
-  REQUIRED_LETTERS, loadQuestions, validateInterviewQuestions,
+  REQUIRED_LETTERS, loadQuestions, validateInterviewQuestions, IV_MCQ_TARGETS,
 } from './interview-lib.mjs';
 import { PBKDF2_ITER } from '../js/crypto.js';
 
@@ -37,7 +37,16 @@ async function main() {
     const lines = leaks.map((l) => `  - ${l.path}：「${l.term}」`).join('\n');
     throw new Error(`仓库里发现面试题库原文，已停止构建：\n${lines}`);
   }
-  const questionErrors = validateInterviewQuestions(payload, questions);
+  // 默认严格模式：对每个目标题量 > 0 的类别（A–F）都做题量检查，缺题/改名的文件会让构建失败；
+  // --allow-partial 恢复成只检查已经有题目的类别
+  const allowPartial = process.argv.includes('--allow-partial');
+  const strictDomains = allowPartial ? undefined : payload.domains
+    .filter((d) => {
+      const target = IV_MCQ_TARGETS[d.letter] || { single: 0, multi: 0 };
+      return target.single > 0 || target.multi > 0;
+    })
+    .map((d) => d.id);
+  const questionErrors = validateInterviewQuestions(payload, questions, { strictDomains });
   if (questionErrors.length) {
     throw new Error(`选择题校验失败，共 ${questionErrors.length} 个问题：\n${questionErrors.map((e) => `  - ${e}`).join('\n')}`);
   }
@@ -53,6 +62,11 @@ async function main() {
   process.stdout.write(`已生成 ${path.relative(ROOT, out) || out}：${payload.domains.length} 个类别，${cards.length} 张卡片（${todo} 张含待补），${nq} 道选择题，密文 ${(text.length / 1024).toFixed(1)} KB\n`);
   const stats = leakTermStats(payload, extraTerms);
   process.stdout.write(`防泄漏扫描：检查了 ${stats.checked}/${stats.total} 个题目衍生词条（跳过 ${stats.skipped} 个过短或偏英文的），另加 ${stats.extra} 个 leak-terms.txt 自定义词条\n`);
+  payload.domains.forEach((d) => {
+    const qs = payload.questions[d.id];
+    const count = (type) => qs.filter((q) => q.type === type).length;
+    process.stdout.write(`${d.id} 单选 ${count('single')} / 多选 ${count('multi')}\n`);
+  });
 }
 
 main().catch((err) => {

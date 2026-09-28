@@ -36,6 +36,34 @@ test('validate:interview passes the fixture in partial mode and fails strict cou
   assert.match(run('validate-interview.mjs', { INTERVIEW_SRC: '' }).stderr, /INTERVIEW_SRC/);
 });
 
+test('validate:interview --domains flag parsing: missing value, = form, and conflict with --allow-partial', (t) => {
+  const dir = tempDir(t);
+  fs.cpSync(FIXTURE, dir, { recursive: true });
+  const missingAtEnd = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains']);
+  assert.notEqual(missingAtEnd.status, 0);
+  assert.match(missingAtEnd.stderr, /--domains 需要类别列表，例如 --domains iv-a,iv-b/);
+  const emptyValue = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains', '']);
+  assert.notEqual(emptyValue.status, 0);
+  assert.match(emptyValue.stderr, /--domains 需要类别列表，例如 --domains iv-a,iv-b/);
+  const emptyEqValue = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains=']);
+  assert.notEqual(emptyEqValue.status, 0);
+  assert.match(emptyEqValue.stderr, /--domains 需要类别列表，例如 --domains iv-a,iv-b/);
+  // 用真实目标（20±3/10±3）对夹具里只有 4 道题的 iv-a 做严格检查会失败；
+  // 这里只是要证明 `--domains=iv-a` 和 `--domains iv-a` 解析结果一致（都走到题量检查，而非“需要类别列表”报错）
+  const eqForm = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains=iv-a']);
+  assert.notEqual(eqForm.status, 0);
+  assert.match(eqForm.stderr, /single 题数 3，目标 20±3/);
+  const spaceForm = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains', 'iv-a']);
+  assert.notEqual(spaceForm.status, 0);
+  assert.match(spaceForm.stderr, /single 题数 3，目标 20±3/);
+  const conflict = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--allow-partial', '--domains', 'iv-a']);
+  assert.notEqual(conflict.status, 0);
+  assert.match(conflict.stderr, /--allow-partial 和 --domains 不能同时使用/);
+  const conflictEq = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains=iv-a', '--allow-partial']);
+  assert.notEqual(conflictEq.status, 0);
+  assert.match(conflictEq.stderr, /--allow-partial 和 --domains 不能同时使用/);
+});
+
 test('build refuses to run without the source folder or password', (t) => {
   const out = path.join(tempDir(t), 'x.enc');
   assert.match(run('build-interview.mjs', { INTERVIEW_SRC: '', INTERVIEW_ENC: out }).stderr, /INTERVIEW_SRC/);
@@ -49,6 +77,25 @@ test('build requires all eight category files', (t) => {
   assert.notEqual(res.status, 0);
   assert.match(res.stderr, /缺少类别文件：C、D、E、F、G、H/);
   assert.equal(fs.existsSync(out), false);
+});
+
+test('build enforces default A-F question-count strictness, and --allow-partial restores partial mode', (t) => {
+  const dir = tempDir(t);
+  // 标题只能动态拼出来：写成字面量会被防泄漏扫描在本测试文件里找到
+  const title = (l) => `临时问题 ${l} 只用于严格模式测试`;
+  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach((l) => {
+    fs.mkdirSync(path.join(dir, 'qbank'), { recursive: true });
+    const text = `# ${l}. 临时类别\n\n### ${l}1. ${title(l)}\n\n**结论**：临时结论 ${l}\n\n**原理**：x\n\n**我在项目里怎么做**：x\n\n**取舍与局限**：x\n`;
+    fs.writeFileSync(path.join(dir, 'qbank', `${l}-tmp.md`), text);
+  });
+  const out = path.join(dir, 'x.enc');
+  const strict = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out });
+  assert.notEqual(strict.status, 0);
+  assert.match(strict.stderr, /single 题数 0，目标 20±3/);
+  assert.equal(fs.existsSync(out), false);
+  const partial = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out }, ['--allow-partial']);
+  assert.equal(partial.status, 0, partial.stderr);
+  assert.match(partial.stdout, /iv-a 单选 0 \/ 多选 0/);
 });
 
 test('build refuses to write when source text is found in the repo', (t) => {
@@ -75,14 +122,16 @@ test('build writes a working envelope when the repo is clean, and decrypt restor
     fs.writeFileSync(path.join(dir, 'qbank', `${l}-tmp.md`), text);
   });
   const out = path.join(dir, 'x.enc');
-  const build = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out });
+  // 夹具没有选择题，默认严格模式下 A–F 题量会不达标，这里用 --allow-partial 跳过题量检查
+  const build = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out }, ['--allow-partial']);
   assert.equal(build.status, 0, build.stderr);
   assert.match(build.stdout, /8 个类别，8 张卡片/);
   assert.match(build.stdout, /0 道选择题/);
+  assert.match(build.stdout, /iv-a 单选 0 \/ 多选 0/);
   const envelope = JSON.parse(fs.readFileSync(out, 'utf8'));
   assert.equal((await unlockWithPassword(envelope, PASSWORD)).payload.cards['iv-h'][0].no, 'H1');
 
-  const again = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out });
+  const again = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out }, ['--allow-partial']);
   assert.equal(again.status, 0, again.stderr);
   assert.equal(JSON.parse(fs.readFileSync(out, 'utf8')).salt, envelope.salt);
 
@@ -113,7 +162,7 @@ test('decrypt rejects a wrong password and writes nothing', (t) => {
     fs.writeFileSync(path.join(dir, 'qbank', `${l}-tmp.md`), text);
   });
   const out = path.join(dir, 'x.enc');
-  const build = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out });
+  const build = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out }, ['--allow-partial']);
   assert.equal(build.status, 0, build.stderr);
 
   const restoreDir = path.join(dir, 'restore-wrong');

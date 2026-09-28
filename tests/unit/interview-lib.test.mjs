@@ -236,6 +236,14 @@ test('loadQuestions reads iv-*.json files and returns {} without a questions fol
   assert.throws(() => loadQuestions(dir), /选择题文件名不对：iv-A\.json/);
 });
 
+test('loadQuestions strips a leading BOM before parsing', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iv-bom-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(dir, 'qbank-app', 'questions'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'qbank-app', 'questions', 'iv-c.json'), `﻿${JSON.stringify([{ id: 'x' }])}`);
+  assert.deepEqual(loadQuestions(dir), { 'iv-c': [{ id: 'x' }] });
+});
+
 test('buildPayload attaches questions and keeps empty lists for the rest', () => {
   const payload = buildPayload(loadSources(FIXTURE), 'x', loadQuestions(FIXTURE));
   assert.equal(payload.questions['iv-a'].length, 4);

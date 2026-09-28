@@ -1,11 +1,21 @@
 import { loadSources, loadQuestions, buildPayload, validateInterviewQuestions } from './interview-lib.mjs';
 
-// 用法：INTERVIEW_SRC=<prep 目录> npm run validate:interview [-- --domains iv-a,iv-b | --allow-partial]
-function strictFrom(argv, payload) {
-  if (argv.includes('--allow-partial')) return [];
+// 用法：INTERVIEW_SRC=<prep 目录> npm run validate:interview [-- --domains iv-a,iv-b | --domains=iv-a,iv-b | --allow-partial]
+function domainsValue(argv) {
+  const eq = argv.find((a) => a.startsWith('--domains='));
+  if (eq !== undefined) return eq.slice('--domains='.length);
   const flag = argv.indexOf('--domains');
-  if (flag === -1) return undefined;
-  const ids = String(argv[flag + 1] || '').split(',').filter(Boolean);
+  return flag === -1 ? undefined : argv[flag + 1];
+}
+
+function strictFrom(argv, payload) {
+  const hasDomains = argv.includes('--domains') || argv.some((a) => a.startsWith('--domains='));
+  const hasAllowPartial = argv.includes('--allow-partial');
+  if (hasAllowPartial && hasDomains) throw new Error('--allow-partial 和 --domains 不能同时使用');
+  if (hasAllowPartial) return [];
+  if (!hasDomains) return undefined;
+  const ids = String(domainsValue(argv) || '').split(',').filter(Boolean);
+  if (!ids.length) throw new Error('--domains 需要类别列表，例如 --domains iv-a,iv-b');
   const known = payload.domains.map((d) => d.id);
   const unknown = ids.filter((id) => known.indexOf(id) === -1);
   if (unknown.length) throw new Error(`未知类别：${unknown.join('、')}（可选：${known.join('、')}）`);

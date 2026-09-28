@@ -92,10 +92,10 @@ function checkCounts(domain, qs, cs, questionsOnly) {
   return errs;
 }
 
-function checkDomains(domains) {
+function checkDomains(domains, questionsOnly) {
   const errs = [];
   const total = domains.reduce((n, d) => n + d.weight, 0);
-  if (total !== 100) errs.push(`domains.json: 权重之和为 ${total}，应为 100`);
+  if (!questionsOnly && total !== 100) errs.push(`domains.json: 权重之和为 ${total}，应为 100`);
   domains.forEach((d) => {
     if (!isObject(d.target) || !Number.isInteger(d.target.single) || !Number.isInteger(d.target.multi)) {
       errs.push(`domains.json ${d.id}: target 必须含整数 single/multi`);
@@ -169,7 +169,7 @@ function checkDuplicateStems(domains, questions) {
 
 // questionsOnly：面试题库只校验选择题，卡片与权重由 interview-lib 自己负责
 export function validateData({ domains, cards, questions }, { allowPartial = false, strictDomains = null, questionsOnly = false } = {}) {
-  const errors = checkDomains(domains).filter((e) => !(questionsOnly && e.includes('权重之和')));
+  const errors = checkDomains(domains, questionsOnly);
   const chapters = new Set([].concat(...domains.map((d) => d.chapters || [])));
   const seen = new Set();
   const countsFor = (id) => (strictDomains ? strictDomains.indexOf(id) !== -1 : !allowPartial);

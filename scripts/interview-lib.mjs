@@ -168,7 +168,8 @@ export function loadQuestions(srcDir) {
     if (!m) throw new Error(`选择题文件名不对：${name}（应为 iv-a.json … iv-h.json）`);
     let list;
     try {
-      list = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
+      const raw = fs.readFileSync(path.join(dir, name), 'utf8').replace(/^\uFEFF/, '');
+      list = JSON.parse(raw);
     } catch (err) {
       throw new Error(`${name}: JSON 解析失败 - ${err.message}`);
     }
