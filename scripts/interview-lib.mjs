@@ -173,15 +173,32 @@ function asciiShare(text) {
   return ascii / chars.length;
 }
 
-export function leakTerms(payload, extra) {
+function derivedTerms(payload) {
   const derived = [];
   Object.keys(payload.cards).forEach((d) => payload.cards[d].forEach((card) => {
     derived.push(card.title);
     derived.push(spansOf(card.parts.conclusion.blocks).map((s) => s.s).join('').trim().slice(0, LEAK_PREFIX_CHARS));
   }));
-  const long = derived.map((t) => t.trim()).filter((t) => t.length >= MIN_TERM_LENGTH && asciiShare(t) <= MAX_ASCII_SHARE);
+  return derived.map((t) => t.trim());
+}
+
+export function leakTerms(payload, extra) {
+  const long = derivedTerms(payload).filter((t) => t.length >= MIN_TERM_LENGTH && asciiShare(t) <= MAX_ASCII_SHARE);
   const extraTerms = extra.map((t) => t.trim()).filter(Boolean);
   return Array.from(new Set(long.concat(extraTerms)));
+}
+
+// 统计扫描范围：自动扫描只覆盖题目标题和结论前 20 字，跳过过短或偏英文的衍生词条；
+// 其余部分（原理、项目做法、取舍与局限全文）只能靠 qbank-app/leak-terms.txt 里手工列出的词条覆盖。
+export function leakTermStats(payload, extra) {
+  const trimmed = derivedTerms(payload);
+  const checked = trimmed.filter((t) => t.length >= MIN_TERM_LENGTH && asciiShare(t) <= MAX_ASCII_SHARE).length;
+  return {
+    total: trimmed.length,
+    checked,
+    skipped: trimmed.length - checked,
+    extra: extra.map((t) => t.trim()).filter(Boolean).length,
+  };
 }
 
 export function findLeaks(files, terms) {

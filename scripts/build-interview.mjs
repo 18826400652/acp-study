@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  loadSources, buildPayload, leakTerms, readExtraTerms, findLeaks, repoTextFiles, encryptInterview, REQUIRED_LETTERS,
+  loadSources, buildPayload, leakTerms, leakTermStats, readExtraTerms, findLeaks, repoTextFiles, encryptInterview,
+  REQUIRED_LETTERS,
 } from './interview-lib.mjs';
 import { PBKDF2_ITER } from '../js/crypto.js';
 
@@ -19,25 +20,33 @@ async function main() {
   const out = process.env.INTERVIEW_ENC || path.join(ROOT, 'data', 'interview.enc');
   if (!src) throw new Error('请设置环境变量 INTERVIEW_SRC（面试准备目录，里面有 qbank/）');
   if (!password) throw new Error('请设置环境变量 INTERVIEW_PASSWORD');
+  const iter = iterations();
+  const isDefaultOut = !process.env.INTERVIEW_ENC;
+  if (iter < PBKDF2_ITER && isDefaultOut) {
+    throw new Error('测试用的迭代次数不能写入正式密文');
+  }
   const sources = loadSources(src);
   const letters = sources.map((s) => s.letter);
   const missing = REQUIRED_LETTERS.filter((l) => letters.indexOf(l) === -1);
   if (missing.length) throw new Error(`缺少类别文件：${missing.join('、')}`);
   const payload = buildPayload(sources, new Date().toISOString());
-  const leaks = findLeaks(repoTextFiles(ROOT), leakTerms(payload, readExtraTerms(src)));
+  const extraTerms = readExtraTerms(src);
+  const leaks = findLeaks(repoTextFiles(ROOT), leakTerms(payload, extraTerms));
   if (leaks.length) {
     const lines = leaks.map((l) => `  - ${l.path}：「${l.term}」`).join('\n');
     throw new Error(`仓库里发现面试题库原文，已停止构建：\n${lines}`);
   }
   const existing = fs.existsSync(out) ? JSON.parse(fs.readFileSync(out, 'utf8')) : null;
   const envelope = await encryptInterview(payload, password, {
-    existing, newSalt: process.argv.includes('--new-salt'), iter: iterations(),
+    existing, newSalt: process.argv.includes('--new-salt'), iter,
   });
   const text = `${JSON.stringify(envelope)}\n`;
   fs.writeFileSync(out, text);
   const cards = [].concat(...payload.domains.map((d) => payload.cards[d.id]));
   const todo = cards.filter((c) => c.hasTodo).length;
   process.stdout.write(`已生成 ${path.relative(ROOT, out) || out}：${payload.domains.length} 个类别，${cards.length} 张卡片（${todo} 张含待补），密文 ${(text.length / 1024).toFixed(1)} KB\n`);
+  const stats = leakTermStats(payload, extraTerms);
+  process.stdout.write(`防泄漏扫描：检查了 ${stats.checked}/${stats.total} 个题目衍生词条（跳过 ${stats.skipped} 个过短或偏英文的），另加 ${stats.extra} 个 leak-terms.txt 自定义词条\n`);
 }
 
 main().catch((err) => {

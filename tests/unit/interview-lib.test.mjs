@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   parseInline, parseBlocks, parseQbankFile, buildPayload, loadSources, readExtraTerms,
-  leakTerms, findLeaks, repoTextFiles, isInside, checkPassword, encryptInterview, IV_WEIGHTS,
+  leakTerms, leakTermStats, findLeaks, repoTextFiles, isInside, checkPassword, encryptInterview, IV_WEIGHTS,
 } from '../../scripts/interview-lib.mjs';
 import { unlockWithPassword, decryptWithKey } from '../../js/crypto.js';
 
@@ -134,6 +134,39 @@ test('leakTerms filters derived terms with >50% ASCII (generic English definitio
   assert.ok(terms.includes('这是测试的题目标题内容'), `Expected title in ${terms}`);
   assert.ok(!terms.some((t) => t.startsWith('MCP')), `Expected no MCP prefix in ${terms}`);
   assert.ok(terms.includes('ABCDEFGHIJ'), `Expected extra term in ${terms}`);
+});
+
+test('leakTermStats counts every derived term and splits checked vs skipped', () => {
+  const payload = buildPayload(loadSources(FIXTURE), 'x');
+  const stats = leakTermStats(payload, ['甲乙', '  ', '']);
+  // 6 张卡片（A、B 各 3 张），每张贡献 2 个衍生词条（标题 + 结论前 20 字）
+  assert.equal(stats.total, 12);
+  assert.equal(stats.checked + stats.skipped, stats.total);
+  assert.equal(stats.extra, 1);
+});
+
+test('leakTermStats separates ASCII-heavy/short derived terms from checked ones', () => {
+  const payload = {
+    cards: {
+      'iv-test': [
+        {
+          title: '这是测试的题目标题内容',
+          parts: { conclusion: { blocks: [{ t: 'p', c: [{ t: 'text', s: 'MCP（Model Context Protocol）是一种开放协议，' }] }] } },
+        },
+        {
+          title: '短',
+          parts: { conclusion: { blocks: [{ t: 'p', c: [{ t: 'text', s: '这是另一条足够长的结论内容示例文本' }] }] } },
+        },
+      ],
+    },
+  };
+  const stats = leakTermStats(payload, ['ABCDEFGHIJ', '  ']);
+  assert.equal(stats.total, 4);
+  // 通过：长标题「这是测试的题目标题内容」+ 长结论前缀「这是另一条足够长的结论内容示例文本」
+  // 跳过：MCP 结论前缀（>50% ASCII）+ 「短」标题（<8 字）
+  assert.equal(stats.checked, 2);
+  assert.equal(stats.skipped, 2);
+  assert.equal(stats.extra, 1);
 });
 
 test('findLeaks reports each file and term that matched', () => {

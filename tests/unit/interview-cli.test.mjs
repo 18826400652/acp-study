@@ -78,7 +78,7 @@ test('build writes a working envelope when the repo is clean, and decrypt restor
   assert.equal(restored.cards['iv-a'][0].title, title('A'));
 });
 
-test('decrypt refuses an output folder inside the repo and a wrong password', (t) => {
+test('decrypt refuses an output folder inside the repo or a missing bank file', (t) => {
   const inside = run('decrypt-interview.mjs', { INTERVIEW_PASSWORD: PASSWORD }, [path.join(ROOT, 'tmp-out')]);
   assert.notEqual(inside.status, 0);
   assert.match(inside.stderr, /输出目录必须在仓库之外/);
@@ -86,4 +86,45 @@ test('decrypt refuses an output folder inside the repo and a wrong password', (t
   const dir = tempDir(t);
   const missing = run('decrypt-interview.mjs', { INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: path.join(dir, 'none.enc') }, [dir]);
   assert.match(missing.stderr, /找不到密文文件/);
+});
+
+test('decrypt rejects a wrong password and writes nothing', (t) => {
+  const dir = tempDir(t);
+  // 标题只能动态拼出来：写成字面量会被防泄漏扫描在本测试文件里找到
+  const title = (l) => `临时问题 ${l} 只用于错误密码测试`;
+  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach((l) => {
+    fs.mkdirSync(path.join(dir, 'qbank'), { recursive: true });
+    const text = `# ${l}. 临时类别\n\n### ${l}1. ${title(l)}\n\n**结论**：临时结论 ${l}\n\n**原理**：x\n\n**我在项目里怎么做**：x\n\n**取舍与局限**：x\n`;
+    fs.writeFileSync(path.join(dir, 'qbank', `${l}-tmp.md`), text);
+  });
+  const out = path.join(dir, 'x.enc');
+  const build = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out });
+  assert.equal(build.status, 0, build.stderr);
+
+  const restoreDir = path.join(dir, 'restore-wrong');
+  const wrongPassword = 'a-totally-different-password-0000';
+  const dec = run('decrypt-interview.mjs', { INTERVIEW_PASSWORD: wrongPassword, INTERVIEW_ENC: out }, [restoreDir]);
+  assert.notEqual(dec.status, 0);
+  assert.match(dec.stderr, /密码不对/);
+  assert.equal(fs.existsSync(path.join(restoreDir, 'interview-payload.json')), false);
+});
+
+test('build refuses to write test-grade iterations to the default interview.enc path', (t) => {
+  const dir = tempDir(t);
+  // 标题只能动态拼出来：写成字面量会被防泄漏扫描在本测试文件里找到
+  const title = (l) => `临时问题 ${l} 只用于迭代次数下限测试`;
+  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach((l) => {
+    fs.mkdirSync(path.join(dir, 'qbank'), { recursive: true });
+    const text = `# ${l}. 临时类别\n\n### ${l}1. ${title(l)}\n\n**结论**：临时结论 ${l}\n\n**原理**：x\n\n**我在项目里怎么做**：x\n\n**取舍与局限**：x\n`;
+    fs.writeFileSync(path.join(dir, 'qbank', `${l}-tmp.md`), text);
+  });
+  const realOut = path.join(ROOT, 'data', 'interview.enc');
+  const existedBefore = fs.existsSync(realOut);
+  const before = existedBefore ? fs.readFileSync(realOut) : null;
+  // INTERVIEW_ENC 显式置空，模拟“没有设置”，让脚本落回仓库里真正的默认路径
+  const res = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: '' });
+  assert.notEqual(res.status, 0);
+  assert.match(res.stderr, /测试用的迭代次数不能写入正式密文/);
+  assert.equal(fs.existsSync(realOut), existedBefore);
+  if (existedBefore) assert.deepEqual(fs.readFileSync(realOut), before);
 });
