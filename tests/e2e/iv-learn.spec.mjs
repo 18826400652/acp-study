@@ -47,6 +47,28 @@ test('the weak filter shows only fuzzy and unknown cards and is linked from home
   await expect(page.locator('.crumb')).toHaveText('示例类别甲 · 1/1');
 });
 
+test('the weak queue re-syncs after grading instead of showing a stale card', async ({ page }) => {
+  await page.goto('./#/iv/learn/iv-a');
+  await page.getByRole('button', { name: '看答案' }).click();
+  await page.getByRole('button', { name: '模糊', exact: true }).click();
+  await expect(page.locator('.crumb')).toHaveText('示例类别甲 · 2/3');
+  await page.getByRole('button', { name: '看答案' }).click();
+  await page.getByRole('button', { name: '模糊', exact: true }).click();
+  await expect(page.locator('.crumb')).toHaveText('示例类别甲 · 3/3');
+
+  await page.getByRole('button', { name: /只看模糊 \+ 不会 2/ }).click();
+  await expect(page.locator('.crumb')).toHaveText('示例类别甲 · 1/2');
+
+  await page.getByRole('button', { name: '看答案' }).click();
+  await page.getByRole('button', { name: '会', exact: true }).click();
+  await expect(page.locator('.crumb')).toHaveText('示例类别甲 · 1/1');
+  await expect(page.getByRole('button', { name: /只看模糊 \+ 不会 1/ })).toBeVisible();
+
+  await page.getByRole('button', { name: '看答案' }).click();
+  await page.getByRole('button', { name: '会', exact: true }).click();
+  await expect(page.locator('.empty')).toContainText('没有模糊或不会的卡片。');
+});
+
 test('swipe and pager move between cards; no practice link without questions', async ({ page }) => {
   await page.goto('./#/iv/learn/iv-b');
   const box = await page.locator('.flashcard').boundingBox();

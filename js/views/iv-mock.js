@@ -122,19 +122,31 @@ function resultItem(card, result, i) {
     h('div', { class: 'iv-review-body' }, answerParts(card))));
 }
 
+function weakReviewLinks(ctx, graded, record) {
+  return ctx.data.domains
+    .filter((d) => graded.some((cid) => {
+      const card = ctx.data.cardById.get(cid);
+      return card && card.domain === d.id && isWeakGrade(record.results[card.id].grade);
+    }))
+    .map((d, i) => h('a', {
+      class: i === 0 ? 'btn btn-primary btn-block' : 'btn btn-outline btn-block',
+      href: ctx.link(`learn/${d.id}/weak`),
+    }, `复习 ${d.name}：模糊和不会的卡片`));
+}
+
 export function renderMockResult(ctx, id) {
   const record = ctx.getProgress().mocks.filter((m) => m.id === id)[0];
   if (!record) return emptyState('没有找到这次模拟面试记录。', ctx.link('mock'), '返回模拟面试');
   const graded = record.cardIds.filter((cid) => record.results[cid]);
-  const weak = graded.map((cid) => ctx.data.cardById.get(cid)).filter((c) => c && isWeakGrade(record.results[c.id].grade))[0];
+  const totalMs = graded.reduce((sum, cid) => sum + record.results[cid].ms, 0);
   return [
     h('section', { class: 'result-hero iv-result' },
       h('div', { class: 'grade-summary' }, GRADES.map((g) => stat(String(record.counts[g]), GRADE_LABELS[g]))),
-      h('p', { class: 'muted' }, `共 ${graded.length} 题 · 用时 ${formatDuration(record.finishedAt - record.startedAt)}`)),
+      h('p', { class: 'muted' }, `共 ${graded.length} 题 · 用时 ${formatDuration(totalMs)}`)),
     h('section', { class: 'section' },
       h('h2', { class: 'section-title' }, '逐题回看'),
       h('ol', { class: 'review-list' }, graded.map((cid, i) => resultItem(ctx.data.cardById.get(cid), record.results[cid], i)))),
-    weak ? h('a', { class: 'btn btn-primary btn-block', href: ctx.link(`learn/${weak.domain}/weak`) }, '去复习模糊和不会的卡片') : null,
+    ...weakReviewLinks(ctx, graded, record),
     h('a', { class: 'btn btn-secondary btn-block', href: ctx.link('mock') }, '返回模拟面试'),
   ].filter(Boolean);
 }

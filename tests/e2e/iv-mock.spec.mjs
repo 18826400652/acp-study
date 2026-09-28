@@ -37,7 +37,7 @@ test('a mock interview resumes after reload and ends on a result page', async ({
   await expect(page.locator('.review-item[open] .iv-part')).toHaveCount(4);
   await expectNoHorizontalOverflow(page);
   await snap(page, testInfo, 'iv-mock-result');
-  await page.getByRole('link', { name: '去复习模糊和不会的卡片' }).click();
+  await page.getByRole('link', { name: /^复习 .+：模糊和不会的卡片$/ }).first().click();
   await expect(page).toHaveURL(/#\/iv\/learn\/iv-[ab]\/weak$/);
 });
 
@@ -50,6 +50,27 @@ test('ending early keeps the graded answers', async ({ page }) => {
   await expect(page.locator('.iv-result .grade-summary .stat-value')).toHaveText(['0', '0', '1']);
   await page.getByRole('link', { name: '返回模拟面试' }).click();
   await expect(page.locator('.history li')).toHaveCount(1);
+});
+
+test('result time sums per-card durations instead of wall time across a pause', async ({ page }) => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  await page.clock.install();
+  await page.goto('./#/iv/mock');
+  await page.getByRole('button', { name: '开始模拟面试' }).click();
+  for (let i = 0; i < 3; i += 1) {
+    await page.clock.fastForward(1000);
+    await answer(page, '会');
+  }
+  // 离开模拟面试页面先停掉倒计时定时器，再快进两天虚拟时间，模拟中途搁置后回来继续答
+  await page.goto('./#/iv');
+  await page.clock.fastForward(DAY_MS * 2);
+  await page.goto('./#/iv/mock');
+  for (let i = 0; i < 3; i += 1) {
+    await page.clock.fastForward(1000);
+    await answer(page, '会');
+  }
+  await expect(page).toHaveURL(/#\/iv\/mock\/result\/\d+$/);
+  await expect(page.locator('.iv-result .muted')).toHaveText('共 6 题 · 用时 0 分 6 秒');
 });
 
 test('the soft timer turns red after two minutes', async ({ page }) => {

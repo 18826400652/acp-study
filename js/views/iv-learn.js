@@ -68,7 +68,15 @@ export function renderIvCards(ctx, domainId, initialFilter) {
     show(0);
   };
   const grade = (value) => {
-    ctx.update((p) => gradeCard(p, list[index].id, value, Date.now()));
+    const card = list[index];
+    const followingId = list[index + 1] ? list[index + 1].id : null;
+    ctx.update((p) => gradeCard(p, card.id, value, Date.now()));
+    if (filter === 'weak') {
+      list = weakCards();
+      const followIdx = followingId === null ? -1 : list.findIndex((c) => c.id === followingId);
+      show(list.length ? (followIdx !== -1 ? followIdx : Math.min(index, list.length - 1)) : 0);
+      return;
+    }
     if (index < list.length - 1) show(index + 1);
     else draw();
   };
