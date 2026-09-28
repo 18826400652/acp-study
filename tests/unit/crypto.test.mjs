@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   encryptPayload, unlockWithPassword, decryptWithKey, deriveKey, isEnvelope, isCryptoSupported,
-  toBase64, fromBase64, WrongKeyError, PBKDF2_ITER, ENVELOPE_VERSION, KDF_NAME,
+  toBase64, fromBase64, WrongKeyError, PBKDF2_ITER, MAX_ITER, ENVELOPE_VERSION, KDF_NAME,
 } from '../../js/crypto.js';
 
 const FAST = { iter: 1000 };
@@ -61,8 +61,12 @@ test('non-ASCII passwords work', async () => {
 
 test('isEnvelope rejects malformed input', async () => {
   const good = await encryptPayload(PAYLOAD, PASSWORD, FAST);
-  const bad = [null, 'x', {}, { ...good, v: 2 }, { ...good, kdf: 'scrypt' }, { ...good, iter: 0 }, { ...good, iter: 1.5 }, { ...good, ct: '' }, { ...good, salt: 1 }];
+  const bad = [
+    null, 'x', {}, { ...good, v: 2 }, { ...good, kdf: 'scrypt' }, { ...good, iter: 0 }, { ...good, iter: 1.5 },
+    { ...good, ct: '' }, { ...good, salt: 1 }, { ...good, iter: MAX_ITER + 1 },
+  ];
   bad.forEach((v) => assert.equal(isEnvelope(v), false, JSON.stringify(v)));
+  assert.equal(isEnvelope({ ...good, iter: MAX_ITER }), true);
 });
 
 test('malformed envelopes fail with a clear message', async () => {
@@ -83,4 +87,18 @@ test('derived keys are not extractable', async () => {
 
 test('Node provides every API the module needs', () => {
   assert.equal(isCryptoSupported(), true);
+});
+
+test('isCryptoSupported swallows errors and returns false instead of throwing', () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+  Object.defineProperty(globalThis, 'crypto', {
+    configurable: true,
+    get() { throw new Error('access to crypto blocked'); },
+  });
+  try {
+    assert.doesNotThrow(() => isCryptoSupported());
+    assert.equal(isCryptoSupported(), false);
+  } finally {
+    Object.defineProperty(globalThis, 'crypto', descriptor);
+  }
 });

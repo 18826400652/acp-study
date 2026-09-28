@@ -3,6 +3,7 @@ export const ENVELOPE_VERSION = 1;
 export const KDF_NAME = 'PBKDF2-SHA256';
 export const PBKDF2_ITER = 600000;
 export const MIN_PASSWORD_LENGTH = 12;
+export const MAX_ITER = 10000000;
 const SALT_BYTES = 16;
 const IV_BYTES = 12;
 const ENVELOPE_FIELDS = ['salt', 'iv', 'ct'];
@@ -17,9 +18,13 @@ export class WrongKeyError extends Error {
 }
 
 export function isCryptoSupported() {
-  return Boolean(globalThis.crypto && globalThis.crypto.subtle
-    && typeof globalThis.CompressionStream === 'function'
-    && typeof globalThis.DecompressionStream === 'function');
+  try {
+    return Boolean(globalThis.crypto && globalThis.crypto.subtle
+      && typeof globalThis.CompressionStream === 'function'
+      && typeof globalThis.DecompressionStream === 'function');
+  } catch {
+    return false;
+  }
 }
 
 export function toBase64(bytes) {
@@ -57,7 +62,7 @@ export async function deriveKey(password, salt, iter) {
 
 export function isEnvelope(v) {
   return v !== null && typeof v === 'object' && v.v === ENVELOPE_VERSION && v.kdf === KDF_NAME
-    && Number.isInteger(v.iter) && v.iter > 0
+    && Number.isInteger(v.iter) && v.iter > 0 && v.iter <= MAX_ITER
     && ENVELOPE_FIELDS.every((k) => typeof v[k] === 'string' && v[k].length > 0);
 }
 
