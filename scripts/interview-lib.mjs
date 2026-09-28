@@ -9,6 +9,8 @@ export const IV_WEIGHTS = { A: 20, B: 18, C: 8, D: 12, E: 10, F: 8, G: 18, H: 6 
 export const REQUIRED_LETTERS = Object.keys(IV_WEIGHTS);
 export const LEAK_PREFIX_CHARS = 20;
 export const MIN_TERM_LENGTH = 8;
+// Generic English definitions (e.g. "MCP（Model Context Pr") collide with public course text; drop derived terms that are >50% ASCII
+export const MAX_ASCII_SHARE = 0.5;
 const PART_KEYS = [['结论', 'conclusion'], ['原理', 'principle'], ['我在项目里怎么做', 'practice'], ['取舍与局限', 'tradeoff']];
 const FILE_RE = /^([A-H])-[\w-]+\.md$/;
 const TITLE_RE = /^# ([A-H])\. (.+?)(?:（\d+ 题）)?\s*$/;
@@ -164,14 +166,22 @@ export function readExtraTerms(srcDir) {
 
 // ---------- 防泄漏 ----------
 
+function asciiShare(text) {
+  const chars = Array.from(text);
+  if (chars.length === 0) return 0;
+  const ascii = chars.filter((c) => c.charCodeAt(0) < 128).length;
+  return ascii / chars.length;
+}
+
 export function leakTerms(payload, extra) {
   const derived = [];
   Object.keys(payload.cards).forEach((d) => payload.cards[d].forEach((card) => {
     derived.push(card.title);
     derived.push(spansOf(card.parts.conclusion.blocks).map((s) => s.s).join('').trim().slice(0, LEAK_PREFIX_CHARS));
   }));
-  const long = derived.map((t) => t.trim()).filter((t) => t.length >= MIN_TERM_LENGTH);
-  return Array.from(new Set(long.concat(extra.map((t) => t.trim()).filter(Boolean))));
+  const long = derived.map((t) => t.trim()).filter((t) => t.length >= MIN_TERM_LENGTH && asciiShare(t) <= MAX_ASCII_SHARE);
+  const extraTerms = extra.map((t) => t.trim()).filter(Boolean);
+  return Array.from(new Set(long.concat(extraTerms)));
 }
 
 export function findLeaks(files, terms) {

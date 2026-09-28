@@ -113,6 +113,29 @@ test('leakTerms uses long titles, conclusion prefixes and every extra term', () 
   assert.deepEqual(leakTerms(short, []), []);
 });
 
+test('leakTerms filters derived terms with >50% ASCII (generic English definitions), but keeps extra terms', () => {
+  // Card title is Chinese and ≥8 chars, should be kept
+  const payload = {
+    cards: {
+      'iv-test': [{
+        title: '这是测试的题目标题内容',
+        parts: {
+          conclusion: {
+            blocks: [{ t: 'p', c: [{ t: 'text', s: 'MCP（Model Context Protocol）是一种开放协议，' }] }],
+          },
+        },
+      }],
+    },
+  };
+  // The 20-char conclusion prefix is "MCP（Model Context Pr" which is >50% ASCII, so it's dropped
+  // The title "这是测试的题目标题内容" is all Chinese (0% ASCII), so it's kept
+  // The extra term "ABCDEFGHIJ" is pure ASCII but from extra, so it's kept (not filtered)
+  const terms = leakTerms(payload, ['ABCDEFGHIJ']);
+  assert.ok(terms.includes('这是测试的题目标题内容'), `Expected title in ${terms}`);
+  assert.ok(!terms.some((t) => t.startsWith('MCP')), `Expected no MCP prefix in ${terms}`);
+  assert.ok(terms.includes('ABCDEFGHIJ'), `Expected extra term in ${terms}`);
+});
+
 test('findLeaks reports each file and term that matched', () => {
   const files = [{ path: 'a.txt', text: '这里有甲乙丙' }, { path: 'b.txt', text: '干净' }];
   assert.deepEqual(findLeaks(files, ['甲乙', '丁']), [{ path: 'a.txt', term: '甲乙' }]);
