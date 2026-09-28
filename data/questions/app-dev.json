@@ -6,8 +6,8 @@
     "stem": "关于课程介绍的大模型文本生成流程（文本分词→Token 向量化→大模型推理→解码与自回归→输出文本），下列说法正确的是？",
     "options": [
       "Token 一定对应一个完整的词语，因此流式输出时不会出现一个词被拆开输出的情况",
-      "Transformer 能直接感知 token 的先后顺序，因此不需要额外添加位置信息",
-      "Token ID 的数值大小本身没有语义，需要用 ID 在 Embedding 矩阵中查表转换为向量",
+      "Transformer 能直接感知 token 的先后顺序，因此不需要再额外添加位置编码信息",
+      "Token ID 的数值本身没有语义，要用它在 Embedding 矩阵中查表得到向量",
       "流式输出让模型边想边答，因此最终答案的质量通常低于非流式输出"
     ],
     "answer": [2],
@@ -20,10 +20,10 @@
     "type": "single",
     "stem": "使用 OpenAI SDK 的 Function Calling 时，模型在响应中返回了 tool_calls 字段。接下来应该发生什么？",
     "options": [
-      "由开发者的代码解析函数名和参数、实际执行函数，把结果包装成 role 为 tool 的消息，再次调用 API 让模型生成最终回复",
+      "由开发者代码解析函数名和参数并实际执行，把结果作为 role 为 tool 的消息再次调用 API 生成最终回复",
       "无需处理：模型已在服务端执行完函数，tool_calls 中直接包含了函数的执行结果",
       "由开发者把 tool_calls 的内容作为最终答案直接返回给用户，本轮对话结束",
-      "由开发者把 tool_calls 放进 system 消息，要求模型自行模拟出函数的执行结果"
+      "由开发者把 tool_calls 放进 system 消息再次调用 API，要求模型自行模拟出函数的执行结果并生成最终回复"
     ],
     "answer": [0],
     "explanation": "课程中 Function Calling 的“执行与返回”环节明确由开发者完成：解析 tool_calls 中的函数名和参数、在代码中实际执行对应函数、把执行结果包装成 role 为 tool 的 message、再次调用 API，由模型基于工具结果生成最终回复，故 A 正确。B 错：模型只负责调用决策，返回函数名和符合 Schema 的参数 JSON，并不执行函数。C 错：tool_calls 只是调用意图，不是给用户的答案。D 错：工具结果必须来自真实执行，让模型“模拟”结果等于让它编造信息。",
@@ -67,10 +67,10 @@
     "stem": "既然 AgentScope 等框架已经封装好了 ReAct Agent 和工具调用，课程认为仍然值得理解手动实现 Function Calling 流程的原因有哪些？",
     "options": [
       "框架内部执行的就是“调用模型→解析 tool_calls→执行函数→再次调用模型”这套流程，了解机制才能调试问题",
-      "手动实现在任何情况下都比使用框架运行得更快、更省 Token",
+      "手动实现在任何情况下都比使用框架运行得更快、更省 Token，因此生产环境应尽量避免使用框架",
       "生产环境常需实现权限验证、缓存、重试、日志监控等特殊逻辑，理解底层才能扩展框架",
       "部分模型或平台不支持标准 Function Calling 格式时，手动实现可作为降级方案",
-      "框架无法自动管理对话历史，工具调用记录必须由开发者手动维护"
+      "框架无法自动管理对话历史，用户消息、工具调用记录和工具结果都必须由开发者手动维护"
     ],
     "answer": [0, 2, 3],
     "explanation": "课程给出的三个理由是：理解底层原理以便调试（A）、满足权限验证/缓存/重试/日志监控等自定义需求（C）、在不支持标准 Function Calling 的模型或平台上作为降级方案（D）。B 错：课程从未说手动实现性能更好，学习它是为了理解与扩展。E 错：课程明确 AgentScope 会自动记录用户消息、工具调用、工具结果等状态，无需手动维护。",
@@ -82,9 +82,9 @@
     "type": "single",
     "stem": "课程建议不要把 API Key 直接写在代码里，而是存放在环境变量中。课程给出的理由是？",
     "options": [
-      "存入环境变量的 API Key 会被自动加密，调用时再由百炼平台解密校验",
+      "存入环境变量的 API Key 会被操作系统自动加密，调用时再由百炼平台解密并校验",
       "明文写在代码中容易在分享代码时泄露密钥，而且更换 API Key 后所有明文编码的地方都要修改",
-      "OpenAI SDK 只能从环境变量读取 API Key，无法在代码中通过参数传入",
+      "OpenAI SDK 只能从环境变量读取 API Key，无法在创建 client 时通过 api_key 参数传入",
       "把 API Key 放入环境变量后，调用模型就不再消耗 Token 额度"
     ],
     "answer": [1],
@@ -99,8 +99,8 @@
     "options": [
       "必须改用千问专用 SDK，OpenAI SDK 只能调用 OpenAI 自家的模型",
       "api_key 填写 OpenAI 平台的密钥，base_url 保持 SDK 默认值即可",
-      "只需在 model 参数中写 qwen-max，不需要配置 base_url",
-      "api_key 读取环境变量 DASHSCOPE_API_KEY，base_url 指向百炼 DashScope 的兼容模式（compatible-mode）地址"
+      "api_key 读取环境变量 DASHSCOPE_API_KEY，只需在 model 参数中写 qwen-max，base_url 保持默认",
+      "api_key 读取环境变量 DASHSCOPE_API_KEY，base_url 指向百炼 DashScope 兼容模式地址"
     ],
     "answer": [3],
     "explanation": "课程 1.4 节用业界广泛采用的 OpenAI Python SDK 调用千问：api_key 取自环境变量 DASHSCOPE_API_KEY（百炼平台创建的 API Key），base_url 设为 https://dashscope.aliyuncs.com/compatible-mode/v1，故 D 正确。A 错：课程恰恰是用 OpenAI SDK 调用千问。B 错：需要的是百炼平台的 API Key，且 base_url 必须改为 DashScope 兼容模式地址，否则请求会发往默认地址。C 错：只改 model 而不改 base_url，请求不会到达百炼服务。",
@@ -127,9 +127,9 @@
     "type": "single",
     "stem": "课程在 1.5 节实现了多轮对话，让模型能理解“那我怎么申请这个工具的账号呢”中的“这个工具”。实现多轮对话的关键是？",
     "options": [
-      "开启 stream=True，让模型在同一个连接中持续保持会话状态",
-      "在 system 消息中写明“请记住之前的对话内容”，模型就会自动保留历史",
-      "每次调用都把完整对话历史（包括之前的用户问题和模型回答）放在 messages 列表中一起传入",
+      "开启 stream=True，让模型在同一个连接中持续保持会话状态，后续问题无需重复传入",
+      "在 system 消息中写明“请记住之前的对话内容”，模型就会在服务端自动保留历史",
+      "每次调用都把之前的用户问题和模型回答一并放入 messages 列表传入",
       "调低 temperature，让模型更稳定地记住上一轮提到的内容"
     ],
     "answer": [2],
@@ -144,7 +144,7 @@
     "options": [
       "设置 stream=False，然后读取 response.choices[0].message.content",
       "设置 stream=True，遍历返回的 response，读取每个 chunk.choices[0].delta.content",
-      "设置 stream=True，等循环结束后再读取 response.choices[0].message.content",
+      "设置 stream=True，遍历返回的 response，循环结束后再读取 response.choices[0].message.content",
       "设置 stream=True，遍历每个 chunk 并从 chunk.usage 中读取文本"
     ],
     "answer": [1],
@@ -157,8 +157,8 @@
     "type": "single",
     "stem": "课程引入流式输出（Streaming），主要是为了解决什么问题？",
     "options": [
-      "默认情况下 API 要等模型生成完所有内容才一次性返回，用户需要长时间面对空白界面",
-      "非流式输出的答案质量较低，流式输出能让模型边生成边修正错误",
+      "默认要等模型生成完所有内容才一次性返回，用户需长时间面对空白界面",
+      "非流式输出的答案质量较低，流式输出能让模型边生成边修正前面已输出的错误",
       "长回答会超出上下文窗口，流式输出可以分批发送来绕过窗口限制",
       "流式输出按 chunk 计费，能显著降低调用成本"
     ],
@@ -189,8 +189,8 @@
     "options": [
       "直接把该 token 输出给用户，本次生成随即结束",
       "用该 token 替换输入序列的最后一个 token，再重新计算",
-      "把该 token 追加到输入序列末尾形成新序列，基于新序列重复推理和解码，继续预测下一个 token",
-      "把该 token 送回分词器，重新训练 Embedding 矩阵后再继续生成"
+      "把该 token 追加到输入序列末尾，基于新序列继续预测下一个 token",
+      "把该 token 送回分词器，重新训练 Embedding 矩阵后再继续预测下一个 token"
     ],
     "answer": [2],
     "explanation": "课程第四阶段指出：选定的新 token 会被追加（append）到原始输入序列末尾，形成“ACP is a very informative”，模型基于新序列重复第三、四阶段继续预测，这种“文字接龙”称为自回归生成，故 C 正确。A 错：生成要持续到满足停止条件（EOS、最大长度、停用词）才结束。B 错：是追加而不是替换。D 错：生成过程中只是用 token ID 查 Embedding 矩阵，不会重新训练。",
@@ -202,10 +202,10 @@
     "type": "single",
     "stem": "课程指出，即使输入完全相同，在线服务的回答也可能“略有不同”。课程给出的直接原因是？",
     "options": [
-      "模型在每次调用后都会根据用户反馈自动更新权重",
-      "很多在线服务默认使用随机采样解码，从高概率的候选集合中随机抽取 token",
+      "模型在每次调用后都会根据用户反馈自动微调并更新权重，所以前后回答不同",
+      "很多在线服务默认使用随机采样解码（如 Top-p、Top-k）",
       "分词器每次对同一段文本的切分结果都不一样",
-      "位置编码每次随机生成，导致模型对语序的理解不同"
+      "位置编码在每次调用时随机生成，导致模型对同一句话语序的理解不同"
     ],
     "answer": [1],
     "explanation": "课程在“解码与自回归”阶段指出：解码策略分为近似确定性解码和随机采样解码，很多在线服务默认使用随机采样解码（如 Top-p、Top-k），因此即使输入完全相同，也可能出现回答略有不同的现象，故 B 正确。A 错：调用模型不会改变模型权重。C 错：分词是把文本编码为词表中的 token ID，课程没有说它是随机的。D 错：位置编码用于让模型区分 token 的先后顺序，并不是随机性来源。",
@@ -217,7 +217,7 @@
     "type": "single",
     "stem": "课程示例中，temperature 从 0.1 升到 0.7 再到 1.2，候选 Token“RAG”的概率从 0.8 降到 0.6 再到 0.3。对此描述正确的是？",
     "options": [
-      "概率分布从陡峭趋于平滑，“RAG”仍是概率最高的，但已和其他候选接近，输出从相对固定变得多样",
+      "分布从陡峭趋于平滑，“RAG”仍最高但已与其他候选接近，输出更多样",
       "温度升高后，“RAG”被移出候选集合，只能从其他 Token 中选择",
       "温度升高使候选集合缩小为一个 Token，因此输出更加确定",
       "各候选 Token 的概率同步下降，概率总和变得小于 1"
@@ -295,7 +295,7 @@
       "硬盘：可以不断写入公司知识并永久保存",
       "CPU：决定模型推理能力的强弱",
       "外部知识库：存放全部公司文档，供模型随时查阅",
-      "内存（RAM）：容量有限，输入内容超过最大限制就会导致错误"
+      "内存（RAM）：容量有限，超出上限会导致错误"
     ],
     "answer": [3],
     "explanation": "课程 3.2 节把上下文窗口比作计算机的“内存（RAM）”：它是大模型接收指令、问题和背景知识的地方，容量有限，无法一次塞进整个知识库，超过最大限制就会导致错误，故 D 正确。A 错：硬盘对应模型权重，里面预装通用知识，而公司内部资料是空白的。B 错：CPU 对应推理能力。C 错：外部知识库是 RAG 检索的对象，并不等同于模型的上下文窗口。",
@@ -322,7 +322,7 @@
     "type": "single",
     "stem": "课程扩展阅读中，想让千问在生成回答时利用互联网搜索结果来丰富回复内容，可以怎样做？",
     "options": [
-      "在 tools 参数中定义 web_search 函数，模型会在服务端自动执行搜索",
+      "在 tools 参数中定义 web_search 函数的 JSON Schema，模型会在服务端自动执行搜索并返回结果",
       "通过 extra_body={\"enable_search\": True} 开启 enable_search 参数",
       "设置 stream=True，模型会在流式输出过程中自动联网检索",
       "把模型换成思考模型，思考过程会自动联网搜索"
@@ -352,9 +352,9 @@
     "type": "multi",
     "stem": "关于课程 multi_turn_chat 示例及其小贴士中的对话历史管理，下列说法正确的有？",
     "options": [
-      "对话历史会占用上下文窗口空间，对话轮次过多时可能需要对历史消息进行截断或摘要处理",
+      "对话历史会占用上下文窗口，轮次过多时可能需要截断或摘要",
       "messages 列表中的每条消息都包含 role 和 content 两个关键字段",
-      "对话历史由百炼服务端自动保存，客户端每次只需传入最新的问题",
+      "对话历史由百炼服务端按会话自动保存，客户端每次调用只需传入最新的一条用户问题",
       "在生产环境中，通常需要把对话历史持久化存储（如数据库），以支持用户跨会话的连续对话",
       "为节省上下文，模型的 assistant 回复不必加入历史，只保留用户提问即可"
     ],
@@ -384,7 +384,7 @@
     "type": "multi",
     "stem": "即使把 temperature 设为 0、top_p 设为极小值并使用相同的 seed，同一问题的输出仍可能不一致。关于这一现象，符合课程说法的有？",
     "options": [
-      "这说明参数没有生效，应检查代码是否正确传入了参数",
+      "这说明 temperature、top_p 和 seed 参数没有生效，应检查代码是否正确传入了这些参数",
       "大模型运行在分布式系统中、模型输出引入了优化等复杂因素，可能带来微小的随机性",
       "改用非流式输出，就能保证每次输出完全一致",
       "每次调用传入相同的 seed 并保持其他参数不变，模型会尽最大可能返回相同结果，但无法保证完全一致"
@@ -399,7 +399,7 @@
     "type": "multi",
     "stem": "课程把上下文工程的核心技术概括为 RAG、Prompt、Tool、Memory。下列对应关系正确的有？",
     "options": [
-      "Prompt：为模型建立长短期记忆，使其在连续对话中理解历史上下文",
+      "Prompt：为模型建立长短期记忆，使其能够在连续对话中理解历史上下文",
       "RAG：从外部知识库（如公司文档）中检索信息，为模型提供精准的回答依据",
       "Memory：通过精心设计的指令，引导模型的思考方式和输出格式",
       "Tool：赋予模型调用计算器、搜索引擎、API 等外部工具的能力，以获取实时信息或执行特定任务",
@@ -447,8 +447,8 @@
     "stem": "关于 top_p 与 top_k 这两个参数，下列说法符合课程的有？",
     "options": [
       "top_k 只保留概率最高的 k 个 Token，按原有比例缩放使其概率总和重新变为 1，再从中随机采样",
-      "top_p 通过改变 softmax 概率分布的尖锐程度来控制随机性",
-      "top_p 按概率从高到低排序，选取累计概率达到设定阈值的 Token 组成新的候选集合",
+      "top_p 通过改变 softmax 概率分布的尖锐程度来控制随机性，值越大分布越平缓",
+      "top_p 按概率从高到低累加，选取累计概率达到阈值的 Token 作为候选集合",
       "top_k 越大，候选范围越窄，生成内容越稳定",
       "top_k 设为 1 时，每一步只保留概率最高的 Token，输出更确定，但也更容易缺少变化和创意"
     ],
@@ -523,7 +523,7 @@
     "stem": "课程用 Pydantic 实现结构化输出时，定义了 ToolCall = Union[WebSearchCall, SearchArxivCall]。这样定义的含义是？",
     "options": [
       "模型需要同时调用这两个工具，并分别返回两组参数",
-      "模型最终的决策是这两种工具调用中的一种，校验时按对应的工具名和参数结构验证",
+      "模型的决策是两种工具调用之一，按对应的工具名和参数结构校验",
       "两个工具共用同一个参数模型，因此 tool_name 字段可以任意填写",
       "Union 会把两个工具合并成一个新工具，交给模型执行"
     ],
@@ -537,13 +537,13 @@
     "type": "single",
     "stem": "在“引导-校验-重试”闭环的课程代码中，模型输出无法通过 JSON 解析或 Pydantic 校验时，程序会怎么处理？",
     "options": [
-      "第一次校验失败就直接返回 None，不再调用模型",
-      "调高 temperature，用原始提示词重新请求一次",
-      "把上次的错误输出（assistant 消息）和错误信息（user 消息）追加到对话历史，要求模型严格按 JSON 重新输出，最多重试 max_retries 次",
-      "用正则表达式从自然语言中提取工具名，跳过校验直接执行"
+      "第一次校验失败就直接返回 None，由调用方决定是否重新发起整个请求",
+      "调高 temperature 让输出更多样，再用原始提示词重新请求，最多尝试 max_retries 次",
+      "把错误输出和错误信息追加到对话历史，要求模型按 JSON 重新输出，最多尝试 max_retries 次",
+      "用正则表达式从自然语言回复中提取工具名和参数，跳过 Pydantic 校验直接执行"
     ],
     "answer": [2],
-    "explanation": "课程 3.2 节：校验失败时，程序捕获错误信息，把它连同模型上一次的错误输出作为修正线索再发给模型，要求重新生成；代码中把 raw_output 作为 assistant 消息、“格式错误……请严格按照JSON格式重新输出”作为 user 消息追加，循环最多 max_retries 次，故 C 正确。A 错：只有全部重试都失败后才返回 None。B 错：课程代码调用时 temperature=0，也没有通过调高温度来重试。D 错：跳过校验违背了“用相同 Schema 严格验证”的原则。",
+    "explanation": "课程 3.2 节：校验失败时，程序捕获错误信息，把它连同模型上一次的错误输出作为修正线索再发给模型，要求重新生成；代码中把 raw_output 作为 assistant 消息、“格式错误……请严格按照JSON格式重新输出”作为 user 消息追加，循环 for attempt in range(max_retries) 总共最多尝试 max_retries 次（含第一次调用），故 C 正确。A 错：只有全部重试都失败后才返回 None。B 错：课程代码调用时 temperature=0，也没有通过调高温度、沿用原始提示词来重试，而是把错误线索追加进对话历史。D 错：用正则提取并跳过校验违背了“用相同 Schema 严格验证”的原则。",
     "source": "3_1_Agent基础与工具调用"
   },
   {
@@ -568,9 +568,9 @@
     "stem": "课程指出，Function Calling 的工具结果需要通过第二次 API 调用传回给模型。由此形成的 ReAct 模式指的是？",
     "options": [
       "先检索知识库、再执行工具的“检索—行动”两步流程",
-      "由开发者预先写死调用哪些工具及调用顺序，模型只负责生成最终回复",
+      "由开发者预先写死调用哪些工具及其顺序，模型只负责根据工具结果生成最终回复",
       "模型在一次调用中同时完成工具执行和回复生成",
-      "模型观察工具结果、思考任务是否完成，再决定给出最终答案还是继续调用工具的“思考—行动—观察”循环"
+      "模型观察工具结果、思考任务是否完成，再决定回答还是继续调用工具的循环"
     ],
     "answer": [3],
     "explanation": "课程 4.2 节：工具结果通过第二次 API 调用传回，意味着大模型会观察工具调用的结果，思考任务是否完成，然后决定给出最终答案还是继续行动（调用更多工具），这种“思考—行动—观察”循环就是 ReAct 模式，按此模式工作的 Agent 称为 ReAct Agent，故 D 正确。A 是对名称的臆测，与课程定义不符。B 描述的是硬编码方案。C 错：工具由开发者执行，结果要通过第二次调用传回模型。",
@@ -582,10 +582,10 @@
     "type": "single",
     "stem": "在 AgentScope 中，要让 ReActAgent 使用一个自定义 Python 函数作为工具，课程的做法是？",
     "options": [
-      "编写带文档字符串的函数（返回 ToolResponse），用 Toolkit 的 register_tool_function 注册，再把 toolkit 传给 ReActAgent",
-      "手写该函数的完整 JSON Schema，放进 ReActAgent 的 sys_prompt 中",
-      "把函数部署成 MCP Server，因为 AgentScope 只能通过 MCP 使用工具",
-      "在 DashScopeChatFormatter 中注册函数，由 formatter 负责执行工具"
+      "函数写好文档字符串并返回 ToolResponse，经 register_tool_function 注册到 Toolkit 后交给 ReActAgent",
+      "手写该函数的完整 JSON Schema 放进 ReActAgent 的 sys_prompt，由模型按 Schema 输出调用参数，框架再自动执行该函数",
+      "把函数部署成 MCP Server 再通过 Client 接入，因为 AgentScope 只能通过 MCP 协议使用工具",
+      "在 DashScopeChatFormatter 中注册该函数，由 formatter 在适配消息格式时负责解析参数并执行工具"
     ],
     "answer": [0],
     "explanation": "课程示例：定义带文档字符串的 search_arxiv_paper 函数并返回 ToolResponse，创建 Toolkit 后调用 register_tool_function 注册，再通过 toolkit 参数配给 ReActAgent；框架会自动解析生成 JSON Schema，故 A 正确。B 错：课程强调只需写普通 Python 函数，无需手写 Schema。C 错：MCP 只是 AgentScope 接入工具的方式之一，普通函数可直接注册。D 错：formatter 负责适配模型 API 的消息格式，不负责注册或执行工具。",
@@ -612,10 +612,10 @@
     "type": "single",
     "stem": "课程用 USB 协议类比 MCP。按这个类比，Function Calling 和 MCP 分别相当于什么？",
     "options": [
-      "Function Calling 像外部 USB 接口，MCP 像主板上的内部总线",
+      "Function Calling 像外部 USB 接口，是让第三方设备接入的开放标准；MCP 像主板内部总线，定义 CPU 与特定组件的通信",
       "两者都相当于 USB 接口，只是传输速度不同",
-      "Function Calling 像主板上的内部总线，定义 CPU 如何与特定组件通信；MCP 像外部 USB 接口，是让第三方设备轻松接入的开放标准",
-      "Function Calling 像外设的驱动程序，MCP 像计算机的操作系统"
+      "Function Calling 像主板内部总线，定义 CPU 与特定组件的通信；MCP 像外部 USB 接口，是让第三方设备接入的开放标准",
+      "Function Calling 像外设的驱动程序，负责单个设备的通信；MCP 像计算机的操作系统，统一调度所有设备"
     ],
     "answer": [2],
     "explanation": "课程“关联思考：USB 协议”：Function Calling 就像主板上的内部总线，定义 CPU 如何与某个特定组件通信；MCP 则像外部的 USB 接口，定义了一个开放标准，让无数第三方设备能轻松接入生态、即插即用，故 C 正确。A 把两者对调了。B、D 不是课程的类比，也没有体现“内部通信机制”与“开放接入标准”的区别。",
@@ -657,9 +657,9 @@
     "type": "single",
     "stem": "本地用 stdio 验证好 MCP Client 后，要接入百炼托管的线上 WebSearch MCP 服务，课程中 Client 代码的关键变化是？",
     "options": [
-      "改用 HttpStatelessClient，设置 transport=\"streamable_http\"，并提供服务 url 和携带 API Key 的鉴权 headers",
-      "继续使用 StdIOStatefulClient，只把 args 改成线上服务的地址",
-      "放弃 Toolkit，直接在 tools 参数中写入 WebSearch 的 JSON Schema",
+      "改用 HttpStatelessClient 与 streamable_http 传输，提供服务 url 和鉴权 headers",
+      "继续使用 StdIOStatefulClient，把 args 改成线上服务的 url，并在 headers 中携带 API Key 鉴权",
+      "放弃 Toolkit 和 MCP Client，直接在 tools 参数中手写 WebSearch 的 JSON Schema",
       "重写 ReActAgent 的推理循环，改为手动解析 tool_calls"
     ],
     "answer": [0],
@@ -672,11 +672,11 @@
     "type": "multi",
     "stem": "关于课程中早期工具调用方案（硬编码、关键词路由）的局限，下列说法正确的有？",
     "options": [
-      "硬编码方案无法把工具执行结果交给大模型进行总结",
+      "硬编码方案无法把工具执行结果交给大模型，只能把搜索结果原样返回给用户",
       "硬编码方案每次收到请求都执行 web_search，只适用于“有且仅有一个工具，且每次对话都必须调用它”的场景",
       "基于 if/elif 和关键词匹配的路由器脆弱且难以维护，需要不断添加新的判断分支",
       "用户说“我想看看那篇 Attention is All You Need 讲了什么”时，因不含预设关键词，关键词路由器无法识别出应调用的工具",
-      "关键词路由器的主要问题是调用大模型的次数太多、成本过高"
+      "关键词路由器的主要问题是每次路由都要额外调用一次大模型做判断，调用次数太多、成本过高"
     ],
     "answer": [1, 2, 3],
     "explanation": "课程 1.2 节：硬编码方案只适用于“有且仅有一个工具，且每次对话都必须调用它”的场景（B）；2.1 节：if/elif 关键词路由器脆弱且难以维护，需要不断添加 elif 判断（C），像“我想看看那篇 Attention is All You Need 讲了什么”这样不含预设关键词的请求就无法识别（D）。A 错：硬编码方案正是把用户请求和工具结果拼接后发给大模型生成总结性回复。E 错：关键词路由器完全由代码规则判断，不调用大模型。",
@@ -723,7 +723,7 @@
       "把模型第一次返回的消息（含 tool_calls）追加到 messages 中",
       "追加一条 role 为 tool 的消息，content 为函数的执行结果",
       "在 tool 消息中带上 tool_call_id，与对应的工具调用关联",
-      "删除最初的 user 消息，只保留工具结果，以节省上下文"
+      "删除最初的 user 消息，只保留模型决策和工具执行结果，以节省上下文窗口"
     ],
     "answer": [0, 1, 2],
     "explanation": "课程示例代码先 messages.append(response_message)，把模型的决策（含 tool_calls）放回对话（A）；再追加 {\"tool_call_id\": tool_call.id, \"role\": \"tool\", \"name\": function_name, \"content\": tool_result}，即 role 为 tool、content 为执行结果（B），并用 tool_call_id 与对应调用关联（C）；然后用这份 messages 发起第二次调用，由模型生成最终回复。D 错：代码保留了原始 user 消息，模型需要结合用户请求和工具结果才能作答。",
@@ -766,9 +766,9 @@
     "type": "multi",
     "stem": "关于 MCP 运行时 Client 与 Server 的协作，下列说法正确的有？",
     "options": [
-      "Agent 启动时，MCP Client 自动连接 MCP Server，拉取工具清单（名称、描述、参数）",
+      "Agent 启动时，MCP Client 自动连接 Server 并拉取工具清单（名称、描述、参数）",
       "拿到工具清单后，后续的选择工具、生成参数、执行调用、返回结果等流程与 Function Calling 类似",
-      "引入 MCP 后，改由 MCP Server 替代大模型决定本次应调用哪个工具",
+      "引入 MCP 后，改由 MCP Server 根据用户请求替代大模型决定本次应调用哪个工具并生成参数",
       "Agent 只需集成 MCP Client，就能动态发现 Server 声明的最新能力定义，无需在代码中硬编码工具 Schema"
     ],
     "answer": [0, 1, 3],

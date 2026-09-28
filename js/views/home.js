@@ -49,6 +49,6 @@ export function renderHome(ctx) {
       h('h2', { class: 'section-title' }, '考点进度'),
       h('ul', { class: 'domain-list' },
         domains.map((d) => domainRow(d, domainStats(progress, questions, d.id), `#/learn/${d.id}`)))),
-    h('p', { class: 'disclaimer' }, '题目依据课程笔记编写，并非官方题库；每题标注出处章节，便于回原文核对。'),
+    h('p', { class: 'disclaimer' }, '题目依据课程笔记编写，并非官方题库；每题标注出处章节，便于回原文核对。 多模态内容在课程中较少，题量有限，建议结合官方文档学习。'),
   ].filter(Boolean);
 }
