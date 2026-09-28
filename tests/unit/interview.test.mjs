@@ -169,3 +169,16 @@ test('toBankData flattens the payload and indexes cards and questions', () => {
   assert.throws(() => toBankData({ version: 2 }), /面试题库数据格式不正确/);
   assert.throws(() => toBankData(null), /面试题库数据格式不正确/);
 });
+
+test('toBankData labels question sources with the card number and title', () => {
+  const payload = {
+    version: 1,
+    domains: [{ id: 'iv-a', letter: 'A', name: '甲', intro: [], weight: 20 }],
+    cards: { 'iv-a': [{ id: 'iv-a-c01', domain: 'iv-a', no: 'A1', title: '示例标题' }] },
+    questions: { 'iv-a': [{ id: 'iv-a-001', domain: 'iv-a', source: 'A1' }, { id: 'iv-a-002', domain: 'iv-a', source: 'A9' }] },
+  };
+  const data = toBankData(payload);
+  assert.equal(data.questionById.get('iv-a-001').source, 'A1. 示例标题');
+  assert.equal(data.questionById.get('iv-a-002').source, 'A9');
+  assert.equal(payload.questions['iv-a'][0].source, 'A1');
+});

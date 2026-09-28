@@ -22,6 +22,20 @@ function tempDir(t) {
   return dir;
 }
 
+test('validate:interview passes the fixture in partial mode and fails strict counts', (t) => {
+  const dir = tempDir(t);
+  fs.cpSync(FIXTURE, dir, { recursive: true });
+  const partial = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--allow-partial']);
+  assert.equal(partial.status, 0, partial.stderr);
+  assert.match(partial.stdout, /iv-a 单选 3 \/ 多选 1/);
+  const strict = run('validate-interview.mjs', { INTERVIEW_SRC: dir });
+  assert.notEqual(strict.status, 0);
+  assert.match(strict.stderr, /single 题数 3，目标 20±3/);
+  const unknown = run('validate-interview.mjs', { INTERVIEW_SRC: dir }, ['--domains', 'iv-z']);
+  assert.match(unknown.stderr, /未知类别：iv-z/);
+  assert.match(run('validate-interview.mjs', { INTERVIEW_SRC: '' }).stderr, /INTERVIEW_SRC/);
+});
+
 test('build refuses to run without the source folder or password', (t) => {
   const out = path.join(tempDir(t), 'x.enc');
   assert.match(run('build-interview.mjs', { INTERVIEW_SRC: '', INTERVIEW_ENC: out }).stderr, /INTERVIEW_SRC/);
@@ -64,6 +78,7 @@ test('build writes a working envelope when the repo is clean, and decrypt restor
   const build = run('build-interview.mjs', { INTERVIEW_SRC: dir, INTERVIEW_PASSWORD: PASSWORD, INTERVIEW_ENC: out });
   assert.equal(build.status, 0, build.stderr);
   assert.match(build.stdout, /8 个类别，8 张卡片/);
+  assert.match(build.stdout, /0 道选择题/);
   const envelope = JSON.parse(fs.readFileSync(out, 'utf8'));
   assert.equal((await unlockWithPassword(envelope, PASSWORD)).payload.cards['iv-h'][0].no, 'H1');
 

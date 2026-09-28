@@ -77,7 +77,7 @@ function checkCard(c, domainId, chapters, seen) {
   return errs;
 }
 
-function checkCounts(domain, qs, cs) {
+function checkCounts(domain, qs, cs, questionsOnly) {
   const errs = [];
   ['single', 'multi'].forEach((type) => {
     const have = qs.filter((q) => q.type === type).length;
@@ -86,7 +86,7 @@ function checkCounts(domain, qs, cs) {
       errs.push(`questions/${domain.id}.json: ${type} 题数 ${have}，目标 ${want}±${COUNT_TOLERANCE}`);
     }
   });
-  if (!inRange(cs.length, CARD_RANGE)) {
+  if (!questionsOnly && !inRange(cs.length, CARD_RANGE)) {
     errs.push(`cards/${domain.id}.json: 卡片数 ${cs.length}，应在 ${CARD_RANGE.min}–${CARD_RANGE.max} 之间`);
   }
   return errs;
@@ -167,18 +167,19 @@ function checkDuplicateStems(domains, questions) {
   return errs;
 }
 
-export function validateData({ domains, cards, questions }, { allowPartial = false, strictDomains = null } = {}) {
-  const errors = checkDomains(domains);
+// questionsOnly：面试题库只校验选择题，卡片与权重由 interview-lib 自己负责
+export function validateData({ domains, cards, questions }, { allowPartial = false, strictDomains = null, questionsOnly = false } = {}) {
+  const errors = checkDomains(domains).filter((e) => !(questionsOnly && e.includes('权重之和')));
   const chapters = new Set([].concat(...domains.map((d) => d.chapters || [])));
   const seen = new Set();
   const countsFor = (id) => (strictDomains ? strictDomains.indexOf(id) !== -1 : !allowPartial);
   domains.forEach((d) => {
     const qs = questions[d.id] || [];
-    const cs = cards[d.id] || [];
+    const cs = questionsOnly ? [] : (cards[d.id] || []);
     qs.forEach((q) => errors.push(...checkQuestion(q, d.id, chapters, seen)));
     cs.forEach((c) => errors.push(...checkCard(c, d.id, chapters, seen)));
     errors.push(...checkBalance(d.id, qs));
-    if (countsFor(d.id)) errors.push(...checkCounts(d, qs, cs));
+    if (countsFor(d.id)) errors.push(...checkCounts(d, qs, cs, questionsOnly));
   });
   return errors.concat(checkDuplicateStems(domains, questions));
 }

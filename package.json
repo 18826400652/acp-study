@@ -7,6 +7,7 @@
     "test": "node --test \"tests/unit/**/*.test.mjs\"",
     "test:cov": "node --test --experimental-test-coverage --test-coverage-include=js/scoring.js --test-coverage-include=js/crypto.js --test-coverage-include=js/exam.js --test-coverage-include=js/progress.js --test-coverage-include=js/storage.js --test-coverage-include=js/router.js --test-coverage-include=js/interview.js --test-coverage-include=scripts/validate-lib.mjs --test-coverage-include=scripts/release-lib.mjs --test-coverage-include=scripts/serve-lib.mjs --test-coverage-include=scripts/interview-lib.mjs --test-coverage-lines=80 \"tests/unit/**/*.test.mjs\"",
     "validate": "node scripts/validate-data.mjs",
+    "validate:interview": "node scripts/validate-interview.mjs",
     "e2e": "playwright test",
     "size": "node scripts/check-size.mjs",
     "bump": "node scripts/bump-cache.mjs",

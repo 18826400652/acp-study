@@ -52,3 +52,13 @@ npm run bump                      # 发布前递增缓存版本
 - **旧密文会永久留在 git 历史里**，用旧密码仍然能解开。改密码并不能让旧内容失效。
 - **恢复**：`npm run decrypt:interview -- <仓库外的目录>`，会写出 `interview-payload.json`。
 - 设置 `INTERVIEW_SRC` 后运行 `npm test`，会额外对真实题库做一次防泄漏检查。
+
+**选择题**：放在 `<prep 目录>/qbank-app/questions/iv-a.json` … `iv-f.json`（格式与 ACP 题目相同，`source` 写问答编号，如 `A3`）。不用密码就能先校验：
+
+```powershell
+$env:INTERVIEW_SRC = "<prep 目录>"
+npm run validate:interview                     # 只对已有题目的类别检查题量
+npm run validate:interview -- --domains iv-a,iv-b
+```
+
+`build:interview` 会先做同样的校验，不通过就不生成密文。

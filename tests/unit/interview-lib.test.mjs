@@ -6,6 +6,7 @@ import path from 'node:path';
 import {
   parseInline, parseBlocks, parseQbankFile, buildPayload, loadSources, readExtraTerms,
   leakTerms, leakTermStats, findLeaks, repoTextFiles, isInside, checkPassword, encryptInterview, IV_WEIGHTS,
+  loadQuestions, validateInterviewQuestions, IV_MCQ_TARGETS,
 } from '../../scripts/interview-lib.mjs';
 import { unlockWithPassword, decryptWithKey } from '../../js/crypto.js';
 
@@ -217,4 +218,42 @@ test('encryptInterview self-checks, reuses the salt and can rotate it', async ()
   const fresh = await encryptInterview(payload, PASSWORD, { existing: { broken: true }, iter: 1000 });
   assert.notEqual(fresh.salt, first.salt);
   await assert.rejects(encryptInterview(payload, 'short', { iter: 1000 }), /至少 12 个字符/);
+});
+
+test('loadQuestions reads iv-*.json files and returns {} without a questions folder', (t) => {
+  assert.deepEqual(Object.keys(loadQuestions(FIXTURE)), ['iv-a']);
+  assert.equal(loadQuestions(FIXTURE)['iv-a'].length, 4);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iv-q-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  assert.deepEqual(loadQuestions(dir), {});
+  fs.mkdirSync(path.join(dir, 'qbank-app', 'questions'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'qbank-app', 'questions', 'iv-b.json'), '{oops');
+  assert.throws(() => loadQuestions(dir), /iv-b\.json: JSON 解析失败/);
+  fs.writeFileSync(path.join(dir, 'qbank-app', 'questions', 'iv-b.json'), '{}');
+  assert.throws(() => loadQuestions(dir), /iv-b\.json: 内容应为数组/);
+  fs.writeFileSync(path.join(dir, 'qbank-app', 'questions', 'iv-b.json'), '[]');
+  fs.writeFileSync(path.join(dir, 'qbank-app', 'questions', 'iv-A.json'), '[]');
+  assert.throws(() => loadQuestions(dir), /选择题文件名不对：iv-A\.json/);
+});
+
+test('buildPayload attaches questions and keeps empty lists for the rest', () => {
+  const payload = buildPayload(loadSources(FIXTURE), 'x', loadQuestions(FIXTURE));
+  assert.equal(payload.questions['iv-a'].length, 4);
+  assert.deepEqual(payload.questions['iv-b'], []);
+  assert.deepEqual(buildPayload(loadSources(FIXTURE), 'x').questions['iv-a'], []);
+});
+
+test('validateInterviewQuestions checks format, sources and counts of banks that have questions', () => {
+  const questions = loadQuestions(FIXTURE);
+  const payload = buildPayload(loadSources(FIXTURE), 'x', questions);
+  const small = { A: { single: 3, multi: 1 }, B: { single: 0, multi: 0 } };
+  assert.deepEqual(validateInterviewQuestions(payload, questions, { targets: small }), []);
+  assert.ok(validateInterviewQuestions(payload, questions).some((e) => e.includes('single 题数 3，目标 20±3')));
+  assert.deepEqual(validateInterviewQuestions(payload, questions, { strictDomains: [] }), []);
+  const moved = { 'iv-a': questions['iv-a'].map((q, i) => (i === 0 ? { ...q, source: 'B1' } : q)) };
+  assert.ok(validateInterviewQuestions(payload, moved, { targets: small }).some((e) => e.includes('iv-a-001') && e.includes('source 应为本类别的问答编号')));
+  const missing = { 'iv-a': questions['iv-a'].map((q, i) => (i === 0 ? { ...q, source: 'A99' } : q)) };
+  assert.ok(validateInterviewQuestions(payload, missing, { targets: small }).some((e) => e.includes('source 不是已知章节：A99')));
+  assert.ok(validateInterviewQuestions(payload, { 'iv-z': [] }).some((e) => e.includes('iv-z')));
+  assert.equal(IV_MCQ_TARGETS.A.single, 20);
 });

@@ -1,11 +1,11 @@
 import path from 'node:path';
 import { expect } from '@playwright/test';
-import { loadSources, buildPayload } from '../../scripts/interview-lib.mjs';
+import { loadSources, buildPayload, loadQuestions } from '../../scripts/interview-lib.mjs';
 import { encryptPayload } from '../../js/crypto.js';
 
 export const IV_PASSWORD = 'fixture-password-2026';
 const FIXTURE_SRC = path.resolve(import.meta.dirname, '..', 'fixtures', 'interview');
-export const FIXTURE_PAYLOAD = buildPayload(loadSources(FIXTURE_SRC), '2026-01-01T00:00:00Z');
+export const FIXTURE_PAYLOAD = buildPayload(loadSources(FIXTURE_SRC), '2026-01-01T00:00:00Z', loadQuestions(FIXTURE_SRC));
 
 let cached = null;
 export function fixtureEnvelope() {

@@ -134,3 +134,15 @@ test('key-length check stays quiet at or below 35% and ignores ties', () => {
   const errors = validateData(data, { allowPartial: true });
   assert.ok(!errors.some((e) => e.includes('正确答案最长')), errors.join('\n'));
 });
+
+test('questionsOnly mode skips card rules, card counts and the weight sum', () => {
+  const domains = [{ id: 'iv-a', name: '甲', short: 'A', weight: 20, target: { single: 6, multi: 2 }, chapters: ['A1', 'A2'] }];
+  const qs = [1, 2, 3, 4].map((n) => q(n, { id: `iv-a-00${n}`, domain: 'iv-a', source: 'A1', stem: `题${n}` }))
+    .concat([5, 6].map((n) => q(n, { id: `iv-a-00${n}`, domain: 'iv-a', source: 'A2', stem: `题${n}`, type: 'multi', answer: n === 5 ? [0, 1] : [1, 2, 3] })));
+  const data = { domains, cards: {}, questions: { 'iv-a': qs } };
+  assert.ok(validateData(data).some((e) => e.includes('权重之和')));
+  assert.deepEqual(validateData(data, { questionsOnly: true }), []);
+  const few = { ...data, questions: { 'iv-a': qs.slice(0, 1) } };
+  assert.ok(validateData(few, { questionsOnly: true }).some((e) => e.includes('single 题数 1')));
+  assert.ok(!validateData(few, { questionsOnly: true }).some((e) => e.includes('卡片数')));
+});

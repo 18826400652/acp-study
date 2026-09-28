@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import {
   encryptPayload, unlockWithPassword, isEnvelope, fromBase64, MIN_PASSWORD_LENGTH, PBKDF2_ITER,
 } from '../js/crypto.js';
+import { validateData } from './validate-lib.mjs';
 
 export const IV_WEIGHTS = { A: 20, B: 18, C: 8, D: 12, E: 10, F: 8, G: 18, H: 6 };
 export const REQUIRED_LETTERS = Object.keys(IV_WEIGHTS);
@@ -130,7 +131,7 @@ export function parseQbankFile(text, letter, fileName) {
   return { domain: { id, letter, name: title[2].trim(), intro, weight: IV_WEIGHTS[letter] }, cards };
 }
 
-export function buildPayload(sources, builtAt) {
+export function buildPayload(sources, builtAt, questions = {}) {
   const seen = new Set();
   sources.forEach((s) => {
     if (seen.has(s.letter)) throw new Error(`类别 ${s.letter} 有多个文件`);
@@ -138,12 +139,71 @@ export function buildPayload(sources, builtAt) {
   });
   const parsed = sources.map((s) => parseQbankFile(s.text, s.letter, s.fileName));
   const cards = {};
-  const questions = {};
+  const out = {};
   parsed.forEach((p) => {
     cards[p.domain.id] = p.cards;
-    questions[p.domain.id] = [];
+    out[p.domain.id] = questions[p.domain.id] || [];
   });
-  return { version: 1, builtAt, domains: parsed.map((p) => p.domain), cards, questions };
+  return { version: 1, builtAt, domains: parsed.map((p) => p.domain), cards, questions: out };
+}
+
+export const IV_MCQ_TARGETS = {
+  A: { single: 20, multi: 10 },
+  B: { single: 17, multi: 8 },
+  C: { single: 10, multi: 5 },
+  D: { single: 13, multi: 7 },
+  E: { single: 10, multi: 5 },
+  F: { single: 10, multi: 5 },
+  G: { single: 0, multi: 0 },
+  H: { single: 0, multi: 0 },
+};
+const QUESTION_FILE_RE = /^(iv-[a-h])\.json$/;
+
+export function loadQuestions(srcDir) {
+  const dir = path.join(srcDir, 'qbank-app', 'questions');
+  if (!fs.existsSync(dir)) return {};
+  const out = {};
+  fs.readdirSync(dir).filter((n) => n.endsWith('.json')).sort().forEach((name) => {
+    const m = QUESTION_FILE_RE.exec(name);
+    if (!m) throw new Error(`选择题文件名不对：${name}（应为 iv-a.json … iv-h.json）`);
+    let list;
+    try {
+      list = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
+    } catch (err) {
+      throw new Error(`${name}: JSON 解析失败 - ${err.message}`);
+    }
+    if (!Array.isArray(list)) throw new Error(`${name}: 内容应为数组`);
+    out[m[1]] = list;
+  });
+  return out;
+}
+
+function sourceLetterErrors(payload, questions) {
+  const errs = [];
+  payload.domains.forEach((d) => (questions[d.id] || []).forEach((q) => {
+    if (q && typeof q.source === 'string' && q.source.charAt(0) !== d.letter) {
+      errs.push(`questions/${d.id}.json ${q.id}: source 应为本类别的问答编号（${d.letter}n），实际 ${q.source}`);
+    }
+  }));
+  return errs;
+}
+
+export function validateInterviewQuestions(payload, questions, options = {}) {
+  const targets = options.targets || IV_MCQ_TARGETS;
+  const known = new Set(payload.domains.map((d) => d.id));
+  const stray = Object.keys(questions).filter((id) => !known.has(id))
+    .map((id) => `questions/${id}.json: 没有对应的问答类别`);
+  const domains = payload.domains.map((d) => ({
+    id: d.id,
+    weight: d.weight,
+    target: targets[d.letter] || { single: 0, multi: 0 },
+    chapters: payload.cards[d.id].map((c) => c.no),
+  }));
+  const strictDomains = options.strictDomains
+    || domains.filter((d) => (questions[d.id] || []).length > 0).map((d) => d.id);
+  return stray
+    .concat(sourceLetterErrors(payload, questions))
+    .concat(validateData({ domains, cards: {}, questions }, { strictDomains, questionsOnly: true }));
 }
 
 // ---------- 读取源文件 ----------

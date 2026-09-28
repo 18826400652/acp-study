@@ -164,7 +164,9 @@ export function toBankData(payload) {
   const questionMap = isObject(payload.questions) ? payload.questions : {};
   const domains = payload.domains.map((d) => ({ ...d, short: `${d.letter} 类` }));
   const cards = [].concat(...domains.map((d) => payload.cards[d.id] || []));
-  const questions = [].concat(...domains.map((d) => questionMap[d.id] || []));
+  const titleByNo = new Map(cards.map((c) => [c.no, c.title]));
+  const label = (q) => (titleByNo.has(q.source) ? { ...q, source: `${q.source}. ${titleByNo.get(q.source)}` } : q);
+  const questions = [].concat(...domains.map((d) => (questionMap[d.id] || []).map(label)));
   return {
     domains,
     cards,
