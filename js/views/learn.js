@@ -1,5 +1,5 @@
 import { h, attachSwipe, emptyState } from '../ui.js';
-import { domainStats, setCardState } from '../progress.js';
+import { domainStats, setCardState, setCardPos, resumeIndex } from '../progress.js';
 import { domainRow } from './domain-row.js';
 
 export function renderLearnIndex(ctx) {
@@ -37,18 +37,21 @@ export function renderCards(ctx, domainId) {
   const cards = ctx.data.cards.filter((c) => c.domain === domainId);
   const count = ctx.data.questions.filter((q) => q.domain === domainId).length;
   const root = h('div', { class: 'stack' });
-  let index = 0;
+  let index = resumeIndex(cards, (ctx.getProgress().cardPos || {})[domainId]);
 
+  const moveTo = (next) => {
+    index = next;
+    ctx.update((p) => setCardPos(p, domainId, cards[next].id));
+    draw();
+  };
   const go = (delta) => {
     const next = index + delta;
-    if (next < 0 || next >= cards.length) return;
-    index = next;
-    draw();
+    if (next >= 0 && next < cards.length) moveTo(next);
   };
   const mark = (value) => {
     ctx.update((p) => setCardState(p, cards[index].id, value));
-    if (index < cards.length - 1) index += 1;
-    draw();
+    if (index < cards.length - 1) moveTo(index + 1);
+    else draw();
   };
 
   function draw() {
@@ -70,6 +73,7 @@ export function renderCards(ctx, domainId) {
       h('div', { class: 'pager' },
         h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === 0, onClick: () => go(-1) }, '‹ 上一张'),
         h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === cards.length - 1, onClick: () => go(1) }, '下一张 ›')),
+      index > 0 ? h('button', { class: 'btn btn-ghost btn-block', type: 'button', onClick: () => moveTo(0) }, '从第 1 张开始') : '',
       practiceLink(domainId, count));
   }
 

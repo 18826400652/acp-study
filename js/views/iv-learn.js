@@ -2,6 +2,7 @@ import { h, attachSwipe, emptyState, scrollViewTop } from '../ui.js';
 import { gradeCard, gradeOf, isWeakGrade } from '../interview.js';
 import { blocks, hasTodoSpan } from '../rich.js';
 import { ivDomainRow } from './iv-domain-row.js';
+import { setCardPos, resumeIndex } from '../progress.js';
 
 const PARTS = [['conclusion', '结论'], ['principle', '原理'], ['practice', '项目做法'], ['tradeoff', '取舍与局限']];
 export const GRADE_LABELS = { known: '会', fuzzy: '模糊', unknown: '不会' };
@@ -47,14 +48,17 @@ export function renderIvCards(ctx, domainId, initialFilter) {
   const count = ctx.data.questions.filter((q) => q.domain === domainId).length;
   const weakCards = () => all.filter((c) => isWeakGrade(gradeOf(ctx.getProgress(), c.id)));
   const root = h('div', { class: 'stack' });
+  // 只在「全部」模式记住位置；「模糊 + 不会」列表随自评变化，每次从头开始
+  const savedIndex = () => resumeIndex(all, (ctx.getProgress().cardPos || {})[domainId]);
   let filter = initialFilter === 'weak' ? 'weak' : 'all';
   let list = filter === 'weak' ? weakCards() : all;
-  let index = 0;
+  let index = filter === 'weak' ? 0 : savedIndex();
   let revealed = false;
 
   const show = (i) => {
     index = i;
     revealed = false;
+    if (filter === 'all' && list[i]) ctx.update((p) => setCardPos(p, domainId, list[i].id));
     draw();
     scrollViewTop();
   };
@@ -65,7 +69,7 @@ export function renderIvCards(ctx, domainId, initialFilter) {
   const setFilter = (value) => {
     filter = value;
     list = value === 'weak' ? weakCards() : all;
-    show(0);
+    show(value === 'weak' ? 0 : savedIndex());
   };
   const grade = (value) => {
     const card = list[index];
@@ -97,6 +101,8 @@ export function renderIvCards(ctx, domainId, initialFilter) {
       h('div', { class: 'pager' },
         h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === 0, onClick: () => go(-1) }, '‹ 上一张'),
         h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === list.length - 1, onClick: () => go(1) }, '下一张 ›')),
+      filter === 'all' && index > 0
+        ? h('button', { class: 'btn btn-ghost btn-block', type: 'button', onClick: () => show(0) }, '从第 1 张开始') : null,
     ];
   }
 

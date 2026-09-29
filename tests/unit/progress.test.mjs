@@ -8,7 +8,7 @@ const answerSeq = (p, id, results) => results.reduce((acc, ok, i) => P.recordAns
 
 test('emptyProgress has the v1 shape', () => {
   assert.deepEqual(P.emptyProgress(), {
-    schemaVersion: 1, answers: {}, wrong: {}, cards: {}, exams: [], examDraft: null, examDate: null,
+    schemaVersion: 1, answers: {}, wrong: {}, cards: {}, cardPos: {}, exams: [], examDraft: null, examDate: null,
   });
 });
 
@@ -169,6 +169,8 @@ test('validateImport rejects wrong shapes with a readable reason', () => {
     [{ ...good, exams: [{}] }, /exams/],
     [{ ...good, examDraft: { startedAt: 1 } }, /examDraft/],
     [{ ...good, examDate: '2026/1/1' }, /examDate/],
+    [{ ...good, cardPos: { rag: 3 } }, /cardPos/],
+    [{ ...good, cardPos: [] }, /cardPos/],
   ];
   cases.forEach(([raw, re]) => {
     const res = P.validateImport(raw);
@@ -185,4 +187,28 @@ test('validateImport trims exam history to 20', () => {
   }
   const raw = { ...p, exams: [...p.exams, ...p.exams.slice(0, 5)] };
   assert.equal(P.validateImport(raw).value.exams.length, 20);
+});
+
+test('setCardPos remembers the last card per domain without mutating', () => {
+  const before = P.emptyProgress();
+  const after = P.setCardPos(P.setCardPos(before, 'rag', 'rag-c03'), 'prompt', 'prompt-c01');
+  assert.deepEqual(before.cardPos, {});
+  assert.deepEqual(after.cardPos, { rag: 'rag-c03', prompt: 'prompt-c01' });
+  assert.equal(P.setCardPos(after, 'rag', 'rag-c03'), after);
+});
+
+test('resumeIndex finds the remembered card or falls back to the first', () => {
+  const cards = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  assert.equal(P.resumeIndex(cards, 'c'), 2);
+  assert.equal(P.resumeIndex(cards, 'gone'), 0);
+  assert.equal(P.resumeIndex(cards, undefined), 0);
+  assert.equal(P.resumeIndex([], 'a'), 0);
+});
+
+test('validateImport accepts older files without cardPos', () => {
+  const old = { ...P.emptyProgress() };
+  delete old.cardPos;
+  const res = P.validateImport(old);
+  assert.equal(res.ok, true);
+  assert.deepEqual(res.value.cardPos, {});
 });

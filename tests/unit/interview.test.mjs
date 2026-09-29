@@ -18,7 +18,7 @@ const CARDS = [].concat(...DOMAINS.map((d) => cardsFor(d.id, 10)));
 
 test('empty progress has the interview shape and storage key', () => {
   assert.deepEqual(emptyInterviewProgress(), {
-    schemaVersion: 1, bank: 'interview', answers: {}, wrong: {}, cards: {}, mocks: [], mockDraft: null,
+    schemaVersion: 1, bank: 'interview', answers: {}, wrong: {}, cards: {}, cardPos: {}, mocks: [], mockDraft: null,
   });
   assert.equal(IV_STORAGE_KEY, 'acp-interview-progress-v1');
 });
@@ -181,4 +181,13 @@ test('toBankData labels question sources with the card number and title', () => 
   assert.equal(data.questionById.get('iv-a-001').source, 'A1. 示例标题');
   assert.equal(data.questionById.get('iv-a-002').source, 'A9');
   assert.equal(payload.questions['iv-a'][0].source, 'A1');
+});
+
+test('validateInterviewImport keeps cardPos, defaults it for older files and rejects bad shapes', () => {
+  const p = { ...emptyInterviewProgress(), cardPos: { 'iv-a': 'iv-a-c03' } };
+  assert.deepEqual(validateInterviewImport(p).value.cardPos, { 'iv-a': 'iv-a-c03' });
+  const old = { ...emptyInterviewProgress() };
+  delete old.cardPos;
+  assert.deepEqual(validateInterviewImport(old).value.cardPos, {});
+  assert.deepEqual(validateInterviewImport({ ...p, cardPos: { 'iv-a': 1 } }), { ok: false, error: '卡片位置（cardPos）格式错误' });
 });

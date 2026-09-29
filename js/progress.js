@@ -11,7 +11,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const CARD_STATES = ['known', 'review'];
 
 export function emptyProgress() {
-  return { schemaVersion: SCHEMA_VERSION, answers: {}, wrong: {}, cards: {}, exams: [], examDraft: null, examDate: null };
+  return { schemaVersion: SCHEMA_VERSION, answers: {}, wrong: {}, cards: {}, cardPos: {}, exams: [], examDraft: null, examDate: null };
 }
 
 // ---------- 作答与错题本 ----------
@@ -40,6 +40,18 @@ export function recordAnswer(progress, questionId, correct, t) {
 export function setCardState(progress, cardId, state) {
   if (CARD_STATES.indexOf(state) === -1) throw new Error(`invalid card state: ${state}`);
   return { ...progress, cards: { ...progress.cards, [cardId]: state } };
+}
+
+// 每个考点记住上次看到的卡片 id；存 id 而不是序号，增删卡片后仍能找回
+export function setCardPos(progress, domainId, cardId) {
+  const cardPos = progress.cardPos || {};
+  if (cardPos[domainId] === cardId) return progress;
+  return { ...progress, cardPos: { ...cardPos, [domainId]: cardId } };
+}
+
+export function resumeIndex(cards, cardId) {
+  const i = cards.findIndex((c) => c.id === cardId);
+  return i === -1 ? 0 : i;
 }
 
 export function setExamDate(progress, date) {
@@ -140,6 +152,12 @@ const isDraft = (d) => isObject(d) && typeof d.startedAt === 'number' && Array.i
 const isExamRecord = (e) => isDraft(e) && typeof e.id === 'string' && typeof e.score === 'number'
   && typeof e.max === 'number' && typeof e.passed === 'boolean' && isObject(e.byDomain);
 
+export function cardPosProblem(raw) {
+  if (raw.cardPos === undefined) return null;
+  const ok = isObject(raw.cardPos) && Object.keys(raw.cardPos).every((k) => typeof raw.cardPos[k] === 'string');
+  return ok ? null : '卡片位置（cardPos）格式错误';
+}
+
 export function answersProblem(raw) {
   const values = (o) => Object.keys(o).map((k) => o[k]);
   if (!isObject(raw.answers) || !values(raw.answers).every((h) => Array.isArray(h) && h.every(isAttempt))) {
@@ -158,6 +176,8 @@ function findProblem(raw) {
   if (!isObject(raw.cards) || !values(raw.cards).every((s) => CARD_STATES.indexOf(s) !== -1)) {
     return '卡片状态（cards）格式错误';
   }
+  const pos = cardPosProblem(raw);
+  if (pos) return pos;
   if (!Array.isArray(raw.exams) || !raw.exams.every(isExamRecord)) return '考试记录（exams）格式错误';
   if (raw.examDraft != null && !isDraft(raw.examDraft)) return '考试草稿（examDraft）格式错误';
   if (raw.examDate != null && !(typeof raw.examDate === 'string' && DATE_RE.test(raw.examDate))) {
@@ -179,6 +199,7 @@ export function validateImport(raw) {
       answers: raw.answers,
       wrong: raw.wrong,
       cards: raw.cards,
+      cardPos: raw.cardPos || {},
       exams: raw.exams.slice(-MAX_EXAMS),
       examDraft: raw.examDraft || null,
       examDate: raw.examDate || null,
