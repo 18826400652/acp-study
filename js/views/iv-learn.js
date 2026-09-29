@@ -81,8 +81,12 @@ export function renderIvCards(ctx, domainId, initialFilter) {
       show(list.length ? (followIdx !== -1 ? followIdx : Math.min(index, list.length - 1)) : 0);
       return;
     }
-    if (index < list.length - 1) show(index + 1);
-    else draw();
+    if (index < list.length - 1) {
+      show(index + 1);
+      return;
+    }
+    ctx.update((p) => setCardPos(p, domainId, card.id));
+    draw();
   };
   const chip = (label, value, n) => h('button', {
     class: 'chip chip-filter', type: 'button', 'aria-pressed': String(filter === value), onClick: () => setFilter(value),

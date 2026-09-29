@@ -50,8 +50,7 @@ export function renderCards(ctx, domainId) {
   };
   const mark = (value) => {
     ctx.update((p) => setCardState(p, cards[index].id, value));
-    if (index < cards.length - 1) moveTo(index + 1);
-    else draw();
+    moveTo(index < cards.length - 1 ? index + 1 : index);
   };
 
   function draw() {
