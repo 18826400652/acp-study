@@ -41,6 +41,7 @@ test('shuffleOptions rewrites letters in the explanation and leaves the input al
 
 test('relabel ignores letters beyond the option count and letters inside words', () => {
   assert.equal(relabel('E 也错，A 对，AB 和 B2 不变', [1, 0, 2, 3]), 'E 也错，B 对，AB 和 B2 不变');
+  assert.equal(relabel('答案是 A. 另见 v1.A 与 A.b', [1, 0, 2, 3]), '答案是 B. 另见 v1.A 与 A.b');
 });
 
 test('questions whose letters are content keep their original order', () => {

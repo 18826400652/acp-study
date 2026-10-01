@@ -1,8 +1,9 @@
 import { shuffle } from './exam.js';
 
 const LETTERS = 'ABCDEF';
-// 单独出现的选项字母：前后不能紧挨英文、数字或 _-/.，避免误伤 RAG、A/B 测试、v1.A 之类
-const LETTER_RE = /(?<![A-Za-z0-9_\-/.])[A-F](?![A-Za-z0-9_\-/.])/g;
+// 单独出现的选项字母：前后不能紧挨英文、数字或 _-/，也不能是 v1.A、A.b 这类点号连写，
+// 避免误伤 RAG、A/B 测试；句末的「A.」仍算选项字母
+const LETTER_RE = /(?<![A-Za-z0-9_\-/]|[A-Za-z0-9]\.)[A-F](?![A-Za-z0-9_\-/]|\.[A-Za-z0-9])/g;
 // 字母本身是内容（如 LoRA 的矩阵 A、B）的题不打乱，否则改写解析会改坏原意
 const FORMULA_RE = /[A-F]\s*[×=]|[×=]\s*[A-F]/;
 
