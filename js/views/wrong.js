@@ -2,8 +2,10 @@ import { h, emptyState } from '../ui.js';
 import { reviewDetails } from './question.js';
 import { renderPractice } from './practice.js';
 
+// 按题库顺序排列，练习时题目顺序固定
 function wrongQuestions(ctx) {
-  return Object.keys(ctx.getProgress().wrong).map((id) => ctx.data.questionById.get(id)).filter(Boolean);
+  const wrong = ctx.getProgress().wrong;
+  return ctx.data.questions.filter((q) => q.id in wrong);
 }
 
 export function renderWrong(ctx) {

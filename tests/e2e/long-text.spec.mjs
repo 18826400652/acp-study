@@ -37,7 +37,7 @@ test('long unbreakable text wraps on cards, practice and wrong-book review', asy
     const qs = await (await fetch('data/questions/rag.json')).json();
     return qs[0].options.findIndex((_, i) => qs[0].answer.indexOf(i) === -1);
   });
-  await page.locator('.question .option').nth(wrong).click();
+  await page.locator(`.question .option[data-opt="${wrong}"]`).click();
   await page.getByRole('button', { name: '提交答案' }).click();
 
   await page.goto('./#/wrong');

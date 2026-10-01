@@ -18,7 +18,7 @@ const CARDS = [].concat(...DOMAINS.map((d) => cardsFor(d.id, 10)));
 
 test('empty progress has the interview shape and storage key', () => {
   assert.deepEqual(emptyInterviewProgress(), {
-    schemaVersion: 1, bank: 'interview', answers: {}, wrong: {}, cards: {}, cardPos: {}, mocks: [], mockDraft: null,
+    schemaVersion: 1, bank: 'interview', answers: {}, wrong: {}, cards: {}, cardPos: {}, practicePos: {}, mocks: [], mockDraft: null,
   });
   assert.equal(IV_STORAGE_KEY, 'acp-interview-progress-v1');
 });
@@ -190,4 +190,13 @@ test('validateInterviewImport keeps cardPos, defaults it for older files and rej
   delete old.cardPos;
   assert.deepEqual(validateInterviewImport(old).value.cardPos, {});
   assert.deepEqual(validateInterviewImport({ ...p, cardPos: { 'iv-a': 1 } }), { ok: false, error: '卡片位置（cardPos）格式错误' });
+});
+
+test('validateInterviewImport keeps practicePos, defaults it for older files and rejects bad shapes', () => {
+  const p = { ...emptyInterviewProgress(), practicePos: { 'iv-a': 'iv-a-003' } };
+  assert.deepEqual(validateInterviewImport(p).value.practicePos, { 'iv-a': 'iv-a-003' });
+  const old = { ...emptyInterviewProgress() };
+  delete old.practicePos;
+  assert.deepEqual(validateInterviewImport(old).value.practicePos, {});
+  assert.deepEqual(validateInterviewImport({ ...p, practicePos: [] }), { ok: false, error: '练习位置（practicePos）格式错误' });
 });

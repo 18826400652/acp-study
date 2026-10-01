@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import {
-  expectNoHorizontalOverflow, snap, loadQuestions, wrongChoice, choose, currentQid,
+  expectNoHorizontalOverflow, snap, loadQuestions, wrongChoice, choose, currentQid, shownOrder,
 } from './helpers.mjs';
+import { relabel } from '../../js/options.js';
 
 test('cards: swipe and buttons move between cards; marking advances', async ({ page }, testInfo) => {
   await page.goto('./#/learn');
@@ -38,7 +39,7 @@ test('practice: a wrong answer shows the correct one and the explanation', async
   await page.getByRole('button', { name: '提交答案' }).click();
 
   await expect(page.locator('.feedback-verdict')).toContainText('回答错误');
-  await expect(page.locator('.explanation')).toHaveText(q.explanation);
+  await expect(page.locator('.explanation')).toHaveText(relabel(q.explanation, await shownOrder(page)));
   await expect(page.locator('.option.is-wrong')).toHaveCount(1);
   await expectNoHorizontalOverflow(page);
   await snap(page, testInfo, 'practice-feedback');

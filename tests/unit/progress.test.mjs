@@ -1,14 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as P from '../../js/progress.js';
-import { seededRng } from './helpers.mjs';
 
 const q = (id, domain = 'rag', type = 'single', answer = [0]) => ({ id, domain, type, answer });
 const answerSeq = (p, id, results) => results.reduce((acc, ok, i) => P.recordAnswer(acc, id, ok, i + 1), p);
 
 test('emptyProgress has the v1 shape', () => {
   assert.deepEqual(P.emptyProgress(), {
-    schemaVersion: 1, answers: {}, wrong: {}, cards: {}, cardPos: {}, exams: [], examDraft: null, examDate: null,
+    schemaVersion: 1, answers: {}, wrong: {}, cards: {}, cardPos: {}, practicePos: {}, exams: [], examDraft: null, examDate: null,
   });
 });
 
@@ -103,15 +102,6 @@ test('domainStats only looks at one domain', () => {
   assert.deepEqual(P.domainStats(p, qs, 'rag'), { total: 1, answered: 0, accuracy: null });
 });
 
-test('practiceOrder puts unanswered first, then wrong, then the rest', () => {
-  const pool = ['a', 'b', 'c', 'd'].map((id) => q(id));
-  let p = P.recordAnswer(P.emptyProgress(), 'a', true, 1);
-  p = P.recordAnswer(p, 'b', false, 2);
-  const order = P.practiceOrder(p, pool, seededRng(7));
-  assert.deepEqual(order.slice(0, 2).sort(), ['c', 'd']);
-  assert.deepEqual(order.slice(2), ['b', 'a']);
-});
-
 const DOMS = [{ id: 'rag', weight: 60 }, { id: 'prompt', weight: 40 }];
 const BANK = [q('rag-001'), q('rag-002'), q('prompt-001', 'prompt'), q('prompt-002', 'prompt')];
 
@@ -171,6 +161,8 @@ test('validateImport rejects wrong shapes with a readable reason', () => {
     [{ ...good, examDate: '2026/1/1' }, /examDate/],
     [{ ...good, cardPos: { rag: 3 } }, /cardPos/],
     [{ ...good, cardPos: [] }, /cardPos/],
+    [{ ...good, practicePos: { rag: 3 } }, /practicePos/],
+    [{ ...good, practicePos: null }, /practicePos/],
   ];
   cases.forEach(([raw, re]) => {
     const res = P.validateImport(raw);
@@ -205,10 +197,30 @@ test('resumeIndex finds the remembered card or falls back to the first', () => {
   assert.equal(P.resumeIndex([], 'a'), 0);
 });
 
-test('validateImport accepts older files without cardPos', () => {
+test('validateImport accepts older files without cardPos or practicePos', () => {
   const old = { ...P.emptyProgress() };
   delete old.cardPos;
+  delete old.practicePos;
   const res = P.validateImport(old);
   assert.equal(res.ok, true);
   assert.deepEqual(res.value.cardPos, {});
+  assert.deepEqual(res.value.practicePos, {});
+});
+
+test('setPracticePos remembers the next question per domain and null clears it', () => {
+  const before = P.emptyProgress();
+  const saved = P.setPracticePos(P.setPracticePos(before, 'rag', 'rag-004'), 'prompt', 'prompt-002');
+  assert.deepEqual(before.practicePos, {});
+  assert.deepEqual(saved.practicePos, { rag: 'rag-004', prompt: 'prompt-002' });
+  assert.equal(P.setPracticePos(saved, 'rag', 'rag-004'), saved);
+  assert.deepEqual(P.setPracticePos(saved, 'rag', null).practicePos, { prompt: 'prompt-002' });
+  assert.equal(P.setPracticePos(before, 'rag', null), before);
+  const legacy = { ...before };
+  delete legacy.practicePos;
+  assert.deepEqual(P.setPracticePos(legacy, 'rag', 'rag-001').practicePos, { rag: 'rag-001' });
+});
+
+test('validateImport keeps a saved practice position', () => {
+  const p = P.setPracticePos(P.emptyProgress(), 'rag', 'rag-004');
+  assert.deepEqual(P.validateImport(JSON.parse(JSON.stringify(p))).value, p);
 });

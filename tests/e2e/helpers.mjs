@@ -30,8 +30,16 @@ export function wrongChoice(question) {
   return [idx];
 }
 
+// 练习时选项会打乱，按原题的选项序号（data-opt）点击
 export async function choose(page, indexes) {
-  for (const i of indexes) await page.locator('.question .option').nth(i).click();
+  for (const i of indexes) await page.locator(`.question .option[data-opt="${i}"]`).click();
+}
+
+// 当前显示顺序：第 k 个位置对应原题第几个选项
+export async function shownOrder(page) {
+  await expect(page.locator('.question .option').first()).toBeVisible();
+  const opts = await page.locator('.question .option').evaluateAll((els) => els.map((el) => el.dataset.opt));
+  return opts.map(Number);
 }
 
 export async function currentQid(page) {

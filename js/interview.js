@@ -1,5 +1,5 @@
 import { allocate, shuffle } from './exam.js';
-import { answersProblem, cardPosProblem } from './progress.js';
+import { answersProblem, positionsProblem } from './progress.js';
 
 export const IV_SCHEMA_VERSION = 1;
 export const IV_BANK = 'interview';
@@ -13,7 +13,7 @@ const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const values = (o) => Object.keys(o).map((k) => o[k]);
 
 export function emptyInterviewProgress() {
-  return { schemaVersion: IV_SCHEMA_VERSION, bank: IV_BANK, answers: {}, wrong: {}, cards: {}, cardPos: {}, mocks: [], mockDraft: null };
+  return { schemaVersion: IV_SCHEMA_VERSION, bank: IV_BANK, answers: {}, wrong: {}, cards: {}, cardPos: {}, practicePos: {}, mocks: [], mockDraft: null };
 }
 
 // ---------- 卡片自评 ----------
@@ -130,7 +130,7 @@ function interviewProblem(raw) {
   const base = answersProblem(raw);
   if (base) return base;
   if (!isObject(raw.cards) || !values(raw.cards).every(isCardEntry)) return '卡片自评（cards）格式错误';
-  const pos = cardPosProblem(raw);
+  const pos = positionsProblem(raw);
   if (pos) return pos;
   if (!Array.isArray(raw.mocks) || !raw.mocks.every(isMockRecord)) return '模拟面试记录（mocks）格式错误';
   if (raw.mockDraft != null && !isMockDraft(raw.mockDraft)) return '模拟面试草稿（mockDraft）格式错误';
@@ -152,6 +152,7 @@ export function validateInterviewImport(raw) {
       wrong: raw.wrong,
       cards: raw.cards,
       cardPos: raw.cardPos || {},
+      practicePos: raw.practicePos || {},
       mocks: raw.mocks.slice(-MAX_MOCKS),
       mockDraft: raw.mockDraft || null,
     },

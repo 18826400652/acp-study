@@ -19,6 +19,7 @@ function optionItem(q, text, i, selected, submitted, onClick) {
     type: 'button',
     role: q.type === 'single' ? 'radio' : 'checkbox',
     'aria-checked': String(isSel),
+    'data-opt': String(q.order ? q.order[i] : i),
     disabled: submitted,
     onClick,
   }, h('span', { class: 'option-letter' }, LETTERS[i]), h('span', { class: 'option-text' }, text)));

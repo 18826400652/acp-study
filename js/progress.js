@@ -1,5 +1,4 @@
 import { isCorrect, scoreExam } from './scoring.js';
-import { shuffle } from './exam.js';
 
 export const SCHEMA_VERSION = 1;
 export const MAX_ATTEMPTS = 10;
@@ -11,7 +10,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const CARD_STATES = ['known', 'review'];
 
 export function emptyProgress() {
-  return { schemaVersion: SCHEMA_VERSION, answers: {}, wrong: {}, cards: {}, cardPos: {}, exams: [], examDraft: null, examDate: null };
+  return { schemaVersion: SCHEMA_VERSION, answers: {}, wrong: {}, cards: {}, cardPos: {}, practicePos: {}, exams: [], examDraft: null, examDate: null };
 }
 
 // ---------- 作答与错题本 ----------
@@ -47,6 +46,15 @@ export function setCardPos(progress, domainId, cardId) {
   const cardPos = progress.cardPos || {};
   if (cardPos[domainId] === cardId) return progress;
   return { ...progress, cardPos: { ...cardPos, [domainId]: cardId } };
+}
+
+// 每个考点记住下一道要做的题；null 表示从第 1 题开始
+export function setPracticePos(progress, domainId, questionId) {
+  const practicePos = progress.practicePos || {};
+  if ((practicePos[domainId] || null) === questionId) return progress;
+  const rest = { ...practicePos };
+  delete rest[domainId];
+  return { ...progress, practicePos: questionId === null ? rest : { ...rest, [domainId]: questionId } };
 }
 
 export function resumeIndex(cards, cardId) {
@@ -108,14 +116,6 @@ export function domainStats(progress, questions, domainId) {
   return statsFor(progress, questions.filter((q) => q.domain === domainId));
 }
 
-export function practiceOrder(progress, pool, rng = Math.random) {
-  const seen = (q) => (progress.answers[q.id] || []).length > 0;
-  const unanswered = pool.filter((q) => !seen(q));
-  const wrong = pool.filter((q) => seen(q) && q.id in progress.wrong);
-  const rest = pool.filter((q) => seen(q) && !(q.id in progress.wrong));
-  return shuffle(unanswered, rng).concat(shuffle(wrong, rng), shuffle(rest, rng)).map((q) => q.id);
-}
-
 export function recommend(progress, domains, questions) {
   if (Object.keys(progress.wrong).length > 0) return { kind: 'wrong' };
   const stats = domains
@@ -152,10 +152,13 @@ const isDraft = (d) => isObject(d) && typeof d.startedAt === 'number' && Array.i
 const isExamRecord = (e) => isDraft(e) && typeof e.id === 'string' && typeof e.score === 'number'
   && typeof e.max === 'number' && typeof e.passed === 'boolean' && isObject(e.byDomain);
 
-export function cardPosProblem(raw) {
-  if (raw.cardPos === undefined) return null;
-  const ok = isObject(raw.cardPos) && Object.keys(raw.cardPos).every((k) => typeof raw.cardPos[k] === 'string');
-  return ok ? null : '卡片位置（cardPos）格式错误';
+const isIdMap = (v) => isObject(v) && Object.keys(v).every((k) => typeof v[k] === 'string');
+
+// 卡片和练习的位置都是可选字段，旧版导出文件里没有
+export function positionsProblem(raw) {
+  if (raw.cardPos !== undefined && !isIdMap(raw.cardPos)) return '卡片位置（cardPos）格式错误';
+  if (raw.practicePos !== undefined && !isIdMap(raw.practicePos)) return '练习位置（practicePos）格式错误';
+  return null;
 }
 
 export function answersProblem(raw) {
@@ -176,7 +179,7 @@ function findProblem(raw) {
   if (!isObject(raw.cards) || !values(raw.cards).every((s) => CARD_STATES.indexOf(s) !== -1)) {
     return '卡片状态（cards）格式错误';
   }
-  const pos = cardPosProblem(raw);
+  const pos = positionsProblem(raw);
   if (pos) return pos;
   if (!Array.isArray(raw.exams) || !raw.exams.every(isExamRecord)) return '考试记录（exams）格式错误';
   if (raw.examDraft != null && !isDraft(raw.examDraft)) return '考试草稿（examDraft）格式错误';
@@ -200,6 +203,7 @@ export function validateImport(raw) {
       wrong: raw.wrong,
       cards: raw.cards,
       cardPos: raw.cardPos || {},
+      practicePos: raw.practicePos || {},
       exams: raw.exams.slice(-MAX_EXAMS),
       examDraft: raw.examDraft || null,
       examDate: raw.examDate || null,
