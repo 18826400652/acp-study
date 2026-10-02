@@ -13,32 +13,6 @@
     "source": "2_2_扩展答疑机器人的知识范围"
   },
   {
-    "id": "rag-c02",
-    "domain": "rag",
-    "title": "Ragas 核心指标",
-    "points": [
-      "Answer Correctness=0.25×语义相似度+0.75×事实准确度",
-      "Context Recall：标准答案观点被召回内容支撑的比例",
-      "Context Precision：相关 context 的占比与排名",
-      "Recall 低：补知识库、换 embedding、改写 query",
-      "Precision 低加 rerank；仅答案分低则优化生成环节"
-    ],
-    "source": "2_4_自动化评测答疑机器人的表现"
-  },
-  {
-    "id": "rag-c03",
-    "domain": "rag",
-    "title": "RAG 各环节优化要点",
-    "points": [
-      "切片过大引入干扰，过短截断有效信息",
-      "入门用默认句子切片，Markdown 文档用 Markdown 切片",
-      "检索前：问题改写/扩写、提取标签、反问用户",
-      "检索后：ReRank 过滤、滑动窗口补充上下文",
-      "生成：提示词要求不编造，切片与指令明确分隔"
-    ],
-    "source": "2_5_优化RAG应用提升问答准确度"
-  },
-  {
     "id": "rag-c04",
     "domain": "rag",
     "title": "RAG 多轮对话：问题改写",
@@ -65,15 +39,28 @@
     "source": "2_2_扩展答疑机器人的知识范围"
   },
   {
-    "id": "rag-c06",
+    "id": "rag-c14",
     "domain": "rag",
-    "title": "Answer Correctness 怎么算",
+    "title": "自建答疑机器人测试方法",
     "points": [
-      "输入 question、answer 与 ground_truth",
-      "语义相似度：embedding 向量的余弦相似度",
-      "事实准确度：大模型拆观点，归入 TP/FP/FN",
-      "f1 = tp/(tp+0.5×(fp+fn))，tp 为 0 则得 0",
-      "召回指标需 question、contexts、ground_truth"
+      "test_answer：用大模型判断回答是否有效回答问题",
+      "test_contexts：用大模型判断检索到的参考信息是否有用",
+      "提示词需限制输出样式，便于程序判断结果",
+      "局限：难检测模型幻觉，也无法衡量参考信息信噪比",
+      "可借助 Ragas 等成熟框架进一步完善测试"
+    ],
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-c13",
+    "domain": "rag",
+    "title": "RAG 评测的四个维度",
+    "points": [
+      "召回质量：是否检索到正确且相关的文档片段",
+      "答案忠实度（Faithfulness）：答案是否基于上下文，无幻觉",
+      "答案相关性：生成的答案是否准确回答了用户问题",
+      "上下文利用率：大模型是否有效利用了提供的全部上下文",
+      "后者与 Lost in the Middle、知识浓度密切相关"
     ],
     "source": "2_4_自动化评测答疑机器人的表现"
   },
@@ -91,6 +78,58 @@
     "source": "2_4_自动化评测答疑机器人的表现"
   },
   {
+    "id": "rag-c15",
+    "domain": "rag",
+    "title": "Ragas 指标按环节分类",
+    "points": [
+      "Ragas 把指标分三类：整体回答质量、生成环节、召回阶段",
+      "整体类：Answer Correctness，评估生成答案的准确度",
+      "生成类还有 Answer Relevancy：评估答案是否切题",
+      "生成类还有 Faithfulness：评估答案是否忠于参考资料",
+      "召回类对应 Context Precision 与 Context Recall"
+    ],
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-c16",
+    "domain": "rag",
+    "title": "TruLens 与 DeepEval 侧重",
+    "points": [
+      "TruLens 指标：Groundedness，答案是否源自召回知识",
+      "TruLens 指标：Context Relevance，召回内容是否相关",
+      "TruLens 指标：Answer Relevance，生成答案是否切题",
+      "TruLens 可集成 LangChain、LlamaIndex 并可视化",
+      "DeepEval 指标与 Ragas 类似，也支持 Faithfulness 等"
+    ],
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-c06",
+    "domain": "rag",
+    "title": "Answer Correctness 怎么算",
+    "points": [
+      "输入 question、answer 与 ground_truth",
+      "语义相似度：embedding 向量的余弦相似度",
+      "事实准确度：大模型拆观点，归入 TP/FP/FN",
+      "f1 = tp/(tp+0.5×(fp+fn))，tp 为 0 则得 0",
+      "召回指标需 question、contexts、ground_truth"
+    ],
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-c02",
+    "domain": "rag",
+    "title": "Ragas 核心指标",
+    "points": [
+      "Answer Correctness=0.25×语义相似度+0.75×事实准确度",
+      "Context Recall：标准答案观点被召回内容支撑的比例",
+      "Context Precision：相关 context 的占比与排名",
+      "Recall 低：补知识库、换 embedding、改写 query",
+      "Precision 低加 rerank；仅答案分低则优化生成环节"
+    ],
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
     "id": "rag-c08",
     "domain": "rag",
     "title": "评测运营体系",
@@ -102,6 +141,45 @@
       "闭环：发现问题→改进优化→跟踪效果→迭代指标"
     ],
     "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-c17",
+    "domain": "rag",
+    "title": "评测先行的流程分工",
+    "points": [
+      "明确业务目标：定义可量化指标（如满意度>90%）",
+      "避免盲目优化：没有基线，难判断优化是否真正有效",
+      "量化改进效果：从感觉变好，变成指标提升了15%",
+      "技术指标举例：召回准确率>85%、响应时间<2s",
+      "核心原则：算法指标是手段，业务指标才是目标"
+    ],
+    "source": "2_4_自动化评测答疑机器人的表现"
+  },
+  {
+    "id": "rag-c18",
+    "domain": "rag",
+    "title": "扩大召回与结构化参考信息",
+    "points": [
+      "增加召回数量（如 top_k 从 2 到 5）可提升命中概率",
+      "但召回过多会超长度限制，还会引入无关信息",
+      "存在多个同名实体时，单纯加召回量仍可能混淆",
+      "文档结构化（如 Markdown）比散文更利于检索定位",
+      "表格等结构转普通文本会丢失结构性，影响检索"
+    ],
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-c03",
+    "domain": "rag",
+    "title": "RAG 各环节优化要点",
+    "points": [
+      "切片过大引入干扰，过短截断有效信息",
+      "入门用默认句子切片，Markdown 文档用 Markdown 切片",
+      "检索前：问题改写/扩写、提取标签、反问用户",
+      "检索后：ReRank 过滤、滑动窗口补充上下文",
+      "生成：提示词要求不编造，切片与指令明确分隔"
+    ],
+    "source": "2_5_优化RAG应用提升问答准确度"
   },
   {
     "id": "rag-c09",
@@ -143,6 +221,32 @@
     "source": "2_5_优化RAG应用提升问答准确度"
   },
   {
+    "id": "rag-c19",
+    "domain": "rag",
+    "title": "检索前进阶改写策略",
+    "points": [
+      "基于用户画像扩展上下文：结合身份、行为信息改写问题",
+      "HyDE：先让大模型生成假设答案文档，再用它做检索",
+      "假设文档内容未必准确，但有助于匹配真实文档",
+      "可自定义 HyDE 的大模型、提示词模板、是否保留原查询",
+      "复杂问题可拆解为子任务链式检索，如先查数量再查部门"
+    ],
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-c20",
+    "domain": "rag",
+    "title": "标签提取增强检索",
+    "points": [
+      "两场景：建索引时给切片打标签，检索时抽问题标签",
+      "标签类型示例：人名、部门、职位、技术领域、产品名称",
+      "可用大模型按指定类型输出结构化 JSON 格式标签",
+      "示例：按人名标签筛出\"张伟\"相关切片后再检索",
+      "类似图书馆\"分类编号+书名检索\"的组合定位方式"
+    ],
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
     "id": "rag-c12",
     "domain": "rag",
     "title": "检索召回与生成调优",
@@ -152,6 +256,32 @@
       "标签过滤 + 向量检索，适合结构化企业文档",
       "Rerank：先多召回（如 20 条）再重排取前 3",
       "事实查询降 temperature，防重复调高 presence_penalty"
+    ],
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-c21",
+    "domain": "rag",
+    "title": "生成阶段：选模型与调参",
+    "points": [
+      "简单信息查询用小参数模型（如 qwen-turbo）即可",
+      "复杂逻辑推理选参数更大的模型（如 qwen-plus/max）",
+      "需查阅大量文档片段，选上下文更长的模型（如 qwen-long）",
+      "法律等垂直领域可选专用模型（如 farui-plus）",
+      "seed 固定输出可复现，max_tokens 控制长度防截断"
+    ],
+    "source": "2_5_优化RAG应用提升问答准确度"
+  },
+  {
+    "id": "rag-c22",
+    "domain": "rag",
+    "title": "按问题类型路由提示词模板",
+    "points": [
+      "不同问题类型可对应不同提示词模板，而非一套通用模板",
+      "可先用大模型识别问题类型，再映射到对应模板",
+      "示例：有些问题先给整体框架，再展开细节",
+      "示例：有些问题言简意赅，直接给出结论",
+      "用于解决\"检索到信息但生成未按要求作答\"的问题"
     ],
     "source": "2_5_优化RAG应用提升问答准确度"
   }
