@@ -1,44 +1,5 @@
 [
   {
-    "id": "app-dev-c01",
-    "domain": "app-dev",
-    "title": "大模型文本生成五阶段",
-    "points": [
-      "分词：文本编码为 token，token 常是子词或字符片段",
-      "向量化：用 token ID 查 Embedding 矩阵，再加位置编码",
-      "推理：多层解码器得到隐藏状态，映射为 logits",
-      "解码：softmax 得到概率，按解码策略选下一个 token",
-      "自回归：遇 EOS、长度上限或停用词才停止"
-    ],
-    "source": "2_1_用大模型构建新人答疑机器人"
-  },
-  {
-    "id": "app-dev-c02",
-    "domain": "app-dev",
-    "title": "temperature、top_p 与随机性",
-    "points": [
-      "temperature 越低，概率分布越尖锐，输出越确定",
-      "top_p 按累计概率截取候选集，越小输出越稳定",
-      "明确答案（如代码）调低，创意文案调高",
-      "建议不要同时调整 temperature 和 top_p",
-      "即使 temperature=0 且 seed 相同，也不保证完全一致"
-    ],
-    "source": "2_1_用大模型构建新人答疑机器人"
-  },
-  {
-    "id": "app-dev-c03",
-    "domain": "app-dev",
-    "title": "Function Calling 与 MCP",
-    "points": [
-      "FC 在 tools 参数中用 JSON Schema 描述工具",
-      "模型只返回 tool_calls，函数由开发者代码执行",
-      "工具结果以 tool 消息回传，形成 ReAct 循环",
-      "MCP：谁提供工具谁定义，Client 动态拉取工具",
-      "stdio 适合本地调试，Streamable HTTP 适合远端共享"
-    ],
-    "source": "3_1_Agent基础与工具调用"
-  },
-  {
     "id": "app-dev-c04",
     "domain": "app-dev",
     "title": "用 OpenAI SDK 调用千问",
@@ -65,6 +26,32 @@
     "source": "2_1_用大模型构建新人答疑机器人"
   },
   {
+    "id": "app-dev-c13",
+    "domain": "app-dev",
+    "title": "流式输出的原理与体验",
+    "points": [
+      "同步调用需等待约 20 秒才返回完整回复",
+      "流式输出让模型像打字一样边想边输出",
+      "流式只改变展示方式，不影响思考过程与质量",
+      "服务端生成一两个 token 就解码并发送显示",
+      "token 是子词片段，流式显示可能被拆成几部分"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c01",
+    "domain": "app-dev",
+    "title": "大模型文本生成五阶段",
+    "points": [
+      "分词：文本编码为 token，token 常是子词或字符片段",
+      "向量化：用 token ID 查 Embedding 矩阵，再加位置编码",
+      "推理：多层解码器得到隐藏状态，映射为 logits",
+      "解码：softmax 得到概率，按解码策略选下一个 token",
+      "自回归：遇 EOS、长度上限或停用词才停止"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
     "id": "app-dev-c06",
     "domain": "app-dev",
     "title": "解码策略与停止条件",
@@ -74,6 +61,45 @@
       "选出的 token 追加到输入末尾继续预测",
       "停止条件：EOS 终止符、最大长度、停用词",
       "Qwen3 的终止符是 <|im_end|>"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c14",
+    "domain": "app-dev",
+    "title": "大模型推理的内部机制",
+    "points": [
+      "向量序列送入解码器层计算，称为前向计算",
+      "会逐层穿过数十到上百个结构相似的解码器层",
+      "核心机制是因果自注意力机制加前馈神经网络",
+      "文本信息在层间被一次次压缩和提取",
+      "最后 token 的隐藏状态是模型高度浓缩的思考总结"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c02",
+    "domain": "app-dev",
+    "title": "temperature、top_p 与随机性",
+    "points": [
+      "temperature 越低，概率分布越尖锐，输出越确定",
+      "top_p 按累计概率截取候选集，越小输出越稳定",
+      "明确答案（如代码）调低，创意文案调高",
+      "建议不要同时调整 temperature 和 top_p",
+      "即使 temperature=0 且 seed 相同，也不保证完全一致"
+    ],
+    "source": "2_1_用大模型构建新人答疑机器人"
+  },
+  {
+    "id": "app-dev-c15",
+    "domain": "app-dev",
+    "title": "temperature/top_p 取值范围",
+    "points": [
+      "Qwen-Max 模型 temperature 取值范围是 [0,2)",
+      "top_p 的取值范围是 (0,1]",
+      "top_p=0.5 时只保留最高概率的候选 Token",
+      "top_p=0.8 时在累计概率内的候选中随机选",
+      "温度 0.1→0.7→1.2，候选最高概率从 0.8 降到 0.3"
     ],
     "source": "2_1_用大模型构建新人答疑机器人"
   },
@@ -129,6 +155,19 @@
     "source": "3_1_Agent基础与工具调用"
   },
   {
+    "id": "app-dev-c03",
+    "domain": "app-dev",
+    "title": "Function Calling 与 MCP",
+    "points": [
+      "FC 在 tools 参数中用 JSON Schema 描述工具",
+      "模型只返回 tool_calls，函数由开发者代码执行",
+      "工具结果以 tool 消息回传，形成 ReAct 循环",
+      "MCP：谁提供工具谁定义，Client 动态拉取工具",
+      "stdio 适合本地调试，Streamable HTTP 适合远端共享"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
     "id": "app-dev-c11",
     "domain": "app-dev",
     "title": "ReAct 与 AgentScope",
@@ -138,6 +177,43 @@
       "Toolkit 注册带文档字符串的函数，自动生成 Schema",
       "ReActAgent 自动解析 tool_calls、执行并包装结果",
       "支持多模型、异步调用和多轮工具调用"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c16",
+    "domain": "app-dev",
+    "title": "为什么先学手动工具调用",
+    "points": [
+      "框架内部也是调用模型→解析→执行→再次调用模型",
+      "理解底层原理才能调试框架内部出现的问题",
+      "生产环境常需权限验证、缓存、重试等自定义逻辑",
+      "理解底层才能据此扩展框架以满足特殊需求",
+      "部分平台不支持标准 FC 格式时，可用手动实现降级"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c17",
+    "domain": "app-dev",
+    "title": "工具复用的维护难题",
+    "points": [
+      "FC 模式下，Agent 侧硬编码了特定工具版本的 Schema",
+      "工具更新时，各 Agent 都要手动修改，维护成本高",
+      "工具提供方只能被动等待开发者发现，难以主动接入生态",
+      "FC 模式也无法保证开发者对工具 Schema 描述的质量"
+    ],
+    "source": "3_1_Agent基础与工具调用"
+  },
+  {
+    "id": "app-dev-c18",
+    "domain": "app-dev",
+    "title": "MCP 与 USB 协议的类比",
+    "points": [
+      "没有统一协议前，每种外设都要单独做适配",
+      "USB 统一接口后，兼容设备可以即插即用",
+      "Function Calling 像主板内部总线，连接特定组件",
+      "MCP 像外部 USB 接口，让第三方工具轻松接入"
     ],
     "source": "3_1_Agent基础与工具调用"
   },
