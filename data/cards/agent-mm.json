@@ -1,44 +1,5 @@
 [
   {
-    "id": "agent-mm-c01",
-    "domain": "agent-mm",
-    "title": "分层规划模式（Leader-Worker）",
-    "points": [
-      "中心化星型结构：Leader 拆解、分派、汇总",
-      "AgentScope 用 handoff 实现，专家被当作工具调用",
-      "每个子代理拥有独立上下文，输入更聚焦",
-      "适合目标明确、可拆成并行子任务的场景",
-      "局限：专家不直接沟通，信息可能延迟或失真"
-    ],
-    "source": "3_3_用多Agent实现团队协作"
-  },
-  {
-    "id": "agent-mm-c02",
-    "domain": "agent-mm",
-    "title": "共创协作模式（Blackboard）",
-    "points": [
-      "去中心化，所有 Agent 读写同一个共享空间",
-      "AgentScope 用 MsgHub 实现，回复自动被他人听到",
-      "“读取-思考-写入”循环，直至共识或达迭代上限",
-      "适合无唯一答案、需集思广益的开放问题",
-      "风险：讨论易发散难收敛，通信成本高"
-    ],
-    "source": "3_3_用多Agent实现团队协作"
-  },
-  {
-    "id": "agent-mm-c03",
-    "domain": "agent-mm",
-    "title": "混合专家 MoA",
-    "points": [
-      "多个不同模型作为提议者，处理同一任务",
-      "聚合器批判性评估并融合，而非简单择优",
-      "追求质量、鲁棒性和创造性，而非效率",
-      "N 个专家带来 N 倍计算成本和相应延迟",
-      "适合高价值的开放性或创造性任务"
-    ],
-    "source": "3_2_让Agent学会规划与执行"
-  },
-  {
     "id": "agent-mm-c04",
     "domain": "agent-mm",
     "title": "反思：自我反馈与外部反馈",
@@ -65,6 +26,19 @@
     "source": "3_2_让Agent学会规划与执行"
   },
   {
+    "id": "agent-mm-c03",
+    "domain": "agent-mm",
+    "title": "混合专家 MoA",
+    "points": [
+      "多个不同模型作为提议者，处理同一任务",
+      "聚合器批判性评估并融合，而非简单择优",
+      "追求质量、鲁棒性和创造性，而非效率",
+      "N 个专家带来 N 倍计算成本和相应延迟",
+      "适合高价值的开放性或创造性任务"
+    ],
+    "source": "3_2_让Agent学会规划与执行"
+  },
+  {
     "id": "agent-mm-c06",
     "domain": "agent-mm",
     "title": "自主规划 Plan & Execute",
@@ -76,6 +50,45 @@
       "“探索-固化”：先自主探索，再固化为固定流程"
     ],
     "source": "3_2_让Agent学会规划与执行"
+  },
+  {
+    "id": "agent-mm-c13",
+    "domain": "agent-mm",
+    "title": "多Agent设计：源于现实观察",
+    "points": [
+      "单个 Agent 难担创意性多环节任务",
+      "没有最佳模式，设计源于模仿现实团队协作",
+      "观察三维度：业务流程、专家角色、协作方式",
+      "设计路径：观察现实、还原流程、迭代改进",
+      "混合模式：先头脑风暴定创意，再按主管分工"
+    ],
+    "source": "3_3_用多Agent实现团队协作"
+  },
+  {
+    "id": "agent-mm-c01",
+    "domain": "agent-mm",
+    "title": "分层规划模式（Leader-Worker）",
+    "points": [
+      "中心化星型结构：Leader 拆解、分派、汇总",
+      "AgentScope 用 handoff 实现，专家被当作工具调用",
+      "每个子代理拥有独立上下文，输入更聚焦",
+      "适合目标明确、可拆成并行子任务的场景",
+      "局限：专家不直接沟通，信息可能延迟或失真"
+    ],
+    "source": "3_3_用多Agent实现团队协作"
+  },
+  {
+    "id": "agent-mm-c02",
+    "domain": "agent-mm",
+    "title": "共创协作模式（Blackboard）",
+    "points": [
+      "去中心化，所有 Agent 读写同一个共享空间",
+      "AgentScope 用 MsgHub 实现，回复自动被他人听到",
+      "“读取-思考-写入”循环，直至共识或达迭代上限",
+      "适合无唯一答案、需集思广益的开放问题",
+      "风险：讨论易发散难收敛，通信成本高"
+    ],
+    "source": "3_3_用多Agent实现团队协作"
   },
   {
     "id": "agent-mm-c07",
@@ -117,6 +130,30 @@
     "source": "3_5_用Skill将能力固化为可复用流程"
   },
   {
+    "id": "agent-mm-c14",
+    "domain": "agent-mm",
+    "title": "从 Prompt 到审查知识库",
+    "points": [
+      "通用 Prompt 只给泛泛建议，抓不住团队专属标准",
+      "Prompt 存在聊天记录里，无法版本管理、团队共享",
+      "知识库改造：主文件精简，细节拆到子文件",
+      "长 Notebook 先提取目录再分段检查，避免中间遗漏"
+    ],
+    "source": "3_5_用Skill将能力固化为可复用流程"
+  },
+  {
+    "id": "agent-mm-c15",
+    "domain": "agent-mm",
+    "title": "Skill 与 RAG 的区别",
+    "points": [
+      "RAG 解决模型不知道事实，Skill 解决不知道怎么做",
+      "RAG 是检索-注入：找到片段就直接塞进上下文",
+      "Skill 是选择-展开：先看描述判断要不要用",
+      "二者解决的问题类型不同，不能互相替代"
+    ],
+    "source": "3_5_用Skill将能力固化为可复用流程"
+  },
+  {
     "id": "agent-mm-c10",
     "domain": "agent-mm",
     "title": "写好 Skill 与团队化管理",
@@ -126,6 +163,19 @@
       "自由度匹配风险：数据库迁移用精确脚本",
       "脚本输出结构化 JSON，带修复线索、优雅降级",
       "领域团队所有权 + Skills-as-Code（PR、CI 评测）"
+    ],
+    "source": "3_5_用Skill将能力固化为可复用流程"
+  },
+  {
+    "id": "agent-mm-c16",
+    "domain": "agent-mm",
+    "title": "Skill 自动生成与社区复用",
+    "points": [
+      "skill-creator 元 Skill 可按需求生成 Skill 初稿",
+      "自动生成只解决写出来，仍需评测验证写得对不对",
+      "npx skills find/add 可搜索、安装社区 Skill",
+      "社区 Skill 覆盖通用实践，自建 Skill 封装业务知识",
+      "安装前应查看安全审计评级，避免恶意指令"
     ],
     "source": "3_5_用Skill将能力固化为可复用流程"
   },
@@ -143,6 +193,45 @@
     "source": "3_6_用评测驱动Agent开发"
   },
   {
+    "id": "agent-mm-c17",
+    "domain": "agent-mm",
+    "title": "AgentScope 评测框架实践",
+    "points": [
+      "Task + Metric 组成最小可运行的评测闭环",
+      "结构化输出（pydantic）提升 LLM 打分稳定性",
+      "评审 Agent 调用前重置状态，避免跨任务污染",
+      "可选开启 Tracing，发送轨迹到 Studio 或 OTLP",
+      "社区框架 RAGAS、DeepEval 也可做 Agent 评测"
+    ],
+    "source": "3_6_用评测驱动Agent开发"
+  },
+  {
+    "id": "agent-mm-c18",
+    "domain": "agent-mm",
+    "title": "评测 Agent Skill",
+    "points": [
+      "Skill 特有两维度：触发是否正确、过程是否合 SOP",
+      "10-20 个提示词覆盖显式、隐式、上下文、负向场景",
+      "客观检查看 trace 事件序列，确定性可调试",
+      "主观检查用 Rubric 评分，要求结构化 JSON 结果",
+      "每次手动修复转化为测试用例，形成活文档"
+    ],
+    "source": "3_6_用评测驱动Agent开发"
+  },
+  {
+    "id": "agent-mm-c19",
+    "domain": "agent-mm",
+    "title": "Qwen Code：概念到工具映射",
+    "points": [
+      "自动调用文件读取等工具对应 Function Calling",
+      "读取→思考→再读取循环对应 ReAct 循环",
+      "Plan Mode 先列步骤再执行对应 Plan & Execute",
+      "复杂任务自动拆分子任务对应 SubAgent",
+      "Qwen Code 不是新知识点，是已学概念的工程实现"
+    ],
+    "source": "3_7_Qwen_Code实践"
+  },
+  {
     "id": "agent-mm-c12",
     "domain": "agent-mm",
     "title": "Qwen Code 日常工作方式",
@@ -154,5 +243,43 @@
       "自定义命令手动触发，MCP 接工具，Skill 按需加载"
     ],
     "source": "3_7_Qwen_Code实践"
+  },
+  {
+    "id": "agent-mm-c20",
+    "domain": "agent-mm",
+    "title": "Harness Engineering",
+    "points": [
+      "Harness：让模型引擎能在仓库里稳定工作的外部环境",
+      "仓库知识是事实来源，没写进仓库的规则不存在",
+      "机械化执行约束：写成命令、脚本、Hook、CI",
+      "六层结构：工具、上下文、记忆、扩展、验证、演进",
+      "核心循环：发现问题→固化解法→验证效果"
+    ],
+    "source": "3_7_Qwen_Code实践"
+  },
+  {
+    "id": "agent-mm-c21",
+    "domain": "agent-mm",
+    "title": "Agent 能力边界与反模式",
+    "points": [
+      "擅长脚手架、读代码、重复性修改、生成测试",
+      "易错：过时 API、项目特有约束、跨文件副作用",
+      "反模式：一次性说太多，应按 EPCC 一次一个任务",
+      "反模式：不看 diff、不管上下文膨胀、不验证就提交",
+      "根源是对 Agent 过度信任或依赖，判断仍是人的责任"
+    ],
+    "source": "3_7_Qwen_Code实践"
+  },
+  {
+    "id": "agent-mm-c22",
+    "domain": "agent-mm",
+    "title": "Harness 与 Loop 闭环（课程预览）",
+    "points": [
+      "解决'这一次能跑'到换主题也能稳定复用的问题",
+      "核心闭环：标准→Skill→测试样本→截图验证→问题记录→写回规则→新主题验证",
+      "判断问题该改作品、改 Skill、补验证器还是补标准",
+      "解释 Harness/Loop Engineering 的核心作用"
+    ],
+    "source": "3_8_Harness_Loop打造可上线业务能力"
   }
 ]
