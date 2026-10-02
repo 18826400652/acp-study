@@ -10,13 +10,13 @@ const q = (n, over = {}) => ({
   options: ['甲', '乙', '丙', '丁'], answer: [0], explanation: '解析', source: '2_5_x', ...over,
 });
 const card = (n, over = {}) => ({
-  id: `rag-c${String(n).padStart(2, '0')}`, domain: 'rag', title: '标题', points: ['一', '二', '三'], source: '2_5_x', ...over,
+  id: `rag-c${String(n).padStart(2, '0')}`, domain: 'rag', title: `标题${n}`, points: ['一', '二', '三'], source: '2_5_x', ...over,
 });
 function valid() {
   return {
     domains: DOMAINS,
     questions: { rag: [q(1), q(2), q(3), q(4), q(5, { type: 'multi', answer: [0, 1] }), q(6, { type: 'multi', answer: [1, 2] })] },
-    cards: { rag: Array.from({ length: 10 }, (_, i) => card(i + 1)) },
+    cards: { rag: Array.from({ length: 15 }, (_, i) => card(i + 1)) },
   };
 }
 function withQuestion(over) {
@@ -145,4 +145,28 @@ test('questionsOnly mode skips card rules, card counts and the weight sum', () =
   const few = { ...data, questions: { 'iv-a': qs.slice(0, 1) } };
   assert.ok(validateData(few, { questionsOnly: true }).some((e) => e.includes('single 题数 1')));
   assert.ok(!validateData(few, { questionsOnly: true }).some((e) => e.includes('卡片数')));
+});
+
+test('card points over 40 characters and titles over 24 are rejected', () => {
+  const data = valid();
+  const long = '一'.repeat(41);
+  const cards = data.cards.rag.map((c, i) => (i === 0 ? { ...c, points: [long, '二', '三'] } : c));
+  expectError({ ...data, cards: { ...data.cards, rag: cards } }, '第 1 条要点超过 40 字');
+  const exact = data.cards.rag.map((c, i) => (i === 0 ? { ...c, points: ['一'.repeat(40), '二', '三'] } : c));
+  assert.deepEqual(validateData({ ...data, cards: { ...data.cards, rag: exact } }), []);
+  const titled = data.cards.rag.map((c, i) => (i === 0 ? { ...c, title: '题'.repeat(25) } : c));
+  expectError({ ...data, cards: { ...data.cards, rag: titled } }, 'title 超过 24 字');
+});
+
+test('duplicate card titles within a domain are rejected', () => {
+  const data = valid();
+  const cards = data.cards.rag.map((c, i) => (i === 1 ? { ...c, title: data.cards.rag[0].title } : c));
+  expectError({ ...data, cards: { ...data.cards, rag: cards } }, `卡片标题重复：${data.cards.rag[0].title}`);
+});
+
+test('card count must be 15 to 25 in strict mode', () => {
+  const data = valid();
+  const more = Array.from({ length: 26 }, (_, i) => ({ ...data.cards.rag[0], id: `rag-c${String(i + 1).padStart(2, '0')}`, title: `卡片 ${i + 1}` }));
+  expectError({ ...data, cards: { ...data.cards, rag: more } }, '卡片数 26，应在 15–25 之间');
+  expectError({ ...data, cards: { ...data.cards, rag: data.cards.rag.slice(0, 14) } }, '卡片数 14');
 });

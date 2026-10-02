@@ -1,7 +1,9 @@
 export const COUNT_TOLERANCE = 3;
 export const OPTION_RANGE = { min: 3, max: 6 };
 export const POINT_RANGE = { min: 3, max: 5 };
-export const CARD_RANGE = { min: 10, max: 15 };
+export const CARD_RANGE = { min: 15, max: 25 };
+export const POINT_MAX_CHARS = 40;
+export const TITLE_MAX_CHARS = 24;
 export const BALANCE_MIN = { single: 8, multi: 6 };
 export const SINGLE_LETTER_MAX_SHARE = 0.4;
 export const MULTI_POSITION_MAX_SHARE = 0.75;
@@ -9,6 +11,7 @@ export const KEY_LONGEST_MAX_SHARE = 0.35;
 const LETTERS = 'ABCDEF';
 const pct = (x) => Math.round(x * 100);
 const ALL_CORRECT_RE = /以上(都|均|全部|皆)?(对|正确|是)/;
+const charCount = (s) => [...s].length;
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const nonEmpty = (s) => typeof s === 'string' && s.trim().length > 0;
@@ -72,6 +75,12 @@ function checkCard(c, domainId, chapters, seen) {
   if (!nonEmpty(c.title)) add('title 不能为空');
   if (!Array.isArray(c.points) || !inRange(c.points.length, POINT_RANGE) || !c.points.every(nonEmpty)) {
     add(`points 数量必须在 ${POINT_RANGE.min}–${POINT_RANGE.max} 之间且不能为空`);
+  }
+  if (nonEmpty(c.title) && charCount(c.title) > TITLE_MAX_CHARS) add(`title 超过 ${TITLE_MAX_CHARS} 字`);
+  if (Array.isArray(c.points)) {
+    c.points.forEach((p, i) => {
+      if (nonEmpty(p) && charCount(p) > POINT_MAX_CHARS) add(`第 ${i + 1} 条要点超过 ${POINT_MAX_CHARS} 字`);
+    });
   }
   if (!chapters.has(c.source)) add(`source 不是已知章节：${c.source}`);
   return errs;
@@ -176,6 +185,12 @@ export function validateData({ domains, cards, questions }, { allowPartial = fal
   domains.forEach((d) => {
     const qs = questions[d.id] || [];
     const cs = questionsOnly ? [] : (cards[d.id] || []);
+    const titles = new Set();
+    cs.forEach((c) => {
+      if (!isObject(c) || !nonEmpty(c.title)) return;
+      if (titles.has(c.title)) errors.push(`cards/${d.id}.json: 卡片标题重复：${c.title}`);
+      titles.add(c.title);
+    });
     qs.forEach((q) => errors.push(...checkQuestion(q, d.id, chapters, seen)));
     cs.forEach((c) => errors.push(...checkCard(c, d.id, chapters, seen)));
     errors.push(...checkBalance(d.id, qs));
