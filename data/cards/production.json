@@ -1,5 +1,18 @@
 [
   {
+    "id": "production-c04",
+    "domain": "production",
+    "title": "业务需求与 SLO",
+    "points": [
+      "功能性需求定“做什么”，非功能性需求定“如何做”",
+      "领域任务选领域模型：数学 Qwen-Math、法务 farui-plus",
+      "多模态任务用专门模型，拼接单模态延迟高一致性差",
+      "TTFT 首 token 延时；TPOT 每 token 生成时间",
+      "按准确度选模型：自建评测集或用 MMLU、BBH 等"
+    ],
+    "source": "4_3_大模型应用生产实践"
+  },
+  {
     "id": "production-c01",
     "domain": "production",
     "title": "性能与成本优化",
@@ -13,41 +26,15 @@
     "source": "4_3_大模型应用生产实践"
   },
   {
-    "id": "production-c02",
+    "id": "production-c07",
     "domain": "production",
-    "title": "稳定性与可观测性",
+    "title": "用户感知优化与省钱数字",
     "points": [
-      "自动扩缩容：弹性伸缩 ESS + 负载均衡 SLB",
-      "评测基线：拦截不达标模型，灰度发布新模型",
-      "容灾：降级熔断，切备份模型或规则引擎兜底",
-      "Metrics 发现异常，Traces 定位环节，Logs 查根因",
-      "先接入观测留痕，积累数据后再设告警规则"
-    ],
-    "source": "4_3_大模型应用生产实践"
-  },
-  {
-    "id": "production-c03",
-    "domain": "production",
-    "title": "AI 应用安全与合规",
-    "points": [
-      "提示词注入劫持原任务；指令注入借智能体执行恶意指令",
-      "关键词黑名单易被同义替换、编码混淆绕过",
-      "三层防御：输入过滤、运行监控、输出审查",
-      "RAG 防护：知识库访问控制 + 文本与向量双重加密",
-      "在中国提供生成式 AI 服务须完成算法备案"
-    ],
-    "source": "4_4_大模型应用安全合规"
-  },
-  {
-    "id": "production-c04",
-    "domain": "production",
-    "title": "业务需求与 SLO",
-    "points": [
-      "功能性需求定“做什么”，非功能性需求定“如何做”",
-      "领域任务选领域模型：数学 Qwen-Math、法务 farui-plus",
-      "多模态任务用专门模型，拼接单模态延迟高一致性差",
-      "TTFT 首 token 延时；TPOT 每 token 生成时间",
-      "按准确度选模型：自建评测集或用 MMLU、BBH 等"
+      "流式输出降感知延迟；负载均衡要关缓存和压缩",
+      "分块处理、展示任务进度，减少未知等待焦虑",
+      "错误提示避免术语；临时错误自动重试要设上限",
+      "cache_token 单价为 input_token 的 40%",
+      "百炼批量推理计费为实时的 50%；spot 最高省 90%"
     ],
     "source": "4_3_大模型应用生产实践"
   },
@@ -65,6 +52,19 @@
     "source": "4_3_大模型应用生产实践"
   },
   {
+    "id": "production-c14",
+    "domain": "production",
+    "title": "GPU 推理优势与输入侧优化",
+    "points": [
+      "GPU 核心数量庞大，适合大规模并行矩阵运算",
+      "CPU 核心少而强，适合复杂逻辑与串行任务",
+      "CPU 集群难以替代 GPU 加速大模型推理",
+      "边缘设备可用 CPU 推理，但要牺牲推理速度",
+      "输入端优化：精简上下文、提取意图、生成摘要"
+    ],
+    "source": "4_3_大模型应用生产实践"
+  },
+  {
     "id": "production-c06",
     "domain": "production",
     "title": "GPU 选型与计费方式",
@@ -78,17 +78,69 @@
     "source": "4_3_大模型应用生产实践"
   },
   {
-    "id": "production-c07",
+    "id": "production-c02",
     "domain": "production",
-    "title": "用户感知优化与省钱数字",
+    "title": "稳定性与可观测性",
     "points": [
-      "流式输出降感知延迟；负载均衡要关缓存和压缩",
-      "分块处理、展示任务进度，减少未知等待焦虑",
-      "错误提示避免术语；临时错误自动重试要设上限",
-      "cache_token 单价为 input_token 的 40%",
-      "百炼批量推理计费为实时的 50%；spot 最高省 90%"
+      "自动扩缩容：弹性伸缩 ESS + 负载均衡 SLB",
+      "评测基线：拦截不达标模型，灰度发布新模型",
+      "容灾：降级熔断，切备份模型或规则引擎兜底",
+      "Metrics 发现异常，Traces 定位环节，Logs 查根因",
+      "先接入观测留痕，积累数据后再设告警规则"
     ],
     "source": "4_3_大模型应用生产实践"
+  },
+  {
+    "id": "production-c13",
+    "domain": "production",
+    "title": "PD 分离与 MLOps 进阶方向",
+    "points": [
+      "多卡 PD 分离拆分 Prefill 与 Decode 两阶段",
+      "PD 分离可优化 TTFT 与 TPOT 的 SLO 达成",
+      "DistServe 是分离 Prefill/Decode 的典型系统",
+      "MLOps 是机器学习与 DevOps 结合的管理方式",
+      "MLOps 打通开发运维，持续优化迭代模型"
+    ],
+    "source": "4_3_大模型应用生产实践"
+  },
+  {
+    "id": "production-c03",
+    "domain": "production",
+    "title": "AI 应用安全与合规",
+    "points": [
+      "提示词注入劫持原任务；指令注入借智能体执行恶意指令",
+      "关键词黑名单易被同义替换、编码混淆绕过",
+      "三层防御：输入过滤、运行监控、输出审查",
+      "RAG 防护：知识库访问控制 + 文本与向量双重加密",
+      "在中国提供生成式 AI 服务须完成算法备案"
+    ],
+    "source": "4_4_大模型应用安全合规"
+  },
+  {
+    "id": "production-c15",
+    "domain": "production",
+    "title": "安全漏洞引发的业务危机",
+    "points": [
+      "隐私泄露触犯《个人信息保护法》，面临法律责任",
+      "OpenAI、Google 均曾因隐私问题被集体诉讼",
+      "歧视性言论可引发舆论风暴，损害企业声誉",
+      "使用未授权数据生成作品，可能引发产权纠纷",
+      "Stability AI 曾被 Getty Images 起诉侵权"
+    ],
+    "source": "4_4_大模型应用安全合规"
+  },
+  {
+    "id": "production-c12",
+    "domain": "production",
+    "title": "AI 安全护栏与合规",
+    "points": [
+      "百炼加请求头 X-DashScope-DataInspection 触发审查",
+      "拦截返回 data_inspection_failed，便于终止智能体",
+      "自定义词库命中规则时返回 label: customized",
+      "欧盟 AI Act 按风险分级；美国 NIST 框架重引导",
+      "合规前置、善用平台工具、明确内部责任（DRI）"
+    ],
+    "source": "4_4_大模型应用安全合规"
   },
   {
     "id": "production-c08",
@@ -143,15 +195,38 @@
     "source": "4_4_大模型应用安全合规"
   },
   {
-    "id": "production-c12",
+    "id": "production-c18",
     "domain": "production",
-    "title": "AI 安全护栏与合规",
+    "title": "资产监控与人工审计",
     "points": [
-      "百炼加请求头 X-DashScope-DataInspection 触发审查",
-      "拦截返回 data_inspection_failed，便于终止智能体",
-      "自定义词库命中规则时返回 label: customized",
-      "欧盟 AI Act 按风险分级；美国 NIST 框架重引导",
-      "合规前置、善用平台工具、明确内部责任（DRI）"
+      "用云安全中心、云防火墙、WAF、RASP识别漏洞",
+      "CTDR、AI-SPM、AI-BOM 等工具监控资产异常",
+      "异常行为举例：流量飙升、非工作时段数据库访问",
+      "人工审计需核对资产登记，评估关键资产风险"
+    ],
+    "source": "4_4_大模型应用安全合规"
+  },
+  {
+    "id": "production-c16",
+    "domain": "production",
+    "title": "训练数据与模型窃取防御细节",
+    "points": [
+      "治理数据源，评估剔除低质量、偏见、攻击性内容",
+      "用 SDDP 等工具扫描脱敏，防止训练数据隐私泄露",
+      "对抗性训练：注入扰动样本，提升模型鲁棒性",
+      "模型窃取指高频调用复制能力，而非窃取文件"
+    ],
+    "source": "4_4_大模型应用安全合规"
+  },
+  {
+    "id": "production-c17",
+    "domain": "production",
+    "title": "RAG 双重加密与访问控制细节",
+    "points": [
+      "应用层访问控制可被高权限用户绕过",
+      "向量含语义信息，泄露可反推敏感主题",
+      "DCPE 对向量加噪、缩放、归一化、洗牌",
+      "双重加密流程：加密存储、密文检索、解密推理"
     ],
     "source": "4_4_大模型应用安全合规"
   }
