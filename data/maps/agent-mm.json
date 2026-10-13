@@ -3,103 +3,174 @@
   "title": "多Agent及多模态应用",
   "children": [
     {
-      "label": "让Agent学会规划与执行",
+      "label": "单 Agent 进阶：反思与规划",
       "children": [
         {
-          "card": "agent-mm-c04"
+          "label": "反思：先检查再交付",
+          "children": [
+            {
+              "card": "agent-mm-c23"
+            },
+            {
+              "card": "agent-mm-c04"
+            }
+          ]
         },
         {
-          "card": "agent-mm-c05"
-        },
-        {
-          "card": "agent-mm-c03"
-        },
-        {
-          "card": "agent-mm-c06"
+          "label": "自主规划 Plan & Execute",
+          "children": [
+            {
+              "card": "agent-mm-c06"
+            },
+            {
+              "card": "agent-mm-c25"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "用多Agent实现团队协作",
+      "label": "工作流与多 Agent 协作",
       "children": [
         {
-          "card": "agent-mm-c13"
+          "label": "工作流编排模式",
+          "children": [
+            {
+              "card": "agent-mm-c24"
+            },
+            {
+              "card": "agent-mm-c05"
+            },
+            {
+              "card": "agent-mm-c03"
+            }
+          ]
         },
         {
-          "card": "agent-mm-c01"
-        },
-        {
-          "card": "agent-mm-c02"
+          "label": "多 Agent 团队协作",
+          "children": [
+            {
+              "card": "agent-mm-c13"
+            },
+            {
+              "card": "agent-mm-c01"
+            },
+            {
+              "card": "agent-mm-c02"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "用Memory让Agent积累经验",
+      "label": "沉淀经验：Memory 与 Skill",
       "children": [
         {
-          "card": "agent-mm-c07"
+          "label": "Memory 记忆管理",
+          "children": [
+            {
+              "card": "agent-mm-c07"
+            },
+            {
+              "card": "agent-mm-c08"
+            }
+          ]
         },
         {
-          "card": "agent-mm-c08"
+          "label": "Skill 设计与编写",
+          "children": [
+            {
+              "card": "agent-mm-c14"
+            },
+            {
+              "card": "agent-mm-c09"
+            },
+            {
+              "card": "agent-mm-c15"
+            },
+            {
+              "card": "agent-mm-c10"
+            }
+          ]
+        },
+        {
+          "label": "Skill 生态与团队治理",
+          "children": [
+            {
+              "card": "agent-mm-c16"
+            },
+            {
+              "card": "agent-mm-c26"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "用Skill将能力固化为可复用流程",
+      "label": "评测驱动 Agent 开发",
       "children": [
         {
-          "card": "agent-mm-c09"
+          "label": "评测方法与指标",
+          "children": [
+            {
+              "card": "agent-mm-c11"
+            },
+            {
+              "card": "agent-mm-c27"
+            }
+          ]
         },
         {
-          "card": "agent-mm-c14"
-        },
-        {
-          "card": "agent-mm-c15"
-        },
-        {
-          "card": "agent-mm-c10"
-        },
-        {
-          "card": "agent-mm-c16"
+          "label": "评测实践",
+          "children": [
+            {
+              "card": "agent-mm-c17"
+            },
+            {
+              "card": "agent-mm-c18"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "用评测驱动Agent开发",
+      "label": "Qwen Code 编程实践",
       "children": [
         {
-          "card": "agent-mm-c11"
+          "label": "日常工作方式",
+          "children": [
+            {
+              "card": "agent-mm-c19"
+            },
+            {
+              "card": "agent-mm-c12"
+            }
+          ]
         },
         {
-          "card": "agent-mm-c17"
+          "label": "QWEN.md、命令与 Skill",
+          "children": [
+            {
+              "card": "agent-mm-c28"
+            },
+            {
+              "card": "agent-mm-c29"
+            }
+          ]
         },
         {
-          "card": "agent-mm-c18"
-        }
-      ]
-    },
-    {
-      "label": "Qwen Code实践",
-      "children": [
-        {
-          "card": "agent-mm-c19"
-        },
-        {
-          "card": "agent-mm-c12"
-        },
-        {
-          "card": "agent-mm-c20"
-        },
-        {
-          "card": "agent-mm-c21"
-        }
-      ]
-    },
-    {
-      "label": "Harness Loop打造可上线业务能力",
-      "children": [
-        {
-          "card": "agent-mm-c22"
+          "label": "Harness 与能力边界",
+          "children": [
+            {
+              "card": "agent-mm-c20"
+            },
+            {
+              "card": "agent-mm-c21"
+            },
+            {
+              "card": "agent-mm-c22"
+            }
+          ]
         }
       ]
     }
