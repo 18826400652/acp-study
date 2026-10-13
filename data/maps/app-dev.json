@@ -3,7 +3,7 @@
   "title": "大模型应用开发",
   "children": [
     {
-      "label": "用大模型构建新人答疑机器人",
+      "label": "通过 API 调用大模型",
       "children": [
         {
           "card": "app-dev-c04"
@@ -15,54 +15,109 @@
           "card": "app-dev-c13"
         },
         {
-          "card": "app-dev-c01"
-        },
-        {
-          "card": "app-dev-c06"
-        },
-        {
-          "card": "app-dev-c14"
-        },
-        {
-          "card": "app-dev-c02"
-        },
-        {
-          "card": "app-dev-c15"
-        },
-        {
-          "card": "app-dev-c07"
-        },
-        {
-          "card": "app-dev-c08"
+          "card": "app-dev-c21"
         }
       ]
     },
     {
-      "label": "Agent基础与工具调用",
+      "label": "大模型如何生成文本",
       "children": [
         {
-          "card": "app-dev-c09"
+          "label": "文本生成流程",
+          "children": [
+            {
+              "card": "app-dev-c01"
+            },
+            {
+              "card": "app-dev-c19"
+            },
+            {
+              "card": "app-dev-c14"
+            },
+            {
+              "card": "app-dev-c06"
+            }
+          ]
         },
         {
-          "card": "app-dev-c10"
+          "label": "控制输出随机性",
+          "children": [
+            {
+              "card": "app-dev-c02"
+            },
+            {
+              "card": "app-dev-c15"
+            },
+            {
+              "card": "app-dev-c07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "私域知识与上下文工程",
+      "children": [
+        {
+          "card": "app-dev-c08"
         },
         {
-          "card": "app-dev-c03"
+          "card": "app-dev-c20"
+        }
+      ]
+    },
+    {
+      "label": "Agent 与工具调用",
+      "children": [
+        {
+          "label": "为什么需要工具",
+          "children": [
+            {
+              "card": "app-dev-c22"
+            }
+          ]
         },
         {
-          "card": "app-dev-c11"
+          "label": "从手写调用到 Function Calling",
+          "children": [
+            {
+              "card": "app-dev-c09"
+            },
+            {
+              "card": "app-dev-c10"
+            },
+            {
+              "card": "app-dev-c03"
+            }
+          ]
         },
         {
-          "card": "app-dev-c16"
+          "label": "ReAct 循环与 AgentScope",
+          "children": [
+            {
+              "card": "app-dev-c11"
+            },
+            {
+              "card": "app-dev-c16"
+            }
+          ]
         },
         {
-          "card": "app-dev-c17"
-        },
-        {
-          "card": "app-dev-c18"
-        },
-        {
-          "card": "app-dev-c12"
+          "label": "MCP：工具的规模化管理",
+          "children": [
+            {
+              "card": "app-dev-c17"
+            },
+            {
+              "card": "app-dev-c18"
+            },
+            {
+              "card": "app-dev-c12"
+            },
+            {
+              "card": "app-dev-c03"
+            }
+          ]
         }
       ]
     }
