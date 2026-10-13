@@ -3,66 +3,86 @@
   "title": "大模型微调",
   "children": [
     {
-      "label": "用蒸馏让小模型掌握专业能力",
+      "label": "请求理解与蒸馏原理",
+      "children": [
+        { "card": "finetune-c13" },
+        { "card": "finetune-c01" },
+        { "card": "finetune-c19" },
+        { "card": "finetune-c20" }
+      ]
+    },
+    {
+      "label": "蒸馏实操流程",
       "children": [
         {
-          "card": "finetune-c13"
+          "label": "数据合成",
+          "children": [
+            { "card": "finetune-c21" },
+            { "card": "finetune-c04" }
+          ]
         },
         {
-          "card": "finetune-c01"
+          "label": "训练前评测",
+          "children": [
+            { "card": "finetune-c05" },
+            { "card": "finetune-c14" }
+          ]
         },
         {
-          "card": "finetune-c04"
+          "label": "微调训练",
+          "children": [
+            {
+              "label": "训练原理与 LoRA",
+              "children": [
+                { "card": "finetune-c15" },
+                { "card": "finetune-c02" }
+              ]
+            },
+            {
+              "label": "训练实操与排查",
+              "children": [
+                { "card": "finetune-c22" },
+                { "card": "finetune-c06" },
+                { "card": "finetune-c07" }
+              ]
+            }
+          ]
         },
         {
-          "card": "finetune-c05"
-        },
-        {
-          "card": "finetune-c14"
-        },
-        {
-          "card": "finetune-c15"
-        },
-        {
-          "card": "finetune-c02"
-        },
-        {
-          "card": "finetune-c06"
-        },
-        {
-          "card": "finetune-c07"
-        },
-        {
-          "card": "finetune-c08"
-        },
-        {
-          "card": "finetune-c16"
-        },
-        {
-          "card": "finetune-c09"
+          "label": "蒸馏效果评测",
+          "children": [
+            { "card": "finetune-c08" }
+          ]
         }
       ]
     },
     {
-      "label": "部署模型",
+      "label": "蒸馏适用性与成本决策",
       "children": [
+        { "card": "finetune-c16" },
+        { "card": "finetune-c09" }
+      ]
+    },
+    {
+      "label": "模型部署",
+      "children": [
+        { "card": "finetune-c03" },
         {
-          "card": "finetune-c03"
+          "label": "测试环境：vLLM 部署",
+          "children": [
+            { "card": "finetune-c23" },
+            { "card": "finetune-c10" },
+            { "card": "finetune-c18" }
+          ]
         },
         {
-          "card": "finetune-c10"
-        },
-        {
-          "card": "finetune-c18"
-        },
-        {
-          "card": "finetune-c17"
-        },
-        {
-          "card": "finetune-c11"
-        },
-        {
-          "card": "finetune-c12"
+          "label": "云上部署",
+          "children": [
+            { "card": "finetune-c17" },
+            { "card": "finetune-c24" },
+            { "card": "finetune-c11" },
+            { "card": "finetune-c12" }
+          ]
         }
       ]
     }
