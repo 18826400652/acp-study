@@ -173,6 +173,33 @@
           ]
         }
       ]
+    },
+    {
+      "label": "多模态应用",
+      "children": [
+        {
+          "label": "模型选型与视觉理解",
+          "children": [
+            {
+              "card": "agent-mm-c30"
+            },
+            {
+              "card": "agent-mm-c31"
+            }
+          ]
+        },
+        {
+          "label": "Agent 视觉输入与图片安全",
+          "children": [
+            {
+              "card": "agent-mm-c32"
+            },
+            {
+              "card": "agent-mm-c33"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
