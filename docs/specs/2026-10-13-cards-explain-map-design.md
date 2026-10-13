@@ -124,6 +124,7 @@
 `scripts/validate-lib.mjs`：
 
 - `CARD_RANGE.max` 25 → 35。
+- 卡片 `source` 规则放宽：可以用「、」连接多个章节，每个章节都必须是已知章节（任一考点的 `chapters`，外加常量 `EXTRA_CHAPTERS = ['5_2_总结与展望']`）。题目的 `source` 规则不变。
 - 每张卡必须有 `explain`，`plain`、`exam` 非空。各字段不超过 2.1 节的字数上限，`flow` 的形状合法。不允许出现未知字段。
 - 地图：文件存在，`domain` 匹配，节点形状合法，`label` 不超过字数上限，树深 ≤4。`card` 必须属于本考点，本考点每张卡至少出现一次。
 
