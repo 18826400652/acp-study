@@ -1,0 +1,70 @@
+{
+  "domain": "app-dev",
+  "title": "大模型应用开发",
+  "children": [
+    {
+      "label": "用大模型构建新人答疑机器人",
+      "children": [
+        {
+          "card": "app-dev-c04"
+        },
+        {
+          "card": "app-dev-c05"
+        },
+        {
+          "card": "app-dev-c13"
+        },
+        {
+          "card": "app-dev-c01"
+        },
+        {
+          "card": "app-dev-c06"
+        },
+        {
+          "card": "app-dev-c14"
+        },
+        {
+          "card": "app-dev-c02"
+        },
+        {
+          "card": "app-dev-c15"
+        },
+        {
+          "card": "app-dev-c07"
+        },
+        {
+          "card": "app-dev-c08"
+        }
+      ]
+    },
+    {
+      "label": "Agent基础与工具调用",
+      "children": [
+        {
+          "card": "app-dev-c09"
+        },
+        {
+          "card": "app-dev-c10"
+        },
+        {
+          "card": "app-dev-c03"
+        },
+        {
+          "card": "app-dev-c11"
+        },
+        {
+          "card": "app-dev-c16"
+        },
+        {
+          "card": "app-dev-c17"
+        },
+        {
+          "card": "app-dev-c18"
+        },
+        {
+          "card": "app-dev-c12"
+        }
+      ]
+    }
+  ]
+}

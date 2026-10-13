@@ -1,0 +1,107 @@
+{
+  "domain": "agent-mm",
+  "title": "多Agent及多模态应用",
+  "children": [
+    {
+      "label": "让Agent学会规划与执行",
+      "children": [
+        {
+          "card": "agent-mm-c04"
+        },
+        {
+          "card": "agent-mm-c05"
+        },
+        {
+          "card": "agent-mm-c03"
+        },
+        {
+          "card": "agent-mm-c06"
+        }
+      ]
+    },
+    {
+      "label": "用多Agent实现团队协作",
+      "children": [
+        {
+          "card": "agent-mm-c13"
+        },
+        {
+          "card": "agent-mm-c01"
+        },
+        {
+          "card": "agent-mm-c02"
+        }
+      ]
+    },
+    {
+      "label": "用Memory让Agent积累经验",
+      "children": [
+        {
+          "card": "agent-mm-c07"
+        },
+        {
+          "card": "agent-mm-c08"
+        }
+      ]
+    },
+    {
+      "label": "用Skill将能力固化为可复用流程",
+      "children": [
+        {
+          "card": "agent-mm-c09"
+        },
+        {
+          "card": "agent-mm-c14"
+        },
+        {
+          "card": "agent-mm-c15"
+        },
+        {
+          "card": "agent-mm-c10"
+        },
+        {
+          "card": "agent-mm-c16"
+        }
+      ]
+    },
+    {
+      "label": "用评测驱动Agent开发",
+      "children": [
+        {
+          "card": "agent-mm-c11"
+        },
+        {
+          "card": "agent-mm-c17"
+        },
+        {
+          "card": "agent-mm-c18"
+        }
+      ]
+    },
+    {
+      "label": "Qwen Code实践",
+      "children": [
+        {
+          "card": "agent-mm-c19"
+        },
+        {
+          "card": "agent-mm-c12"
+        },
+        {
+          "card": "agent-mm-c20"
+        },
+        {
+          "card": "agent-mm-c21"
+        }
+      ]
+    },
+    {
+      "label": "Harness Loop打造可上线业务能力",
+      "children": [
+        {
+          "card": "agent-mm-c22"
+        }
+      ]
+    }
+  ]
+}

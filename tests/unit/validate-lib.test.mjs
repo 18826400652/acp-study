@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateData } from '../../scripts/validate-lib.mjs';
+import { validateData, EXTRA_CHAPTERS } from '../../scripts/validate-lib.mjs';
 
 const DOMAINS = [{
   id: 'rag', name: '检索增强', short: 'RAG', weight: 100, target: { single: 5, multi: 4 }, chapters: ['2_5_x'],
@@ -9,14 +9,18 @@ const q = (n, over = {}) => ({
   id: `rag-${String(n).padStart(3, '0')}`, domain: 'rag', type: 'single', stem: `题干${n}`,
   options: ['甲', '乙', '丙', '丁'], answer: [0], explanation: '解析', source: '2_5_x', ...over,
 });
+const EXPLAIN = { plain: '大白话', exam: '考法' };
 const card = (n, over = {}) => ({
-  id: `rag-c${String(n).padStart(2, '0')}`, domain: 'rag', title: `标题${n}`, points: ['一', '二', '三'], source: '2_5_x', ...over,
+  id: `rag-c${String(n).padStart(2, '0')}`, domain: 'rag', title: `标题${n}`, points: ['一', '二', '三'], source: '2_5_x', explain: EXPLAIN, ...over,
 });
+const mapOf = (cards) => ({ domain: 'rag', title: '检索增强', children: [{ label: '全部', children: cards.map((c) => ({ card: c.id })) }] });
 function valid() {
+  const cards = Array.from({ length: 15 }, (_, i) => card(i + 1));
   return {
     domains: DOMAINS,
     questions: { rag: [q(1), q(2), q(3), q(4), q(5, { type: 'multi', answer: [0, 1] }), q(6, { type: 'multi', answer: [1, 2] })] },
-    cards: { rag: Array.from({ length: 15 }, (_, i) => card(i + 1)) },
+    cards: { rag: cards },
+    maps: { rag: mapOf(cards) },
   };
 }
 function withQuestion(over) {
@@ -65,7 +69,7 @@ test('card rules', () => {
 
 test('count rules apply in strict mode only', () => {
   const data = valid();
-  const few = { ...data, questions: { rag: data.questions.rag.slice(0, 1) }, cards: { rag: data.cards.rag.slice(0, 3) } };
+  const few = { ...data, questions: { rag: data.questions.rag.slice(0, 1) }, cards: { rag: data.cards.rag.slice(0, 3) }, maps: { rag: mapOf(data.cards.rag.slice(0, 3)) } };
   expectError(few, 'single 题数 1');
   expectError(few, 'multi 题数 0');
   expectError(few, '卡片数 3');
@@ -164,9 +168,77 @@ test('duplicate card titles within a domain are rejected', () => {
   expectError({ ...data, cards: { ...data.cards, rag: cards } }, `卡片标题重复：${data.cards.rag[0].title}`);
 });
 
-test('card count must be 15 to 25 in strict mode', () => {
+test('card count must be 15 to 35 in strict mode', () => {
   const data = valid();
-  const more = Array.from({ length: 26 }, (_, i) => ({ ...data.cards.rag[0], id: `rag-c${String(i + 1).padStart(2, '0')}`, title: `卡片 ${i + 1}` }));
-  expectError({ ...data, cards: { ...data.cards, rag: more } }, '卡片数 26，应在 15–25 之间');
-  expectError({ ...data, cards: { ...data.cards, rag: data.cards.rag.slice(0, 14) } }, '卡片数 14');
+  const many = Array.from({ length: 36 }, (_, i) => card(i + 1));
+  expectError({ ...data, cards: { rag: many }, maps: { rag: mapOf(many) } }, '卡片数 36，应在 15–35 之间');
+  const ok = many.slice(0, 35);
+  assert.deepEqual(validateData({ ...data, cards: { rag: ok }, maps: { rag: mapOf(ok) } }), []);
+  const fewer = data.cards.rag.slice(0, 14);
+  expectError({ ...data, cards: { rag: fewer }, maps: { rag: mapOf(fewer) } }, '卡片数 14');
+});
+
+const withCard = (over) => {
+  const data = valid();
+  return { ...data, cards: { rag: [card(1, over)].concat(data.cards.rag.slice(1)) } };
+};
+const withMap = (map) => ({ ...valid(), maps: { rag: map } });
+const LONG = (n) => '字'.repeat(n);
+
+test('card source may join several known chapters with 、', () => {
+  assert.deepEqual(validateData(withCard({ source: `2_5_x、${EXTRA_CHAPTERS[0]}` })), []);
+  expectError(withCard({ source: '2_5_x、9_9_不存在' }), 'source 不是已知章节');
+  expectError(withCard({ source: '2_5_x、' }), 'source 不是已知章节');
+});
+
+test('explain rules', () => {
+  expectError(withCard({ explain: undefined }), '缺少 explain');
+  expectError(withCard({ explain: '文字' }), 'explain 必须是对象');
+  expectError(withCard({ explain: { exam: '考法' } }), 'explain.plain 不能为空');
+  expectError(withCard({ explain: { plain: '大白话', exam: ' ' } }), 'explain.exam 不能为空');
+  expectError(withCard({ explain: { ...EXPLAIN, plain: LONG(151) } }), 'explain.plain 超过 150 字');
+  expectError(withCard({ explain: { ...EXPLAIN, exam: LONG(81) } }), 'explain.exam 超过 80 字');
+  expectError(withCard({ explain: { ...EXPLAIN, analogy: LONG(61) } }), 'explain.analogy 超过 60 字');
+  expectError(withCard({ explain: { ...EXPLAIN, confuse: LONG(61) } }), 'explain.confuse 超过 60 字');
+  expectError(withCard({ explain: { ...EXPLAIN, confuse: '' } }), 'explain.confuse 不能为空');
+  expectError(withCard({ explain: { ...EXPLAIN, note: 'x' } }), 'explain 有未知字段：note');
+  assert.deepEqual(validateData(withCard({ explain: { ...EXPLAIN, plain: LONG(150), exam: LONG(80), analogy: LONG(60), confuse: LONG(60) } })), []);
+});
+
+test('flow rules', () => {
+  const flow = (f) => withCard({ explain: { ...EXPLAIN, flow: f } });
+  assert.deepEqual(validateData(flow([['甲', '乙'], ['丙', '丁', '戊'], [LONG(10), '己']])), []);
+  expectError(flow([]), 'explain.flow');
+  expectError(flow([['甲', '乙'], ['甲', '乙'], ['甲', '乙'], ['甲', '乙']]), 'explain.flow');
+  expectError(flow([['甲']]), 'explain.flow');
+  expectError(flow([['1', '2', '3', '4', '5', '6', '7']]), 'explain.flow');
+  expectError(flow([['甲', LONG(11)]]), 'explain.flow');
+  expectError(flow([['甲', '']]), 'explain.flow');
+  expectError(flow('甲→乙'), 'explain.flow');
+});
+
+test('map rules', () => {
+  const base = valid().maps.rag;
+  expectError({ ...valid(), maps: {} }, '缺少知识地图');
+  expectError(withMap({ ...base, domain: 'prompt' }), 'domain 应为 rag');
+  expectError(withMap({ ...base, title: '' }), 'title 不能为空');
+  expectError(withMap({ ...base, children: [] }), 'children 不能为空');
+  expectError(withMap({ ...base, children: base.children.concat({ label: LONG(25), children: [{ card: 'rag-c01' }] }) }), 'label 超过 24 字');
+  expectError(withMap({ ...base, children: base.children.concat({ label: '空', children: [] }) }), '分支节点 children 不能为空');
+  expectError(withMap({ ...base, children: base.children.concat({ card: 'rag-c01', label: '多余' }) }), '卡片节点只能有 card 字段');
+  expectError(withMap({ ...base, children: base.children.concat({ card: 'prompt-c01' }) }), '引用了不属于本考点的卡片：prompt-c01');
+  expectError(withMap({ ...base, children: [{ label: '少', children: [{ card: 'rag-c01' }] }] }), '卡片未出现在地图中：rag-c02');
+  const deep = { label: '1', children: [{ label: '2', children: [{ label: '3', children: [{ label: '4', children: [{ label: '5', children: [{ card: 'rag-c01' }] }] }] }] }] };
+  expectError(withMap({ ...base, children: base.children.concat(deep) }), '层级超过 4 层');
+  const fourLevels = { label: '1', children: [{ label: '2', children: [{ label: '3', children: [{ card: 'rag-c01' }] }] }] };
+  assert.deepEqual(validateData(withMap({ ...base, children: base.children.concat(fourLevels) })), []);
+});
+
+test('explain and full map coverage are only required for strict domains', () => {
+  const data = valid();
+  const loose = { ...data, cards: { rag: data.cards.rag.map((c) => ({ ...c, explain: undefined })) }, maps: {} };
+  assert.deepEqual(validateData(loose, { allowPartial: true }), []);
+  expectError(loose, '缺少 explain');
+  const badExplain = withCard({ explain: { plain: '' } });
+  expectError(badExplain, 'explain.plain 不能为空', { allowPartial: true });
 });

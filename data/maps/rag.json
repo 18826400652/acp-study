@@ -1,0 +1,87 @@
+{
+  "domain": "rag",
+  "title": "大模型检索增强",
+  "children": [
+    {
+      "label": "扩展答疑机器人的知识范围",
+      "children": [
+        {
+          "card": "rag-c01"
+        },
+        {
+          "card": "rag-c04"
+        },
+        {
+          "card": "rag-c05"
+        }
+      ]
+    },
+    {
+      "label": "自动化评测答疑机器人的表现",
+      "children": [
+        {
+          "card": "rag-c14"
+        },
+        {
+          "card": "rag-c13"
+        },
+        {
+          "card": "rag-c07"
+        },
+        {
+          "card": "rag-c15"
+        },
+        {
+          "card": "rag-c16"
+        },
+        {
+          "card": "rag-c06"
+        },
+        {
+          "card": "rag-c02"
+        },
+        {
+          "card": "rag-c08"
+        },
+        {
+          "card": "rag-c17"
+        }
+      ]
+    },
+    {
+      "label": "优化RAG应用提升问答准确度",
+      "children": [
+        {
+          "card": "rag-c18"
+        },
+        {
+          "card": "rag-c03"
+        },
+        {
+          "card": "rag-c09"
+        },
+        {
+          "card": "rag-c10"
+        },
+        {
+          "card": "rag-c11"
+        },
+        {
+          "card": "rag-c19"
+        },
+        {
+          "card": "rag-c20"
+        },
+        {
+          "card": "rag-c12"
+        },
+        {
+          "card": "rag-c21"
+        },
+        {
+          "card": "rag-c22"
+        }
+      ]
+    }
+  ]
+}

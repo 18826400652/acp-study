@@ -1,0 +1,70 @@
+{
+  "domain": "finetune",
+  "title": "大模型微调",
+  "children": [
+    {
+      "label": "用蒸馏让小模型掌握专业能力",
+      "children": [
+        {
+          "card": "finetune-c13"
+        },
+        {
+          "card": "finetune-c01"
+        },
+        {
+          "card": "finetune-c04"
+        },
+        {
+          "card": "finetune-c05"
+        },
+        {
+          "card": "finetune-c14"
+        },
+        {
+          "card": "finetune-c15"
+        },
+        {
+          "card": "finetune-c02"
+        },
+        {
+          "card": "finetune-c06"
+        },
+        {
+          "card": "finetune-c07"
+        },
+        {
+          "card": "finetune-c08"
+        },
+        {
+          "card": "finetune-c16"
+        },
+        {
+          "card": "finetune-c09"
+        }
+      ]
+    },
+    {
+      "label": "部署模型",
+      "children": [
+        {
+          "card": "finetune-c03"
+        },
+        {
+          "card": "finetune-c10"
+        },
+        {
+          "card": "finetune-c18"
+        },
+        {
+          "card": "finetune-c17"
+        },
+        {
+          "card": "finetune-c11"
+        },
+        {
+          "card": "finetune-c12"
+        }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,15 @@ async function readJson(rel) {
   }
 }
 
+async function exists(rel) {
+  try {
+    await fs.access(path.join(DATA, rel));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   const domainFlag = argv.indexOf('--domain');
@@ -26,12 +35,15 @@ async function main() {
   }
   const cards = {};
   const questions = {};
+  const maps = {};
   for (const d of domains) {
     cards[d.id] = await readJson(`cards/${d.id}.json`);
     questions[d.id] = await readJson(`questions/${d.id}.json`);
+    const mapRel = `maps/${d.id}.json`;
+    if (await exists(mapRel)) maps[d.id] = await readJson(mapRel);
   }
   const options = strictDomain ? { strictDomains: [strictDomain] } : { allowPartial };
-  const errors = validateData({ domains, cards, questions }, options);
+  const errors = validateData({ domains, cards, questions, maps }, options);
   if (errors.length) {
     console.error(`题库校验失败，共 ${errors.length} 个问题：`);
     errors.forEach((e) => console.error(`  - ${e}`));
@@ -39,7 +51,7 @@ async function main() {
   }
   const count = (m) => Object.values(m).reduce((n, list) => n + list.length, 0);
   const mode = strictDomain ? `（严格检查 ${strictDomain}，其余考点未检查题量）` : allowPartial ? '（部分题库模式：未检查题量）' : '';
-  process.stdout.write(`题库校验通过：${count(questions)} 道题，${count(cards)} 张卡片${mode}\n`);
+  process.stdout.write(`题库校验通过：${count(questions)} 道题，${count(cards)} 张卡片，${Object.keys(maps).length} 张知识地图${mode}\n`);
 }
 
 main().catch((err) => {

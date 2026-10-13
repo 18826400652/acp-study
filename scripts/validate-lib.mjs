@@ -1,7 +1,16 @@
+import { mapCardIds } from '../js/knowledge-map.js';
+
 export const COUNT_TOLERANCE = 3;
 export const OPTION_RANGE = { min: 3, max: 6 };
 export const POINT_RANGE = { min: 3, max: 5 };
-export const CARD_RANGE = { min: 15, max: 25 };
+export const CARD_RANGE = { min: 15, max: 35 };
+export const EXPLAIN_LIMITS = { plain: 150, analogy: 60, exam: 80, confuse: 60 };
+export const EXPLAIN_REQUIRED = ['plain', 'exam'];
+export const FLOW_LIMITS = { lanes: 3, minSteps: 2, maxSteps: 6, stepChars: 10 };
+export const MAP_LABEL_MAX_CHARS = 24;
+export const MAP_MAX_DEPTH = 4;
+// 不属于任何考点、但允许作为卡片出处的章节
+export const EXTRA_CHAPTERS = ['5_2_总结与展望'];
 export const POINT_MAX_CHARS = 40;
 export const TITLE_MAX_CHARS = 24;
 export const BALANCE_MIN = { single: 8, multi: 6 };
@@ -66,7 +75,39 @@ function checkQuestion(q, domainId, chapters, seen) {
   return errs;
 }
 
-function checkCard(c, domainId, chapters, seen) {
+function checkFlow(flow, add) {
+  const steps = { min: FLOW_LIMITS.minSteps, max: FLOW_LIMITS.maxSteps };
+  const ok = Array.isArray(flow) && inRange(flow.length, { min: 1, max: FLOW_LIMITS.lanes })
+    && flow.every((lane) => Array.isArray(lane) && inRange(lane.length, steps)
+      && lane.every((s) => nonEmpty(s) && charCount(s) <= FLOW_LIMITS.stepChars));
+  if (!ok) {
+    add(`explain.flow 应为 1–${FLOW_LIMITS.lanes} 条泳道，每条 ${steps.min}–${steps.max} 步，每步 1–${FLOW_LIMITS.stepChars} 字`);
+  }
+}
+
+function checkExplain(ex, add, required) {
+  if (ex === undefined) {
+    if (required) add('缺少 explain');
+    return;
+  }
+  if (!isObject(ex)) {
+    add('explain 必须是对象');
+    return;
+  }
+  Object.keys(ex).filter((k) => !(k in EXPLAIN_LIMITS) && k !== 'flow').forEach((k) => add(`explain 有未知字段：${k}`));
+  Object.keys(EXPLAIN_LIMITS).forEach((k) => {
+    const v = ex[k];
+    if (v === undefined && EXPLAIN_REQUIRED.indexOf(k) === -1) return;
+    if (!nonEmpty(v)) add(`explain.${k} 不能为空`);
+    else if (charCount(v) > EXPLAIN_LIMITS[k]) add(`explain.${k} 超过 ${EXPLAIN_LIMITS[k]} 字`);
+  });
+  if (ex.flow !== undefined) checkFlow(ex.flow, add);
+}
+
+const isKnownSource = (source, chapters) => typeof source === 'string'
+  && source.split('、').every((ch) => chapters.has(ch));
+
+function checkCard(c, domainId, chapters, seen, strict) {
   const errs = [];
   const add = reporter(`cards/${domainId}.json ${c && c.id ? c.id : '(无 id)'}`, errs);
   if (!isObject(c)) return [`cards/${domainId}.json: 存在非对象条目`];
@@ -82,7 +123,49 @@ function checkCard(c, domainId, chapters, seen) {
       if (nonEmpty(p) && charCount(p) > POINT_MAX_CHARS) add(`第 ${i + 1} 条要点超过 ${POINT_MAX_CHARS} 字`);
     });
   }
-  if (!chapters.has(c.source)) add(`source 不是已知章节：${c.source}`);
+  if (!isKnownSource(c.source, chapters)) add(`source 不是已知章节：${c.source}`);
+  checkExplain(c.explain, add, strict);
+  return errs;
+}
+
+function checkMapNode(node, depth, ctx) {
+  if (!isObject(node)) {
+    ctx.add('地图节点必须是对象');
+    return;
+  }
+  if (depth > MAP_MAX_DEPTH) {
+    ctx.add(`层级超过 ${MAP_MAX_DEPTH} 层`);
+    return;
+  }
+  if ('card' in node) {
+    if (Object.keys(node).length !== 1) ctx.add(`卡片节点只能有 card 字段：${node.card}`);
+    if (!ctx.ids.has(node.card)) ctx.add(`引用了不属于本考点的卡片：${node.card}`);
+    return;
+  }
+  if (!nonEmpty(node.label)) ctx.add('分支节点 label 不能为空');
+  else if (charCount(node.label) > MAP_LABEL_MAX_CHARS) ctx.add(`label 超过 ${MAP_LABEL_MAX_CHARS} 字：${node.label}`);
+  if (!Array.isArray(node.children) || !node.children.length) ctx.add(`分支节点 children 不能为空：${node.label}`);
+  else node.children.forEach((child) => checkMapNode(child, depth + 1, ctx));
+}
+
+function checkMap(map, domainId, cs, strict) {
+  const where = `maps/${domainId}.json`;
+  if (map === undefined) return strict ? [`${where}: 缺少知识地图`] : [];
+  if (!isObject(map)) return [`${where}: 必须是对象`];
+  const errs = [];
+  const add = reporter(where, errs);
+  if (map.domain !== domainId) add(`domain 应为 ${domainId}`);
+  if (!nonEmpty(map.title)) add('title 不能为空');
+  if (!Array.isArray(map.children) || !map.children.length) {
+    add('children 不能为空');
+    return errs;
+  }
+  const ids = new Set(cs.filter(isObject).map((c) => c.id));
+  map.children.forEach((node) => checkMapNode(node, 1, { add, ids }));
+  if (strict) {
+    const listed = new Set(mapCardIds(map));
+    ids.forEach((id) => { if (!listed.has(id)) add(`卡片未出现在地图中：${id}`); });
+  }
   return errs;
 }
 
@@ -177,14 +260,16 @@ function checkDuplicateStems(domains, questions) {
 }
 
 // questionsOnly：面试题库只校验选择题，卡片与权重由 interview-lib 自己负责
-export function validateData({ domains, cards, questions }, { allowPartial = false, strictDomains = null, questionsOnly = false } = {}) {
+export function validateData({ domains, cards, questions, maps = {} }, { allowPartial = false, strictDomains = null, questionsOnly = false } = {}) {
   const errors = checkDomains(domains, questionsOnly);
   const chapters = new Set([].concat(...domains.map((d) => d.chapters || [])));
+  const cardChapters = new Set([...chapters, ...EXTRA_CHAPTERS]);
   const seen = new Set();
   const countsFor = (id) => (strictDomains ? strictDomains.indexOf(id) !== -1 : !allowPartial);
   domains.forEach((d) => {
     const qs = questions[d.id] || [];
     const cs = questionsOnly ? [] : (cards[d.id] || []);
+    const strict = !questionsOnly && countsFor(d.id);
     const titles = new Set();
     cs.forEach((c) => {
       if (!isObject(c) || !nonEmpty(c.title)) return;
@@ -192,8 +277,9 @@ export function validateData({ domains, cards, questions }, { allowPartial = fal
       titles.add(c.title);
     });
     qs.forEach((q) => errors.push(...checkQuestion(q, d.id, chapters, seen)));
-    cs.forEach((c) => errors.push(...checkCard(c, d.id, chapters, seen)));
+    cs.forEach((c) => errors.push(...checkCard(c, d.id, cardChapters, seen, strict)));
     errors.push(...checkBalance(d.id, qs));
+    if (!questionsOnly) errors.push(...checkMap(maps[d.id], d.id, cs, strict));
     if (countsFor(d.id)) errors.push(...checkCounts(d, qs, cs, questionsOnly));
   });
   return errors.concat(checkDuplicateStems(domains, questions));

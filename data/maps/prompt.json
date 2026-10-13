@@ -1,0 +1,65 @@
+{
+  "domain": "prompt",
+  "title": "大模型提示词工程",
+  "children": [
+    {
+      "label": "优化提示词改善答疑机器人回答质量",
+      "children": [
+        {
+          "card": "prompt-c13"
+        },
+        {
+          "card": "prompt-c01"
+        },
+        {
+          "card": "prompt-c04"
+        },
+        {
+          "card": "prompt-c02"
+        },
+        {
+          "card": "prompt-c05"
+        },
+        {
+          "card": "prompt-c06"
+        },
+        {
+          "card": "prompt-c07"
+        },
+        {
+          "card": "prompt-c08"
+        },
+        {
+          "card": "prompt-c03"
+        },
+        {
+          "card": "prompt-c09"
+        },
+        {
+          "card": "prompt-c14"
+        },
+        {
+          "card": "prompt-c10"
+        },
+        {
+          "card": "prompt-c15"
+        },
+        {
+          "card": "prompt-c16"
+        },
+        {
+          "card": "prompt-c17"
+        },
+        {
+          "card": "prompt-c11"
+        },
+        {
+          "card": "prompt-c12"
+        },
+        {
+          "card": "prompt-c18"
+        }
+      ]
+    }
+  ]
+}

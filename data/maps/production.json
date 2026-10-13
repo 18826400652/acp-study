@@ -1,0 +1,70 @@
+{
+  "domain": "production",
+  "title": "生产环境应用实践",
+  "children": [
+    {
+      "label": "大模型应用生产实践",
+      "children": [
+        {
+          "card": "production-c04"
+        },
+        {
+          "card": "production-c01"
+        },
+        {
+          "card": "production-c07"
+        },
+        {
+          "card": "production-c05"
+        },
+        {
+          "card": "production-c14"
+        },
+        {
+          "card": "production-c06"
+        },
+        {
+          "card": "production-c02"
+        },
+        {
+          "card": "production-c13"
+        }
+      ]
+    },
+    {
+      "label": "大模型应用安全合规",
+      "children": [
+        {
+          "card": "production-c03"
+        },
+        {
+          "card": "production-c15"
+        },
+        {
+          "card": "production-c12"
+        },
+        {
+          "card": "production-c08"
+        },
+        {
+          "card": "production-c16"
+        },
+        {
+          "card": "production-c09"
+        },
+        {
+          "card": "production-c10"
+        },
+        {
+          "card": "production-c11"
+        },
+        {
+          "card": "production-c18"
+        },
+        {
+          "card": "production-c17"
+        }
+      ]
+    }
+  ]
+}
