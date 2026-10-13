@@ -6,6 +6,9 @@
       "label": "为什么要学提示词工程",
       "children": [
         {
+          "card": "prompt-c19"
+        },
+        {
           "card": "prompt-c13"
         },
         {
