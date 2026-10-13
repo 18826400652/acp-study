@@ -50,3 +50,15 @@ test('an unknown domain shows an empty state', async ({ page }) => {
   await page.goto('./#/map/nope');
   await expect(page.locator('.empty')).toContainText('没有找到这个考点的知识地图');
 });
+
+test.describe('a missing map file', () => {
+  test.use({ serviceWorkers: 'block' });
+
+  test('does not break the bank; only that map shows the empty state', async ({ page }) => {
+    await page.route('**/data/maps/rag.json', (r) => r.fulfill({ status: 404 }));
+    await page.goto('./#/learn/rag');
+    await expect(page.locator('.flashcard-title')).toBeVisible();
+    await page.goto('./#/map/rag');
+    await expect(page.locator('.empty')).toContainText('没有找到这个考点的知识地图');
+  });
+});

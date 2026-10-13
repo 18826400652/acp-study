@@ -29,7 +29,7 @@ export function renderMap(ctx, domainId) {
   const states = ctx.getProgress().cards;
   const open = (cardId) => {
     ctx.update((p) => setCardPos(p, domainId, cardId));
-    window.location.hash = `#/learn/${domainId}`;
+    ctx.navigate(`#/learn/${domainId}`);
   };
   const renderNode = (node, depth) => {
     if (!node.card) return branchNode(node, depth, renderNode);

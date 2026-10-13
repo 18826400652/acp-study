@@ -12,6 +12,7 @@ export function renderLearnIndex(ctx) {
       const own = cards.filter((c) => c.domain === d.id);
       const known = own.filter((c) => progress.cards[c.id] === 'known').length;
       const row = domainRow(d, domainStats(progress, questions, d.id), `#/learn/${d.id}`, `卡片 ${known}/${own.length}`);
+      row.classList.add('domain-row--with-map');
       row.append(h('a', { class: 'map-link', href: `#/map/${d.id}` }, '知识地图 ›'));
       return row;
     })),

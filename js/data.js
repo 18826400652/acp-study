@@ -6,13 +6,27 @@ async function getJson(url) {
   return res.json();
 }
 
+// 知识地图是辅助内容：单个地图缺失或损坏时只记录并返回 null，不拖垮题库
+async function getMap(domainId) {
+  try {
+    return await getJson(`data/maps/${domainId}.json`);
+  } catch (err) {
+    console.error(`加载知识地图 ${domainId} 失败：`, err);
+    return null;
+  }
+}
+
 export async function loadData() {
   const domains = await getJson('data/domains.json');
-  const lists = await Promise.all(['cards', 'questions', 'maps'].map((kind) => Promise.all(domains.map((d) => getJson(`data/${kind}/${d.id}.json`)))));
-  const cards = [].concat(...lists[0]);
-  const questions = [].concat(...lists[1]);
+  const [cardLists, questionLists, mapList] = await Promise.all([
+    Promise.all(domains.map((d) => getJson(`data/cards/${d.id}.json`))),
+    Promise.all(domains.map((d) => getJson(`data/questions/${d.id}.json`))),
+    Promise.all(domains.map((d) => getMap(d.id))),
+  ]);
+  const cards = [].concat(...cardLists);
+  const questions = [].concat(...questionLists);
   const maps = {};
-  domains.forEach((d, i) => { maps[d.id] = lists[2][i]; });
+  domains.forEach((d, i) => { maps[d.id] = mapList[i]; });
   return { domains, cards, questions, maps, questionById: new Map(questions.map((q) => [q.id, q])) };
 }
 

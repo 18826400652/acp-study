@@ -10,9 +10,6 @@
           "children": [
             {
               "card": "production-c04"
-            },
-            {
-              "card": "production-c13"
             }
           ]
         },
@@ -27,6 +24,9 @@
             },
             {
               "card": "production-c14"
+            },
+            {
+              "card": "production-c13"
             }
           ]
         },

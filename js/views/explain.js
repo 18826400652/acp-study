@@ -2,7 +2,8 @@ import { h } from '../ui.js';
 import { flowChart } from './flow.js';
 
 const SECTIONS = [['plain', '大白话'], ['analogy', '打个比方'], ['exam', '考法'], ['confuse', '易混点']];
-const LABEL = { closed: '看讲解 ▾', open: '收起讲解 ▴' };
+const LABEL = { closed: ['看讲解', '▾'], open: ['收起讲解', '▴'] };
+const labelNodes = ([text, arrow]) => [text, ' ', h('span', { 'aria-hidden': 'true' }, arrow)];
 
 // 卡片下方的可展开讲解；每次渲染新卡片都重新创建，所以翻卡后自动收起
 export function explainPanel(explain) {
@@ -18,8 +19,8 @@ export function explainPanel(explain) {
       const willOpen = body.hidden;
       body.hidden = !willOpen;
       toggle.setAttribute('aria-expanded', String(willOpen));
-      toggle.textContent = willOpen ? LABEL.open : LABEL.closed;
+      toggle.replaceChildren(...labelNodes(willOpen ? LABEL.open : LABEL.closed));
     },
-  }, LABEL.closed);
+  }, labelNodes(LABEL.closed));
   return h('div', { class: 'explain' }, toggle, body);
 }
