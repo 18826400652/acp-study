@@ -1,6 +1,7 @@
 import { h, attachSwipe, emptyState } from '../ui.js';
 import { domainStats, setCardState, setCardPos, resumeIndex } from '../progress.js';
 import { domainRow } from './domain-row.js';
+import { explainPanel } from './explain.js';
 
 export function renderLearnIndex(ctx) {
   const progress = ctx.getProgress();
@@ -68,6 +69,7 @@ export function renderCards(ctx, domainId) {
     root.append(
       h('p', { class: 'crumb' }, `${domain.name} · ${index + 1}/${cards.length}`),
       panel,
+      explainPanel(card.explain),
       h('div', { class: 'card-actions' },
         h('button', { class: 'btn btn-secondary', type: 'button', 'aria-pressed': String(cardState === 'review'), onClick: () => mark('review') }, '再看看'),
         h('button', { class: 'btn btn-primary', type: 'button', 'aria-pressed': String(cardState === 'known'), onClick: () => mark('known') }, '已掌握')),

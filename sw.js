@@ -26,6 +26,8 @@ const SHELL = [
   'js/views/domain-row.js',
   'js/views/home.js',
   'js/views/learn.js',
+  'js/views/explain.js',
+  'js/views/flow.js',
   'js/views/map.js',
   'js/views/practice.js',
   'js/views/question.js',

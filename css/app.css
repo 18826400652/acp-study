@@ -224,6 +224,31 @@ button, input { font: inherit; color: inherit; }
 .flashcard-source { font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
 .card-actions, .pager, .exam-nav { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 
+/* ===== 卡片讲解 ===== */
+.explain { display: grid; gap: var(--space-2); }
+.explain-body {
+  display: grid; gap: var(--space-4); padding: var(--space-4);
+  border-radius: var(--radius-m); background: var(--surface-2); line-height: 1.7; overflow-wrap: anywhere;
+}
+.explain-body[hidden] { display: none; }
+.explain-sec { display: grid; gap: var(--space-1); }
+.explain-sec p { margin: 0; }
+.explain-label { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: 0.04em; color: var(--accent); }
+.explain-exam .explain-label { color: var(--warn); }
+.explain-confuse .explain-label { color: var(--bad); }
+
+/* 流程图：每条泳道一列，方框之间用 CSS 箭头连接 */
+.flow { display: grid; grid-template-columns: repeat(var(--lanes), minmax(0, 1fr)); gap: var(--space-2); }
+.flow-lane { margin: 0; padding: 0; list-style: none; display: grid; align-content: start; gap: var(--space-5); }
+.flow-step {
+  position: relative; padding: var(--space-2); border: 1.5px solid var(--accent); border-radius: var(--radius-s);
+  background: var(--surface); font-size: 13px; line-height: 1.4; text-align: center; overflow-wrap: anywhere;
+}
+.flow-step + .flow-step::before {
+  content: "↓"; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
+  height: var(--space-5); line-height: var(--space-5); color: var(--accent); font-weight: 800;
+}
+
 /* ===== 知识地图 ===== */
 .map-link { justify-self: end; padding: var(--space-2) var(--space-1); font-size: 13px; font-weight: 700; color: var(--accent); text-decoration: none; }
 .domain-row { display: grid; }
