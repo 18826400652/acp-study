@@ -3,53 +3,96 @@
   "title": "大模型提示词工程",
   "children": [
     {
-      "label": "优化提示词改善答疑机器人回答质量",
+      "label": "为什么要学提示词工程",
       "children": [
         {
           "card": "prompt-c13"
         },
         {
+          "card": "prompt-c18"
+        }
+      ]
+    },
+    {
+      "label": "提示词框架与模板",
+      "children": [
+        {
           "card": "prompt-c01"
         },
         {
           "card": "prompt-c04"
-        },
+        }
+      ]
+    },
+    {
+      "label": "构建有效提示词的技巧",
+      "children": [
         {
           "card": "prompt-c02"
         },
         {
-          "card": "prompt-c05"
+          "label": "限定角色、受众与输出格式",
+          "children": [
+            {
+              "card": "prompt-c05"
+            },
+            {
+              "card": "prompt-c06"
+            }
+          ]
         },
         {
-          "card": "prompt-c06"
-        },
-        {
-          "card": "prompt-c07"
-        },
-        {
-          "card": "prompt-c08"
-        },
+          "label": "提供样例与思考时间",
+          "children": [
+            {
+              "card": "prompt-c07"
+            },
+            {
+              "card": "prompt-c08"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Meta Prompting 迭代优化",
+      "children": [
         {
           "card": "prompt-c03"
         },
         {
-          "card": "prompt-c09"
+          "label": "参考答案与量化评测",
+          "children": [
+            {
+              "card": "prompt-c09"
+            },
+            {
+              "card": "prompt-c14"
+            }
+          ]
         },
         {
-          "card": "prompt-c14"
-        },
-        {
-          "card": "prompt-c10"
-        },
-        {
-          "card": "prompt-c15"
-        },
-        {
-          "card": "prompt-c16"
-        },
-        {
-          "card": "prompt-c17"
-        },
+          "label": "打造并使用 AI 裁判",
+          "children": [
+            {
+              "card": "prompt-c10"
+            },
+            {
+              "card": "prompt-c15"
+            },
+            {
+              "card": "prompt-c16"
+            },
+            {
+              "card": "prompt-c17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "推理大模型",
+      "children": [
         {
           "card": "prompt-c11"
         },
@@ -57,7 +100,7 @@
           "card": "prompt-c12"
         },
         {
-          "card": "prompt-c18"
+          "card": "prompt-c03"
         }
       ]
     }
