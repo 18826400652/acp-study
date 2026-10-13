@@ -3,66 +3,178 @@
   "title": "生产环境应用实践",
   "children": [
     {
-      "label": "大模型应用生产实践",
+      "label": "需求分析与性能优化",
       "children": [
         {
-          "card": "production-c04"
+          "label": "业务需求与 SLO",
+          "children": [
+            {
+              "card": "production-c04"
+            },
+            {
+              "card": "production-c13"
+            }
+          ]
         },
         {
-          "card": "production-c01"
+          "label": "系统提速：模型、请求与 Token",
+          "children": [
+            {
+              "card": "production-c01"
+            },
+            {
+              "card": "production-c05"
+            },
+            {
+              "card": "production-c14"
+            }
+          ]
         },
         {
-          "card": "production-c07"
-        },
-        {
-          "card": "production-c05"
-        },
-        {
-          "card": "production-c14"
-        },
-        {
-          "card": "production-c06"
-        },
-        {
-          "card": "production-c02"
-        },
-        {
-          "card": "production-c13"
+          "label": "用户感知优化",
+          "children": [
+            {
+              "card": "production-c07"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "大模型应用安全合规",
+      "label": "云上部署成本",
       "children": [
         {
-          "card": "production-c03"
+          "card": "production-c06"
+        },
+        {
+          "card": "production-c07"
+        }
+      ]
+    },
+    {
+      "label": "稳定性与可观测性",
+      "children": [
+        {
+          "label": "稳定性：降耗、扩缩容、容灾",
+          "children": [
+            {
+              "card": "production-c20"
+            },
+            {
+              "card": "production-c02"
+            },
+            {
+              "card": "production-c19"
+            }
+          ]
+        },
+        {
+          "label": "可观测性：ARMS 与部署",
+          "children": [
+            {
+              "card": "production-c02"
+            },
+            {
+              "card": "production-c21"
+            },
+            {
+              "card": "production-c22"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "安全风险与攻击案例",
+      "children": [
+        {
+          "card": "production-c24"
         },
         {
           "card": "production-c15"
         },
         {
-          "card": "production-c12"
+          "label": "攻击大模型本身",
+          "children": [
+            {
+              "card": "production-c08"
+            },
+            {
+              "card": "production-c16"
+            }
+          ]
         },
         {
-          "card": "production-c08"
+          "label": "攻击大模型的应用",
+          "children": [
+            {
+              "card": "production-c03"
+            },
+            {
+              "card": "production-c09"
+            },
+            {
+              "card": "production-c26"
+            }
+          ]
         },
         {
-          "card": "production-c16"
+          "label": "攻击基础设施",
+          "children": [
+            {
+              "card": "production-c10"
+            },
+            {
+              "card": "production-c11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "纵深防御与合规",
+      "children": [
+        {
+          "label": "AI 安全护栏与合规",
+          "children": [
+            {
+              "card": "production-c23"
+            },
+            {
+              "card": "production-c12"
+            }
+          ]
         },
         {
-          "card": "production-c09"
+          "label": "应用与 RAG 防护",
+          "children": [
+            {
+              "card": "production-c03"
+            },
+            {
+              "card": "production-c25"
+            },
+            {
+              "card": "production-c17"
+            }
+          ]
         },
         {
-          "card": "production-c10"
-        },
-        {
-          "card": "production-c11"
-        },
-        {
-          "card": "production-c18"
-        },
-        {
-          "card": "production-c17"
+          "label": "资产与基础设施加固",
+          "children": [
+            {
+              "card": "production-c18"
+            },
+            {
+              "card": "production-c10"
+            },
+            {
+              "card": "production-c11"
+            },
+            {
+              "card": "production-c27"
+            }
+          ]
         }
       ]
     }
