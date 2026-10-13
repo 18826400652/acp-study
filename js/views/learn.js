@@ -10,7 +10,9 @@ export function renderLearnIndex(ctx) {
     h('ul', { class: 'domain-list' }, domains.map((d) => {
       const own = cards.filter((c) => c.domain === d.id);
       const known = own.filter((c) => progress.cards[c.id] === 'known').length;
-      return domainRow(d, domainStats(progress, questions, d.id), `#/learn/${d.id}`, `卡片 ${known}/${own.length}`);
+      const row = domainRow(d, domainStats(progress, questions, d.id), `#/learn/${d.id}`, `卡片 ${known}/${own.length}`);
+      row.append(h('a', { class: 'map-link', href: `#/map/${d.id}` }, '知识地图 ›'));
+      return row;
     })),
   ];
 }
@@ -73,6 +75,7 @@ export function renderCards(ctx, domainId) {
         h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === 0, onClick: () => go(-1) }, '‹ 上一张'),
         h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === cards.length - 1, onClick: () => go(1) }, '下一张 ›')),
       index > 0 ? h('button', { class: 'btn btn-ghost btn-block', type: 'button', onClick: () => moveTo(0) }, '从第 1 张开始') : '',
+      h('a', { class: 'btn btn-ghost btn-block', href: `#/map/${domainId}` }, '知识地图'),
       practiceLink(domainId, count));
   }
 

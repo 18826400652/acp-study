@@ -8,13 +8,12 @@ async function getJson(url) {
 
 export async function loadData() {
   const domains = await getJson('data/domains.json');
-  const lists = await Promise.all([
-    Promise.all(domains.map((d) => getJson(`data/cards/${d.id}.json`))),
-    Promise.all(domains.map((d) => getJson(`data/questions/${d.id}.json`))),
-  ]);
+  const lists = await Promise.all(['cards', 'questions', 'maps'].map((kind) => Promise.all(domains.map((d) => getJson(`data/${kind}/${d.id}.json`)))));
   const cards = [].concat(...lists[0]);
   const questions = [].concat(...lists[1]);
-  return { domains, cards, questions, questionById: new Map(questions.map((q) => [q.id, q])) };
+  const maps = {};
+  domains.forEach((d, i) => { maps[d.id] = lists[2][i]; });
+  return { domains, cards, questions, maps, questionById: new Map(questions.map((q) => [q.id, q])) };
 }
 
 export async function loadEnvelope() {

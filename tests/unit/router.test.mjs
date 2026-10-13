@@ -14,6 +14,10 @@ const cases = [
   ['#/practice/app-dev', 'acp', 'practice', { domain: 'app-dev' }],
   ['#/exam', 'acp', 'exam', {}],
   ['#/exam/result/1727400000000', 'acp', 'examResult', { id: '1727400000000' }],
+  ['#/map/rag', 'acp', 'map', { domain: 'rag' }],
+  ['#/map/agent-mm', 'acp', 'map', { domain: 'agent-mm' }],
+  ['#/map', 'acp', 'home', {}],
+  ['#/iv/map/iv-a', 'interview', 'home', {}],
   ['#/wrong', 'acp', 'wrong', {}],
   ['#/wrong/practice', 'acp', 'wrongPractice', {}],
   ['#/wrong/practice/rag', 'acp', 'wrongPractice', { domain: 'rag' }],
@@ -53,4 +57,8 @@ test('linkFor builds hashes that parse back to the same bank', () => {
 test('every route maps to a tab', () => {
   const names = ['home', 'settings', 'learn', 'cards', 'practice', 'exam', 'examResult', 'mock', 'mockResult', 'wrong', 'wrongPractice'];
   names.forEach((n) => assert.ok(['home', 'learn', 'exam', 'wrong'].indexOf(TAB_OF[n]) !== -1, n));
+});
+
+test('the knowledge map lives under the learn tab', () => {
+  assert.equal(TAB_OF.map, 'learn');
 });

@@ -5,6 +5,7 @@ import { h, showBanner, emptyState } from './ui.js';
 import { renderHome } from './views/home.js';
 import { renderLearnIndex, renderCards } from './views/learn.js';
 import { renderDomainPractice } from './views/practice.js';
+import { renderMap } from './views/map.js';
 import { renderExam } from './views/exam.js';
 import { renderResult } from './views/result.js';
 import { renderWrong, renderWrongPractice } from './views/wrong.js';
@@ -27,6 +28,7 @@ const VIEWS = {
     learn: (ctx) => renderLearnIndex(ctx),
     cards: (ctx, p) => renderCards(ctx, p.domain),
     practice: (ctx, p) => renderDomainPractice(ctx, p.domain),
+    map: (ctx, p) => renderMap(ctx, p.domain),
     exam: (ctx) => renderExam(ctx),
     examResult: (ctx, p) => renderResult(ctx, p.id),
     settings: (ctx) => renderSettings(ctx),
@@ -57,6 +59,7 @@ const TITLES = {
   learn: '学习',
   cards: '速记卡片',
   practice: '练习',
+  map: '知识地图',
   exam: '模拟考',
   examResult: '考试结果',
   mock: '模拟面试',

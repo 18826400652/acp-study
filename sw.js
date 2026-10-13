@@ -26,6 +26,7 @@ const SHELL = [
   'js/views/domain-row.js',
   'js/views/home.js',
   'js/views/learn.js',
+  'js/views/map.js',
   'js/views/practice.js',
   'js/views/question.js',
   'js/views/exam.js',
@@ -44,6 +45,7 @@ const DOMAINS = ['app-dev', 'prompt', 'rag', 'finetune', 'agent-mm', 'production
 const DATA = ['data/domains.json'].concat(
   DOMAINS.map((d) => `data/cards/${d}.json`),
   DOMAINS.map((d) => `data/questions/${d}.json`),
+  DOMAINS.map((d) => `data/maps/${d}.json`),
 );
 // 运行期才有的可选文件：解密密文不预置，构建后才存在，且新版本发布时不应因它缺失而装机失败
 const OPTIONAL = ['data/interview.enc'];
