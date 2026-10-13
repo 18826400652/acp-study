@@ -3,57 +3,107 @@
   "title": "大模型检索增强",
   "children": [
     {
-      "label": "扩展答疑机器人的知识范围",
+      "label": "RAG 工作原理",
       "children": [
         {
-          "card": "rag-c01"
+          "label": "两阶段流程",
+          "children": [
+            {
+              "card": "rag-c01"
+            },
+            {
+              "card": "rag-c23"
+            }
+          ]
         },
         {
-          "card": "rag-c04"
+          "label": "向量化与索引",
+          "children": [
+            {
+              "card": "rag-c05"
+            },
+            {
+              "card": "rag-c24"
+            }
+          ]
         },
         {
-          "card": "rag-c05"
+          "label": "多轮对话",
+          "children": [
+            {
+              "card": "rag-c04"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "自动化评测答疑机器人的表现",
+      "label": "评测 RAG 应用",
       "children": [
         {
-          "card": "rag-c14"
+          "label": "测试方法与评测框架",
+          "children": [
+            {
+              "card": "rag-c14"
+            },
+            {
+              "card": "rag-c13"
+            },
+            {
+              "card": "rag-c07"
+            },
+            {
+              "card": "rag-c16"
+            }
+          ]
         },
         {
-          "card": "rag-c13"
+          "label": "Ragas 指标与计算",
+          "children": [
+            {
+              "card": "rag-c15"
+            },
+            {
+              "card": "rag-c06"
+            },
+            {
+              "card": "rag-c25"
+            },
+            {
+              "card": "rag-c26"
+            }
+          ]
         },
         {
-          "card": "rag-c07"
+          "label": "用指标定位问题",
+          "children": [
+            {
+              "card": "rag-c27"
+            },
+            {
+              "card": "rag-c02"
+            }
+          ]
         },
         {
-          "card": "rag-c15"
-        },
-        {
-          "card": "rag-c16"
-        },
-        {
-          "card": "rag-c06"
-        },
-        {
-          "card": "rag-c02"
-        },
-        {
-          "card": "rag-c08"
-        },
-        {
-          "card": "rag-c17"
+          "label": "评测运营",
+          "children": [
+            {
+              "card": "rag-c08"
+            },
+            {
+              "card": "rag-c17"
+            },
+            {
+              "card": "rag-c28"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "优化RAG应用提升问答准确度",
+      "label": "优化：总览与文档准备",
       "children": [
-        {
-          "card": "rag-c18"
-        },
         {
           "card": "rag-c03"
         },
@@ -61,10 +111,32 @@
           "card": "rag-c09"
         },
         {
+          "card": "rag-c18"
+        }
+      ]
+    },
+    {
+      "label": "优化：解析、切片与向量化",
+      "children": [
+        {
+          "card": "rag-c29"
+        },
+        {
+          "card": "rag-c30"
+        },
+        {
           "card": "rag-c10"
         },
         {
           "card": "rag-c11"
+        }
+      ]
+    },
+    {
+      "label": "优化：检索召回",
+      "children": [
+        {
+          "card": "rag-c31"
         },
         {
           "card": "rag-c19"
@@ -74,12 +146,23 @@
         },
         {
           "card": "rag-c12"
-        },
+        }
+      ]
+    },
+    {
+      "label": "优化：生成答案与进阶",
+      "children": [
         {
           "card": "rag-c21"
         },
         {
           "card": "rag-c22"
+        },
+        {
+          "card": "rag-c12"
+        },
+        {
+          "card": "rag-c32"
         }
       ]
     }
