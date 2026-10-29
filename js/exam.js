@@ -36,7 +36,7 @@ export function buildExam(domains, questions, rng = Math.random, { excludeIds = 
   const blocks = TYPES.map((type) => {
     const counts = allocate(weights, EXAM_SIZE[type]);
     const picked = domains.map((d, i) => {
-      const pool = questions.filter((q) => q.domain === d.id && q.type === type);
+      const pool = questions.filter((q) => q && q.domain === d.id && q.type === type);
       const fresh = pool.filter((q) => !excluded.has(q.id));
       // 剩余的没做过的题不够配额时，退回完整题库，宁可可复用也不缩水
       const usable = fresh.length >= counts[i] ? fresh : pool;

@@ -16,10 +16,15 @@ async function getMap(domainId) {
   }
 }
 
-// 模拟题库是独立的可选内容：单个文件缺失或损坏时返回空数组，不影响练习题
+// 模拟题库是独立的可选内容：单个文件缺失、损坏或格式不对时返回空数组，不影响练习题
 async function getMock(domainId) {
   try {
-    return await getJson(`data/mock/${domainId}.json`);
+    const list = await getJson(`data/mock/${domainId}.json`);
+    if (!Array.isArray(list)) {
+      console.error(`模拟题库 ${domainId} 格式不正确：应为数组`);
+      return [];
+    }
+    return list.filter((q) => q && typeof q === 'object');
   } catch (err) {
     console.error(`加载模拟题库 ${domainId} 失败：`, err);
     return [];

@@ -203,6 +203,13 @@ test('non-object question entries are reported without throwing', () => {
   assert.ok(errors.some((e) => e.includes('存在非对象条目')), errors.join('\n'));
 });
 
+test('strict count checks tolerate non-object entries', () => {
+  const data = { ...valid(), questions: { rag: [null].concat(valid().questions.rag) } };
+  const errors = validateData(data);
+  assert.ok(errors.some((e) => e.includes('存在非对象条目')), errors.join('\n'));
+  assert.ok(!errors.some((e) => e.includes('题数')), errors.join('\n'));
+});
+
 test('card source may join several known chapters with 、', () => {
   assert.deepEqual(validateData(withCard({ source: `2_5_x、${EXTRA_CHAPTERS[0]}` })), []);
   expectError(withCard({ source: '2_5_x、9_9_不存在' }), 'source 不是已知章节');

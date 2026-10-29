@@ -6,6 +6,7 @@ import { questionCard } from './question.js';
 const TICK_MS = 1000;
 const URGENT_MS = 10 * 60 * 1000;
 const RECENT_EXAMS = 5;
+const EXAM_TOTAL = EXAM_SIZE.single + EXAM_SIZE.multi;
 const RULES = [
   '单选 50 题 × 1 分，多选 25 题 × 2 分',
   '限时 120 分钟，到时自动交卷',
@@ -31,8 +32,7 @@ function start(ctx, show) {
     return;
   }
   if (reusedCount > 0 && !window.confirm(`本次有 ${reusedCount} 道是上一场做过的题，仍然开始吗？`)) return;
-  const standard = EXAM_SIZE.single + EXAM_SIZE.multi;
-  if (shortfall.length && !window.confirm(`题库尚未补全，本次只能抽到 ${questionIds.length} 题（标准为 ${standard} 题），仍然开始吗？`)) return;
+  if (shortfall.length && !window.confirm(`题库尚未补全，本次只能抽到 ${questionIds.length} 题（标准为 ${EXAM_TOTAL} 题），仍然开始吗？`)) return;
   ctx.update((p) => startExam(p, questionIds, Date.now()));
   show();
 }
@@ -45,7 +45,7 @@ function intro(ctx, show) {
   const multis = allocate(weights, EXAM_SIZE.multi);
   const recent = ctx.getProgress().exams.slice(-RECENT_EXAMS).reverse();
   const mockRule = mock.length
-    ? `每次从 ${mock.length} 道模拟题中抽 75 道，并避开上一场做过的题。`
+    ? `每次从 ${mock.length} 道模拟题中最多抽 ${EXAM_TOTAL} 道，并避开上一场做过的题。`
     : '模拟题库还没有生成。';
   return [
     h('section', { class: 'rules' }, h('h2', { class: 'section-title' }, '考试规则'), h('ul', {}, RULES.map((r) => h('li', {}, r)).concat(h('li', {}, mockRule)))),

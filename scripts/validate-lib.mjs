@@ -181,7 +181,7 @@ function checkMap(map, domainId, cs, strict) {
 function checkCounts(domain, qs, cs, questionsOnly) {
   const errs = [];
   ['single', 'multi'].forEach((type) => {
-    const have = qs.filter((q) => q.type === type).length;
+    const have = qs.filter((q) => q && q.type === type).length;
     const want = domain.target[type];
     if (Math.abs(have - want) > COUNT_TOLERANCE) {
       errs.push(`questions/${domain.id}.json: ${type} 题数 ${have}，目标 ${want}±${COUNT_TOLERANCE}`);

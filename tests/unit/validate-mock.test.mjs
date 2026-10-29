@@ -63,6 +63,13 @@ test('answer distribution is balanced', () => {
   multis.mock.rag = multis.mock.rag.map((q, i) => (q.type === 'multi' ? { ...q, answer: [0, 1] } : q));
   expectError(multis, '多选题 2 个答案的题占 100%');
 });
+test('single keys that are usually the longest option are rejected', () => {
+  const data = valid();
+  data.mock.rag.slice(0, 20).forEach((q, i) => {
+    if (i < 8) q.options[q.answer[0]] = '明显更长的正确选项文本';
+  });
+  expectError(data, '单选题中正确答案最长的占 40%，超过 35%');
+});
 test('multiple chapters may be joined with 、', () => {
   const data = valid();
   data.mock.rag[0] = { ...data.mock.rag[0], source: '2_5_x、5_2_总结与展望' };

@@ -10,6 +10,17 @@ test('the app still opens offline after the first visit', async ({ page, context
   await expect(page.locator('.domain-row')).toHaveCount(6);
   await page.goto('./#/learn/rag');
   await expect(page.locator('.flashcard')).toBeVisible();
+
+  // 预缓存的模拟题库也要能在断网后开考
+  page.on('dialog', (d) => d.accept());
+  await page.goto('./#/exam');
+  await page.getByRole('button', { name: '开始模拟考' }).click();
+  await expect(page.locator('.exam-timer')).toBeVisible();
+  await page.getByRole('button', { name: '答题卡' }).click();
+  await expect(page.locator('.sheet-cell')).toHaveCount(75);
+  const ids = await page.evaluate(() => JSON.parse(localStorage.getItem('acp-progress-v1')).examDraft.questionIds);
+  expect(ids.length).toBe(75);
+  expect(ids.every((id) => /-m\d{3}$/.test(id))).toBe(true);
 });
 
 test('manifest is installable-shaped and all icons are served', async ({ request }) => {
