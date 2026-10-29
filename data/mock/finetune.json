@@ -3,18 +3,18 @@
     "id": "finetune-m001",
     "domain": "finetune",
     "type": "single",
-    "stem": "你是某物流公司的算法工程师。团队用 LoRA 微调 Qwen3-0.6B 完成运单意图识别，训练输出目录里是若干只包含 LoRA 参数的 checkpoint；现在要把模型部署到内网，用 vLLM 提供推理服务。上线前，以下哪种做法最合理？",
+    "stem": "你是某物流公司的算法工程师。团队用 LoRA 微调 Qwen3-0.6B 后，用 swift export 合并出 checkpoint-xxx-merged 目录，准备部署为内网推理服务。加载合并模型时，框架报错找不到 tokenizer 文件；即使绕过分词器，推理结果也经常缺少约定的 JSON 结构。以下哪种做法最合理？",
     "options": [
-      "直接把 LoRA checkpoint 目录作为模型路径交给 vLLM 加载，不必合并，也不必准备基座模型",
-      "用 swift export --adapters <checkpoint> --merge_lora true 把 LoRA 参数与基座模型合并，得到独立的完整模型目录，再用 vLLM 部署合并后的模型",
-      "把整个 output/model 训练目录直接作为模型路径部署，目录里文件越多说明模型越完整",
-      "继续训练更多 epoch，等 LoRA adapter 文件变大后再部署"
+      "从基座模型目录复制 tokenizer 文件到合并模型目录，用合并目录加载 tokenizer，并在推理时调用 apply_chat_template 套用对话模板",
+      "合并模型只包含权重，tokenizer 用哪个版本都一样，直接复用机器上另一个 Qwen 模型的 tokenizer 目录，不必检查词表大小、特殊 token 和对话模板",
+      "推理时跳过 apply_chat_template，手动把 system 和 user 拼成一个字符串，认为模板只影响可读性，不会影响输出",
+      "删除合并目录里的 tokenizer_config.json，让框架回退到默认分词器，再在推理脚本里手动补 special token"
     ],
     "answer": [
-      1
+      0
     ],
-    "explanation": "LoRA 训练得到的只是适配器参数，部署前要把 LoRA 参数与基础模型合并，生成一个独立的完整模型；合并命令是 swift export --adapters <checkpoint> --merge_lora true，合并结果保存在 checkpoint-xxx-merged 目录，随后可以用 vLLM 加载并启动兼容 OpenAI API 的服务。A 只拿 adapter、没有基座权重，无法作为完整模型提供推理；C 的 output/model 下是每次训练的运行目录和 checkpoint，需要先合并出 checkpoint-xxx-merged，不能把整个训练目录当模型路径；D adapter 文件大小与模型质量无关，继续训练还可能过拟合，部署前仍然需要合并。",
-    "source": "4_1_用蒸馏让小模型掌握专业能力、4_2_部署模型"
+    "explanation": "合并 LoRA 后得到的是完整权重目录，但 tokenizer 相关文件可能没有一起生成；正确做法是先从基座模型目录把 tokenizer.json、tokenizer_config.json、vocab.json、merges.txt、added_tokens.json 复制到合并模型目录，再用 AutoTokenizer.from_pretrained(student_path) 加载；如果仍失败，可以直接从基座模型路径加载 tokenizer。推理时用 student_tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True) 套用对话模板，保证 system 和 user 的边界、生成提示与训练时一致。B 直接复用其他模型的 tokenizer 可能出现词表或特殊 token 不一致；C 手动拼接会破坏模型训练时的对话模板，输出格式更容易漂移；D 删除配置会让框架使用默认分词器，问题只会更严重。",
+    "source": "4_1_用蒸馏让小模型掌握专业能力"
   },
   {
     "id": "finetune-m002",
