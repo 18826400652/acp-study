@@ -14,7 +14,7 @@
 | 表格内容解析与保结构入库 | rag | rag-m002 |
 | 相似度阈值过高导致召回不足 | rag | rag-m001 |
 | 复杂文档（PPT/流程图）解析 | rag | 待补 |
-| 过拟合与验证损失 / checkpoint 选择 | finetune | finetune-m001 |
+| 过拟合与验证损失 / checkpoint 选择 | finetune | 待补 |
 | 微调前的数据质量与基座能力评估 | finetune | finetune-m002 |
 | 敏感操作封装为 MCP 工具 + 应用层校验 | agent-mm | agent-mm-m001 |
 | 数据不出公有云的本地多模态链路 | production | production-m001（本地部署部分；多模态解析链路由后续任务补充） |
@@ -23,6 +23,6 @@
 | 幻觉控制：RAG 标注出处 + 低置信转人工 | rag / production | 待补 |
 | 多 Agent 职责边界与关键操作人工确认 | agent-mm | agent-mm-m002 |
 | 模型选型（视觉/语音/文本） | agent-mm / production | 待补 |
-| 部署与成本/稳定性取舍 | production | 待补 |
+| 部署与成本/稳定性取舍 | production | finetune-m001（部署流程部分） |
 
 说明：本表只记录官方样题主题的覆盖情况；后续任务新增的题目如果不属于这 20 个主题，在表末「其他」区追加，不改动本表原有行。Task 4–9 负责补齐其余 8 个「待补」主题，并完成各考点的严格题量。
