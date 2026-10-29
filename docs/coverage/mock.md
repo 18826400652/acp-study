@@ -23,7 +23,7 @@
 | 幻觉控制：RAG 标注出处 + 低置信转人工 | rag / production | rag-m008 |
 | 多 Agent 职责边界与关键操作人工确认 | agent-mm | agent-mm-m002 |
 | 模型选型（视觉/语音/文本） | agent-mm / production | agent-mm-m016 |
-| 部署与成本/稳定性取舍 | production | 待补 |
+| 部署与成本/稳定性取舍 | production | production-m009（云 API 与自托管按调用量/运维成本算盈亏平衡）、production-m004（高峰期在成本与稳定性间取舍） |
 
 说明：本表只记录官方样题主题的覆盖情况；后续任务新增的题目如果不属于这 20 个主题，在表末「其他」区追加，不改动本表原有行。其余「待补」主题由后续任务补齐。
 
@@ -142,6 +142,19 @@
 | Meta Prompting 教练的共性问题分析与回归验证 | prompt | prompt-m020 |
 | AI 裁判的评判标准、输出约束与版本管理 | prompt | prompt-m021 |
 | 自动优化流程的验证集拆分与参考答案修正 | prompt | prompt-m022 |
+| 标准消息硬编码/预计算，避免默认依赖大模型 | production | production-m003 |
+| 简单场景小模型 + 提示词/领域微调 + 评测基线降本 | production | production-m008 |
+| 输入 Token 优化：意图提取与长文摘要 | production | production-m016 |
+| 代码补全 SLO：TTFT 与 TPOT 双高 | production | production-m005 |
+| 容量规划：限制请求 token 长度提升并发 | production | production-m006 |
+| Prefill/Decode 分离改善长输入 TTFT | production | production-m017 |
+| 上线后运行时监控与告警（评测集无法暴露成本/延迟） | production | production-m007 |
+| 资源耗尽型 DDoS 的分层防护 | production | production-m013 |
+| 多模态图片内容审核（画面 + 图中文字） | production | production-m010 |
+| 自建大模型安全检测器的长上下文/流式瓶颈 | production | production-m011 |
+| 对话日志训练前的隐私政策、明确同意与去标识化 | production | production-m012 |
+| 隐私挖掘机的输出端敏感信息拦截与知识库脱敏 | production | production-m015 |
+| AI 物料清单（AI-BOM）与资产异变监控 | production | production-m014 |
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
 
@@ -150,3 +163,5 @@
 说明：finetune-m018 以「过拟合监控信号 → 回退到验证损失最低的 checkpoint」覆盖官方主题「过拟合与验证损失 / checkpoint 选择」；finetune-m003～m017、m019～m024 为 4_1、4_2、4_3 中除官方样题主题外的工程细节（数据格式、诊断、部署与成本操作），故列在「其他」区。
 
 说明：prompt-m003～m022 为 `2_3_优化提示词改善答疑机器人回答质量` 中除官方主题（少样本示例/结构化输出约束、专业术语库与术语翻译）外的提示词迭代、任务目标、判定例外、优化器输出约束、评分员容错、AI 裁判循环与训练停止、标注样本管理、推理模型示例来源、模板生效、知识填充与行为引导分工、审查场景筛选、分隔符、角色与受众、思维链、少样本选例、Meta Prompting 验证、AI 裁判规则与版本、自动优化验证等内容，均换场景、不同题，故列在「其他」区。官方 prompt 主题行仍由 prompt-m001、prompt-m002 覆盖，未重复填号。
+
+说明：production-m003～m017 为 4_3、4_4 与 4_2 中除官方主题（本地部署、关键词误拦/语义识别、部署与成本/稳定性取舍）外的成本、性能、稳定性、可观测性、内容安全、隐私与合规内容；其中 m004、m009 用于覆盖官方主题「部署与成本/稳定性取舍」，其余列入「其他」区。m010 是图片内容审核，不覆盖官方主题「数据不出公有云的本地多模态链路」的解析入库部分，该行仍保持原有说明。
