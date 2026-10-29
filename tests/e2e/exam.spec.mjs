@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { expectNoHorizontalOverflow, expectTabbarVisible, snap } from './helpers.mjs';
+import {
+  expectNoHorizontalOverflow, expectTabbarVisible, snap, serveMockPool,
+} from './helpers.mjs';
+
+test.use({ serviceWorkers: 'block' });
 
 // 题库没补全时开考会弹确认框，一律接受；离开考试的确认框由各测试自己决定
 function acceptStartDialogs(page, onLeave) {
@@ -17,6 +21,7 @@ async function startExam(page) {
 }
 
 test('mock exam: answer, submit, see result, wrong book filled', async ({ page }, testInfo) => {
+  await serveMockPool(page);
   acceptStartDialogs(page, (d) => d.accept());
   await startExam(page);
   await page.locator('.question .option').first().click();
@@ -50,6 +55,7 @@ test('mock exam: answer, submit, see result, wrong book filled', async ({ page }
 });
 
 test('leaving a running exam asks first; cancelling keeps you there', async ({ page }) => {
+  await serveMockPool(page);
   let asked = 0;
   acceptStartDialogs(page, (d) => { asked += 1; return d.dismiss(); });
   await startExam(page);
@@ -60,6 +66,7 @@ test('leaving a running exam asks first; cancelling keeps you there', async ({ p
 });
 
 test('reloading mid-exam keeps the answers and the clock', async ({ page }) => {
+  await serveMockPool(page);
   acceptStartDialogs(page, (d) => d.accept());
   await startExam(page);
   await page.locator('.question .option').first().click();

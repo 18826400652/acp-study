@@ -22,11 +22,15 @@ function submitExam(ctx) {
 }
 
 function start(ctx, show) {
-  const { questionIds, shortfall } = buildExam(ctx.data.domains, ctx.data.questions);
+  const mock = ctx.data.mockQuestions || [];
+  const exams = ctx.getProgress().exams;
+  const excludeIds = exams.length ? exams[exams.length - 1].questionIds : [];
+  const { questionIds, shortfall, reusedCount } = buildExam(ctx.data.domains, mock, Math.random, { excludeIds });
   if (!questionIds.length) {
-    window.alert('题库为空，无法开始模拟考。');
+    window.alert('模拟题库还没有生成。');
     return;
   }
+  if (reusedCount > 0 && !window.confirm(`本次有 ${reusedCount} 道是上一场做过的题，仍然开始吗？`)) return;
   const standard = EXAM_SIZE.single + EXAM_SIZE.multi;
   if (shortfall.length && !window.confirm(`题库尚未补全，本次只能抽到 ${questionIds.length} 题（标准为 ${standard} 题），仍然开始吗？`)) return;
   ctx.update((p) => startExam(p, questionIds, Date.now()));
@@ -35,16 +39,22 @@ function start(ctx, show) {
 
 function intro(ctx, show) {
   const { domains } = ctx.data;
+  const mock = ctx.data.mockQuestions || [];
   const weights = domains.map((d) => d.weight);
   const singles = allocate(weights, EXAM_SIZE.single);
   const multis = allocate(weights, EXAM_SIZE.multi);
   const recent = ctx.getProgress().exams.slice(-RECENT_EXAMS).reverse();
+  const mockRule = mock.length
+    ? `每次从 ${mock.length} 道模拟题中抽 75 道，并避开上一场做过的题。`
+    : '模拟题库还没有生成。';
   return [
-    h('section', { class: 'rules' }, h('h2', { class: 'section-title' }, '考试规则'), h('ul', {}, RULES.map((r) => h('li', {}, r)))),
+    h('section', { class: 'rules' }, h('h2', { class: 'section-title' }, '考试规则'), h('ul', {}, RULES.map((r) => h('li', {}, r)).concat(h('li', {}, mockRule)))),
     h('table', { class: 'alloc-table' },
       h('thead', {}, h('tr', {}, h('th', {}, '考点'), h('th', {}, '单选'), h('th', {}, '多选'))),
       h('tbody', {}, domains.map((d, i) => h('tr', {}, h('td', {}, d.name), h('td', {}, String(singles[i])), h('td', {}, String(multis[i])))))),
-    h('button', { class: 'btn btn-primary btn-block', type: 'button', onClick: () => start(ctx, show) }, '开始模拟考'),
+    mock.length
+      ? h('button', { class: 'btn btn-primary btn-block', type: 'button', onClick: () => start(ctx, show) }, '开始模拟考')
+      : null,
     recent.length ? h('section', { class: 'section' },
       h('h2', { class: 'section-title' }, '最近成绩'),
       h('ul', { class: 'history' }, recent.map((e) => h('li', {}, h('a', { href: `#/exam/result/${e.id}` },

@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { serveMockPool } from './helpers.mjs';
 
-test('a full bank starts a standard 75-question exam without a shortfall prompt', async ({ page }) => {
+test.use({ serviceWorkers: 'block' });
+
+test('a full mock bank starts a standard 75-question exam without a shortfall prompt', async ({ page }) => {
+  await serveMockPool(page);
   let dialogs = 0;
   page.on('dialog', (d) => { dialogs += 1; return d.accept(); });
   await page.goto('./#/exam');

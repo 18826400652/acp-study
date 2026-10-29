@@ -77,3 +77,30 @@ test('formatDuration shows minutes and seconds, rounding down', () => {
   assert.equal(formatDuration(65999), '1 分 5 秒');
   assert.equal(formatDuration(30000), '0 分 30 秒');
 });
+
+const allocation = (total) => allocate(W, total);
+const fullMockPool = () => DOMAINS.flatMap((d, i) => makeQuestions(
+  d.id,
+  allocation(50)[i] * 2,
+  allocation(25)[i] * 2,
+));
+
+test('buildExam: the second paper excludes the first and two papers are complementary', () => {
+  const pool = fullMockPool();
+  const first = buildExam(DOMAINS, pool, seededRng(11));
+  const second = buildExam(DOMAINS, pool, seededRng(12), { excludeIds: first.questionIds });
+  assert.equal(second.questionIds.length, 75);
+  assert.equal(second.reusedCount, 0);
+  assert.deepEqual(second.questionIds.filter((id) => first.questionIds.includes(id)), []);
+  const third = buildExam(DOMAINS, pool, seededRng(13), { excludeIds: second.questionIds });
+  assert.deepEqual([...third.questionIds].sort(), [...first.questionIds].sort());
+});
+
+test('buildExam: falls back to repeated questions when every fresh question is excluded', () => {
+  const pool = DOMAINS.flatMap((d, i) => makeQuestions(d.id, allocation(50)[i], allocation(25)[i]));
+  const { questionIds, reusedCount } = buildExam(DOMAINS, pool, seededRng(14), {
+    excludeIds: pool.map((q) => q.id),
+  });
+  assert.equal(questionIds.length, 75);
+  assert.equal(reusedCount, 75);
+});

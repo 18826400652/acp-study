@@ -16,18 +16,33 @@ async function getMap(domainId) {
   }
 }
 
+// 模拟题库是独立的可选内容：单个文件缺失或损坏时返回空数组，不影响练习题
+async function getMock(domainId) {
+  try {
+    return await getJson(`data/mock/${domainId}.json`);
+  } catch (err) {
+    console.error(`加载模拟题库 ${domainId} 失败：`, err);
+    return [];
+  }
+}
+
 export async function loadData() {
   const domains = await getJson('data/domains.json');
-  const [cardLists, questionLists, mapList] = await Promise.all([
+  const [cardLists, questionLists, mapList, mockList] = await Promise.all([
     Promise.all(domains.map((d) => getJson(`data/cards/${d.id}.json`))),
     Promise.all(domains.map((d) => getJson(`data/questions/${d.id}.json`))),
     Promise.all(domains.map((d) => getMap(d.id))),
+    Promise.all(domains.map((d) => getMock(d.id))),
   ]);
   const cards = [].concat(...cardLists);
   const questions = [].concat(...questionLists);
+  const mockQuestions = [].concat(...mockList);
+  const allQuestions = questions.concat(mockQuestions);
   const maps = {};
   domains.forEach((d, i) => { maps[d.id] = mapList[i]; });
-  return { domains, cards, questions, maps, questionById: new Map(questions.map((q) => [q.id, q])) };
+  return {
+    domains, cards, questions, mockQuestions, allQuestions, maps, questionById: new Map(allQuestions.map((q) => [q.id, q])),
+  };
 }
 
 export async function loadEnvelope() {

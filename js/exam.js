@@ -29,14 +29,18 @@ export function shuffle(list, rng = Math.random) {
   return out;
 }
 
-export function buildExam(domains, questions, rng = Math.random) {
+export function buildExam(domains, questions, rng = Math.random, { excludeIds = [] } = {}) {
   const weights = domains.map((d) => d.weight);
+  const excluded = new Set(excludeIds);
   const shortfall = [];
   const blocks = TYPES.map((type) => {
     const counts = allocate(weights, EXAM_SIZE[type]);
     const picked = domains.map((d, i) => {
       const pool = questions.filter((q) => q.domain === d.id && q.type === type);
-      const chosen = shuffle(pool, rng).slice(0, counts[i]);
+      const fresh = pool.filter((q) => !excluded.has(q.id));
+      // 剩余的没做过的题不够配额时，退回完整题库，宁可可复用也不缩水
+      const usable = fresh.length >= counts[i] ? fresh : pool;
+      const chosen = shuffle(usable, rng).slice(0, counts[i]);
       if (chosen.length < counts[i]) {
         shortfall.push({ domain: d.id, type, need: counts[i], have: chosen.length });
       }
@@ -44,7 +48,8 @@ export function buildExam(domains, questions, rng = Math.random) {
     });
     return shuffle([].concat(...picked), rng);
   });
-  return { questionIds: [].concat(...blocks), shortfall };
+  const questionIds = [].concat(...blocks);
+  return { questionIds, shortfall, reusedCount: questionIds.filter((id) => excluded.has(id)).length };
 }
 
 export function remainingMs(startedAt, now) {
