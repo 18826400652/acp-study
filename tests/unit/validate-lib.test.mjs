@@ -185,6 +185,11 @@ const withCard = (over) => {
 const withMap = (map) => ({ ...valid(), maps: { rag: map } });
 const LONG = (n) => '字'.repeat(n);
 
+test('question sources may join several known chapters', () => {
+  assert.deepEqual(validateData(withQuestion({ source: '2_5_x、5_2_总结与展望' })), []);
+  expectError(withQuestion({ source: '2_5_x、9_9_不存在' }), 'source 不是已知章节');
+});
+
 test('card source may join several known chapters with 、', () => {
   assert.deepEqual(validateData(withCard({ source: `2_5_x、${EXTRA_CHAPTERS[0]}` })), []);
   expectError(withCard({ source: '2_5_x、9_9_不存在' }), 'source 不是已知章节');

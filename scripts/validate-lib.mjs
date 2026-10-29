@@ -17,6 +17,15 @@ export const BALANCE_MIN = { single: 8, multi: 6 };
 export const SINGLE_LETTER_MAX_SHARE = 0.4;
 export const MULTI_POSITION_MAX_SHARE = 0.75;
 export const KEY_LONGEST_MAX_SHARE = 0.35;
+// 模拟题库：各考点题量固定，答案分布要求比练习题更严
+export const MOCK_TARGETS = {
+  'app-dev': { single: 18, multi: 8 }, prompt: { single: 14, multi: 8 }, rag: { single: 20, multi: 10 },
+  finetune: { single: 16, multi: 8 }, 'agent-mm': { single: 16, multi: 8 }, production: { single: 16, multi: 8 },
+};
+export const MOCK_EXPLAIN_MIN_CHARS = 20;
+const MOCK_OPTION_COUNT = 4;
+const MOCK_MULTI_POSITION_MAX_SHARE = 0.7;
+const MOCK_MULTI_TWO_SHARE = { min: 0.6, max: 0.9 };
 const LETTERS = 'ABCDEF';
 const pct = (x) => Math.round(x * 100);
 const ALL_CORRECT_RE = /以上(都|均|全部|皆)?(对|正确|是)/;
@@ -69,7 +78,7 @@ function checkQuestion(q, domainId, chapters, seen) {
   if (q.type !== 'single' && q.type !== 'multi') add('type 必须是 single 或 multi');
   if (!nonEmpty(q.stem)) add('stem 不能为空');
   if (!nonEmpty(q.explanation)) add('explanation 不能为空');
-  if (!chapters.has(q.source)) add(`source 不是已知章节：${q.source}`);
+  if (!isKnownSource(q.source, chapters)) add(`source 不是已知章节：${q.source}`);
   checkOptions(q, add);
   checkAnswer(q, add);
   return errs;
@@ -247,6 +256,90 @@ function checkBalance(domainId, qs) {
   return errs;
 }
 
+function checkMockOptions(q, add) {
+  const opts = q.options;
+  if (!Array.isArray(opts) || opts.length !== MOCK_OPTION_COUNT) {
+    add(`选项必须是 ${MOCK_OPTION_COUNT} 个`);
+    return;
+  }
+  if (!opts.every(nonEmpty)) add('选项不能为空');
+  if (new Set(opts).size !== opts.length) add('选项有重复');
+  if (q.type === 'single' && opts.some((o) => ALL_CORRECT_RE.test(o))) add('单选题不应出现「以上都对」类选项');
+}
+
+function checkMockAnswer(q, add) {
+  const ans = q.answer;
+  const n = Array.isArray(q.options) ? q.options.length : 0;
+  if (!Array.isArray(ans) || !ans.every(Number.isInteger)) {
+    add('answer 必须是整数数组');
+    return;
+  }
+  if (ans.some((i) => i < 0 || i >= n)) add('answer 下标越界');
+  if (new Set(ans).size !== ans.length) add('answer 有重复下标');
+  if (q.type === 'single' && ans.length !== 1) add('单选题必须恰好 1 个答案');
+  if (q.type === 'multi' && ans.length !== 2 && ans.length !== 3) add('多选题必须有 2 或 3 个答案');
+}
+
+function checkMockQuestion(q, domainId, chapters, seen) {
+  const errs = [];
+  const add = reporter(`mock/${domainId}.json ${q && q.id ? q.id : '(无 id)'}`, errs);
+  if (!isObject(q)) return [`mock/${domainId}.json: 存在非对象条目`];
+  checkId(q.id, new RegExp(`^${domainId}-m\\d{3}$`), seen, add);
+  if (q.domain !== domainId) add(`domain 应为 ${domainId}`);
+  if (q.type !== 'single' && q.type !== 'multi') add('type 必须是 single 或 multi');
+  if (!nonEmpty(q.stem)) add('stem 不能为空');
+  if (!nonEmpty(q.explanation)) add('explanation 不能为空');
+  else if (charCount(q.explanation) < MOCK_EXPLAIN_MIN_CHARS) add(`解析至少 ${MOCK_EXPLAIN_MIN_CHARS} 字`);
+  if (!isKnownSource(q.source, chapters)) add(`source 不是已知章节：${q.source}`);
+  checkMockOptions(q, add);
+  checkMockAnswer(q, add);
+  return errs;
+}
+
+function checkMockBalance(domainId, qs) {
+  const errs = [];
+  const where = `mock/${domainId}.json`;
+  const withAnswer = qs.filter((q) => Array.isArray(q.answer) && q.answer.length);
+  const singles = withAnswer.filter((q) => q.type === 'single');
+  if (singles.length >= BALANCE_MIN.single) {
+    const counts = countBy(singles, (q) => q.answer[0]);
+    Object.keys(counts).forEach((i) => {
+      const share = counts[i] / singles.length;
+      if (share > SINGLE_LETTER_MAX_SHARE) {
+        errs.push(`${where}: 单选题正确答案 ${LETTERS[i]} 占 ${pct(share)}%，超过 ${pct(SINGLE_LETTER_MAX_SHARE)}%`);
+      }
+    });
+    errs.push(...checkKeyLength(where, singles));
+  }
+  const multis = withAnswer.filter((q) => q.type === 'multi');
+  if (multis.length >= BALANCE_MIN.multi) {
+    const twoShare = multis.filter((q) => q.answer.length === 2).length / multis.length;
+    if (twoShare < MOCK_MULTI_TWO_SHARE.min || twoShare > MOCK_MULTI_TWO_SHARE.max) {
+      errs.push(`${where}: 多选题 2 个答案的题占 ${pct(twoShare)}%，应在 ${pct(MOCK_MULTI_TWO_SHARE.min)}%–${pct(MOCK_MULTI_TWO_SHARE.max)}% 之间`);
+    }
+    const counts = countBy(multis, (q) => q.answer);
+    Object.keys(counts).forEach((i) => {
+      const share = counts[i] / multis.length;
+      if (share > MOCK_MULTI_POSITION_MAX_SHARE) {
+        errs.push(`${where}: 多选题选项 ${LETTERS[i]} 在 ${pct(share)}% 的题目中为正确答案，超过 ${pct(MOCK_MULTI_POSITION_MAX_SHARE)}%`);
+      }
+    });
+  }
+  return errs;
+}
+
+function checkMockCounts(domainId, qs) {
+  const target = MOCK_TARGETS[domainId];
+  if (!target) return [];
+  const errs = [];
+  [['single', '单选题'], ['multi', '多选题']].forEach(([type, label]) => {
+    const have = qs.filter((q) => q && q.type === type).length;
+    const want = target[type];
+    if (have !== want) errs.push(`${domainId} ${label} ${have}，应为 ${want}`);
+  });
+  return errs;
+}
+
 function checkDuplicateStems(domains, questions) {
   const errs = [];
   const seen = new Map();
@@ -276,11 +369,29 @@ export function validateData({ domains, cards, questions, maps = {} }, { allowPa
       if (titles.has(c.title)) errors.push(`cards/${d.id}.json: 卡片标题重复：${c.title}`);
       titles.add(c.title);
     });
-    qs.forEach((q) => errors.push(...checkQuestion(q, d.id, chapters, seen)));
+    qs.forEach((q) => errors.push(...checkQuestion(q, d.id, cardChapters, seen)));
     cs.forEach((c) => errors.push(...checkCard(c, d.id, cardChapters, seen, strict)));
     errors.push(...checkBalance(d.id, qs));
     if (!questionsOnly) errors.push(...checkMap(maps[d.id], d.id, cs, strict));
     if (countsFor(d.id)) errors.push(...checkCounts(d, qs, cs, questionsOnly));
   });
   return errors.concat(checkDuplicateStems(domains, questions));
+}
+
+// mock 为按考点组织的模拟题库；数量与 MOCK_TARGETS 精确匹配，不做 ±容忍
+export function validateMockData({ domains, mock = {} }, { allowPartial = false, strictDomains = null } = {}) {
+  const errors = [];
+  const chapters = new Set([].concat(...domains.map((d) => d.chapters || [])));
+  const knownChapters = new Set([...chapters, ...EXTRA_CHAPTERS]);
+  const seen = new Set();
+  const countsFor = (id) => (strictDomains ? strictDomains.indexOf(id) !== -1 : !allowPartial);
+  domains.forEach((d) => {
+    const raw = mock[d.id];
+    if (raw !== undefined && !Array.isArray(raw)) errors.push(`mock/${d.id}.json: 题库必须是数组`);
+    const qs = Array.isArray(raw) ? raw : [];
+    qs.forEach((q) => errors.push(...checkMockQuestion(q, d.id, knownChapters, seen)));
+    errors.push(...checkMockBalance(d.id, qs));
+    if (countsFor(d.id)) errors.push(...checkMockCounts(d.id, qs));
+  });
+  return errors;
 }

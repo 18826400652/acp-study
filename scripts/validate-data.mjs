@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateData } from './validate-lib.mjs';
+import { validateData, validateMockData } from './validate-lib.mjs';
 
 const DATA = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'data');
 
@@ -36,14 +36,17 @@ async function main() {
   const cards = {};
   const questions = {};
   const maps = {};
+  const mock = {};
   for (const d of domains) {
     cards[d.id] = await readJson(`cards/${d.id}.json`);
     questions[d.id] = await readJson(`questions/${d.id}.json`);
+    mock[d.id] = await readJson(`mock/${d.id}.json`);
     const mapRel = `maps/${d.id}.json`;
     if (await exists(mapRel)) maps[d.id] = await readJson(mapRel);
   }
   const options = strictDomain ? { strictDomains: [strictDomain] } : { allowPartial };
-  const errors = validateData({ domains, cards, questions, maps }, options);
+  const errors = validateData({ domains, cards, questions, maps }, options)
+    .concat(validateMockData({ domains, mock }, options));
   if (errors.length) {
     console.error(`题库校验失败，共 ${errors.length} 个问题：`);
     errors.forEach((e) => console.error(`  - ${e}`));
@@ -51,7 +54,7 @@ async function main() {
   }
   const count = (m) => Object.values(m).reduce((n, list) => n + list.length, 0);
   const mode = strictDomain ? `（严格检查 ${strictDomain}，其余考点未检查题量）` : allowPartial ? '（部分题库模式：未检查题量）' : '';
-  process.stdout.write(`题库校验通过：${count(questions)} 道题，${count(cards)} 张卡片，${Object.keys(maps).length} 张知识地图${mode}\n`);
+  process.stdout.write(`题库校验通过：${count(questions)} 道练习题，${count(mock)} 道模拟题，${count(cards)} 张卡片，${Object.keys(maps).length} 张知识地图${mode}\n`);
 }
 
 main().catch((err) => {
