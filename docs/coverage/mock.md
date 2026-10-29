@@ -34,6 +34,21 @@
 | 主题 | 考点 | 题号 |
 |---|---|---|
 | LoRA 合并后的 tokenizer / chat_template 处理 | finetune | finetune-m001 |
+| 蒸馏训练数据的 messages 三角色格式 | finetune | finetune-m003 |
+| 数据合成流水线：生成提问 → 教师标注 → 过滤格式化 | finetune | finetune-m004 |
+| 教师 system prompt 的 schema 与字段取值约束 | finetune | finetune-m005 |
+| LoRA 降低微调显存与存储开销 | finetune | finetune-m006 |
+| 意图漏判的样本补充排查 | finetune | finetune-m007 |
+| 训练产物定位（images/、runs/、checkpoint） | finetune | finetune-m008 |
+| vLLM 部署与并发优化 | finetune | finetune-m009 |
+| wrk 并发压测方案 | finetune | finetune-m010 |
+| 嵌入式系统部署 | finetune | finetune-m011 |
+| 百炼已部署模型的调用方式 | finetune | finetune-m012 |
+| GPU 型 DSW 实例完成本地推理与训练 | finetune | finetune-m013 |
+| 训练结束后停止空闲 GPU 实例 | finetune | finetune-m014 |
+| 合成提问中的真实公司名约束 | finetune | finetune-m015 |
+| 质量过滤规则从 Qwen Code 固化为 Python | finetune | finetune-m016 |
+| 按创建时间选择待合并 checkpoint | finetune | finetune-m017 |
 | 切片过大导致多主题混杂 | rag | rag-m009 |
 | 短语类问题的查询扩写 | rag | rag-m010 |
 | 基于用户画像扩展检索上下文 | rag | rag-m011 |
@@ -82,3 +97,5 @@
 | 路由决策的低温度与结构化输出 | app-dev | app-dev-m026 |
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
+
+说明：finetune-m003～m017 为 4_1、4_2 中除官方样题主题外的工程细节（数据格式、诊断、部署与成本操作），故列在「其他」区；官方主题「过拟合与验证损失 / checkpoint 选择」仍标「待补」，由 finetune 多选部分补充，m017 只覆盖按创建时间挑选待合并 checkpoint，不算该主题已覆盖。
