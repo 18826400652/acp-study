@@ -73,12 +73,12 @@
 | stdio MCP Client 启动本地 Server 子进程 | app-dev | app-dev-m017 |
 | JSON Schema 用 required 约束必填参数 | app-dev | app-dev-m018 |
 | Function Calling 第二次调用的消息组装 | app-dev | app-dev-m019 |
-| 上下文工程四技术的组合选型（RAG / Tool / Memory / Prompt） | app-dev | app-dev-m020 |
-| 工具参数 Schema 的枚举、描述与必填约束 | app-dev | app-dev-m021 |
+| 上下文工程三技术的组合选型（RAG / Tool / Memory） | app-dev | app-dev-m020 |
+| 工具参数 Schema 的取值说明、应用层校验与必填约束 | app-dev | app-dev-m021 |
 | 工具粒度：拆分职责单一的工具 | app-dev | app-dev-m022 |
 | 调参步长（±0.2）与 A/B 验证 | app-dev | app-dev-m023 |
 | 多轮工具调用（ReAct 循环）实现 | app-dev | app-dev-m024 |
 | FastMCP Server 端工具声明与 stdio 启动 | app-dev | app-dev-m025 |
-| 路由决策的低温度与执行职责划分 | app-dev | app-dev-m026 |
+| 路由决策的低温度与结构化输出 | app-dev | app-dev-m026 |
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
