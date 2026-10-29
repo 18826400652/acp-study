@@ -14,7 +14,7 @@
 | 表格内容解析与保结构入库 | rag | rag-m002 |
 | 相似度阈值过高导致召回不足 | rag | rag-m001 |
 | 复杂文档（PPT/流程图）解析 | rag | rag-m006 |
-| 过拟合与验证损失 / checkpoint 选择 | finetune | 待补 |
+| 过拟合与验证损失 / checkpoint 选择 | finetune | finetune-m018 |
 | 微调前的数据质量与基座能力评估 | finetune | finetune-m002 |
 | 敏感操作封装为 MCP 工具 + 应用层校验 | agent-mm | agent-mm-m001 |
 | 数据不出公有云的本地多模态链路 | production | production-m001（本地部署部分；多模态解析链路由后续任务补充） |
@@ -49,6 +49,12 @@
 | 合成提问中的真实公司名约束 | finetune | finetune-m015 |
 | 质量过滤规则从 Qwen Code 固化为 Python | finetune | finetune-m016 |
 | 按创建时间选择待合并 checkpoint | finetune | finetune-m017 |
+| LoRA rank 选择与数据量/任务复杂度 | finetune | finetune-m019 |
+| 合成数据覆盖验收（意图/部门/线上高频错误） | finetune | finetune-m020 |
+| 质量过滤器的坏样本验收与过滤统计 | finetune | finetune-m021 |
+| vLLM 端口、OpenAI 兼容接口与压测边界 | finetune | finetune-m022 |
+| 显存估算（参数量/精度/KV Cache）与 GPU 计时成本 | finetune | finetune-m023 |
+| 训练损失下降缓慢的参数调整 | finetune | finetune-m024 |
 | 切片过大导致多主题混杂 | rag | rag-m009 |
 | 短语类问题的查询扩写 | rag | rag-m010 |
 | 基于用户画像扩展检索上下文 | rag | rag-m011 |
@@ -98,4 +104,4 @@
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
 
-说明：finetune-m003～m017 为 4_1、4_2 中除官方样题主题外的工程细节（数据格式、诊断、部署与成本操作），故列在「其他」区；官方主题「过拟合与验证损失 / checkpoint 选择」仍标「待补」，由 finetune 多选部分补充，m017 只覆盖按创建时间挑选待合并 checkpoint，不算该主题已覆盖。
+说明：finetune-m018 以「过拟合监控信号 → 回退到验证损失最低的 checkpoint」覆盖官方主题「过拟合与验证损失 / checkpoint 选择」；finetune-m003～m017、m019～m024 为 4_1、4_2、4_3 中除官方样题主题外的工程细节（数据格式、诊断、部署与成本操作），故列在「其他」区。
