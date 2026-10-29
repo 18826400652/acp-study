@@ -22,7 +22,7 @@
 | Context Precision / Recall 的变化 | rag | rag-m007 |
 | 幻觉控制：RAG 标注出处 + 低置信转人工 | rag / production | rag-m008 |
 | 多 Agent 职责边界与关键操作人工确认 | agent-mm | agent-mm-m002 |
-| 模型选型（视觉/语音/文本） | agent-mm / production | 待补 |
+| 模型选型（视觉/语音/文本） | agent-mm / production | agent-mm-m016 |
 | 部署与成本/稳定性取舍 | production | 待补 |
 
 说明：本表只记录官方样题主题的覆盖情况；后续任务新增的题目如果不属于这 20 个主题，在表末「其他」区追加，不改动本表原有行。其余「待补」主题由后续任务补齐。
@@ -101,7 +101,23 @@
 | 多轮工具调用（ReAct 循环）实现 | app-dev | app-dev-m024 |
 | FastMCP Server 端工具声明与 stdio 启动 | app-dev | app-dev-m025 |
 | 路由决策的低温度与结构化输出 | app-dev | app-dev-m026 |
+| 规划与执行分离：外部动作前审查计划、失败后重排 | agent-mm | agent-mm-m003 |
+| 长上下文注意力稀释与中间迷失的约束保留 | agent-mm | agent-mm-m004 |
+| 深层引用导致信息丢失与扁平化渐进披露 | agent-mm | agent-mm-m005 |
+| Skill 校验脚本的结构化输出、修复线索与优雅降级 | agent-mm | agent-mm-m006 |
+| MCP 工具与 Skill 的职责分工（实时动作 vs 流程知识） | agent-mm | agent-mm-m007 |
+| Agent 过程评测：执行 trace 的关键工具调用检查 | agent-mm | agent-mm-m008 |
+| Skill 开发先建裸跑基线与评测用例 | agent-mm | agent-mm-m009 |
+| Qwen Code EPCC：Explore 只分析、Plan Mode 审方案 | agent-mm | agent-mm-m010 |
+| Qwen Code 任务中途 /compress 与关键细节落盘 | agent-mm | agent-mm-m011 |
+| QWEN.md 常见陷阱与跨会话记忆演进 | agent-mm | agent-mm-m012 |
+| Harness Loop：同类问题写回 Skill/验证器并回归 | agent-mm | agent-mm-m013 |
+| Harness Loop：轮数/分数阈值与停止条件 | agent-mm | agent-mm-m014 |
+| Skill 复用：流程要求固化而非口头提醒 | agent-mm | agent-mm-m015 |
+| 评测框架复用：RAGAS/DeepEval 的 Agent 评测能力 | agent-mm | agent-mm-m017 |
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
+
+说明：agent-mm-m003～m015、m017 为 `3_2`～`3_8` 的规划、Memory、Skill、评测、Qwen Code 与 Harness Loop 内容；m016 以多模态售后场景覆盖官方主题「模型选型（视觉/语音/文本）」，来源 `4_3` §1.1。
 
 说明：finetune-m018 以「过拟合监控信号 → 回退到验证损失最低的 checkpoint」覆盖官方主题「过拟合与验证损失 / checkpoint 选择」；finetune-m003～m017、m019～m024 为 4_1、4_2、4_3 中除官方样题主题外的工程细节（数据格式、诊断、部署与成本操作），故列在「其他」区。
