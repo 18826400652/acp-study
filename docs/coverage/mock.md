@@ -47,3 +47,12 @@
 | 不支持格式的文档解析（Keynote） | rag | rag-m019 |
 | 知识库过期与无关内容清理 | rag | rag-m020 |
 | 向量加密（DCPE） | rag | rag-m021 |
+| 检索优化组合的实验归因（基线、逐项验证、防跷跷板） | rag | rag-m022 |
+| PDF 解析结果的质检与润色 | rag | rag-m023 |
+| bad case 归因与评测集回填 | rag | rag-m024 |
+| 知识库双重加密方案落地（文本 + 向量） | rag | rag-m025 |
+| 知识库变更后的索引重建与评测回归 | rag | rag-m026 |
+| 改写模板的构建与验证 | rag | rag-m027 |
+| 上下文预算与长文档处理 | rag | rag-m028 |
+| 知识库投毒防护（入库审批 + 内容预扫描） | rag | rag-m029 |
+| DashScopeParse 多项目配置（category_id / Workspace ID） | rag | rag-m030 |
