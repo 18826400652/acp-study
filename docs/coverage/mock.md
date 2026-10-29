@@ -7,7 +7,7 @@
 | 分词与词表大小对 Input Token 的影响 | app-dev | app-dev-m001 |
 | 逐 Token 采样导致输出差异 | app-dev | app-dev-m002 |
 | 少样本示例 / 结构化输出约束 | prompt | prompt-m001 |
-| RAG 权限控制与越权访问 | rag / production | rag-m003 |
+| RAG 权限控制与越权访问 | rag / production | rag-m003、production-m022 |
 | 关键词 + 向量混合检索 | rag | rag-m004 |
 | 检索后重排序 | rag | rag-m005 |
 | 专业术语库与术语翻译 | prompt / rag | prompt-m002 |
@@ -156,14 +156,14 @@
 | 隐私挖掘机的输出端敏感信息拦截与知识库脱敏 | production | production-m015 |
 | AI 物料清单（AI-BOM）与资产异变监控 | production | production-m014 |
 | 降本组合：高频结果/公共前缀缓存 + 非实时任务批量推理 | production | production-m018 |
-| 稳定性工具组合：入口限流、重试与退避、熔断降级 | production | production-m019 |
-| 纵深防御分层归属：基础设施 / 模型 / 应用 / 内容安全 | production | production-m020 |
-| 公开内容安全：发布前输出审查、多模态输入检测、AIGC 显著标识 | production | production-m021 |
+| 稳定性工具组合：入口限流、重试间隔、熔断降级 | production | production-m019 |
+| 间接注入外泄的三层整改（基础设施 / 模型 / 应用） | production | production-m020 |
+| 公开内容发布：输出审查、多模态输入检测、隐私政策/明确同意（AIGC 显著标识作干扰项） | production | production-m021 |
 | 权限与审计：知识库角色授权、RAM 最小权限、敏感提问留痕 | production | production-m022 |
 | 提示词注入/泄漏防御：输入隔离与识别、输出端拦截 | production | production-m023 |
-| SLO 稳定性评审：运行期告警、弹性容量与演练、基线回退 | production | production-m024 |
+| SLO 稳定性评审：弹性容量与故障演练、基线回退（运行期告警缺失作干扰项） | production | production-m024 |
 
-说明：production-m018～m024 为 4_3、4_4 的多选组合题（降本与稳定性、稳定性工具、分层防御、内容安全、权限审计、注入防御、SLO 与回退），均换场景，列入「其他」区。
+说明：production-m018～m024 为 4_3、4_4 的多选组合题（降本与稳定性、稳定性工具、间接注入外泄处置、内容与隐私合规、权限审计、提示词注入防御、SLO 与回退），均换场景，列入「其他」区。
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
 
