@@ -115,9 +115,16 @@
 | Harness Loop：轮数/分数阈值与停止条件 | agent-mm | agent-mm-m014 |
 | Skill 复用：流程要求固化而非口头提醒 | agent-mm | agent-mm-m015 |
 | 评测框架复用：RAGAS/DeepEval 的 Agent 评测能力 | agent-mm | agent-mm-m017 |
+| 三层记忆分工：短期会话、长期偏好、QWEN.md 项目约束 | agent-mm | agent-mm-m018 |
+| 长文档审查：目录提取与按章节分段检查 | agent-mm | agent-mm-m019 |
+| 自优化 Skill 包的验收证据链（run log / 验证报告 / 写回记录） | agent-mm | agent-mm-m020 |
+| 团队复用后的运行指标归因（通过率、修订轮数、人工介入） | agent-mm | agent-mm-m021 |
+| QWEN.md 三级配置层次与合并优先级 | agent-mm | agent-mm-m022 |
+| 多模态截图验收：渲染缺陷判断与截图来源校验 | agent-mm | agent-mm-m023 |
+| 评测集全量回归与失败案例回填 | agent-mm | agent-mm-m024 |
 
 说明：app-dev-m003～m026 均来自 `2_1_用大模型构建新人答疑机器人` 与 `3_1_Agent基础与工具调用`；与官方样题主题（分词与词表、逐 Token 采样）不重复，故列在「其他」区。
 
-说明：agent-mm-m003～m015、m017 为 `3_2`～`3_8` 的规划、Memory、Skill、评测、Qwen Code 与 Harness Loop 内容；m016 以多模态售后场景覆盖官方主题「模型选型（视觉/语音/文本）」，来源 `4_3` §1.1。
+说明：agent-mm-m003～m015、m017～m024 为 `3_2`～`3_8` 的规划、Memory、Skill、评测、Qwen Code 与 Harness Loop 内容；m016 以多模态售后场景覆盖官方主题「模型选型（视觉/语音/文本）」，来源 `4_3` §1.1；m023 的多模态截图验收另引 `4_3` 的多模态模型说明。
 
 说明：finetune-m018 以「过拟合监控信号 → 回退到验证损失最低的 checkpoint」覆盖官方主题「过拟合与验证损失 / checkpoint 选择」；finetune-m003～m017、m019～m024 为 4_1、4_2、4_3 中除官方样题主题外的工程细节（数据格式、诊断、部署与成本操作），故列在「其他」区。
