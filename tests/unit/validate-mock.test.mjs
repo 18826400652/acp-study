@@ -68,3 +68,27 @@ test('multiple chapters may be joined with 、', () => {
   data.mock.rag[0] = { ...data.mock.rag[0], source: '2_5_x、5_2_总结与展望' };
   assert.deepEqual(validateMockData(data), []);
 });
+test('ids must be continuous from m001', () => {
+  const gap = valid();
+  gap.mock.rag = gap.mock.rag.filter((q) => q.id !== 'rag-m010');
+  expectError(gap, '题号应从 m001 连续编号', { allowPartial: true });
+  const zero = valid();
+  zero.mock.rag[0] = { ...zero.mock.rag[0], id: 'rag-m000' };
+  expectError(zero, '题号应从 m001 连续编号', { allowPartial: true });
+});
+test('non-object entries are reported without throwing', () => {
+  const errors = validateMockData({ domains: DOMAINS, mock: { rag: [null] } }, { allowPartial: true });
+  assert.ok(errors.some((e) => e.includes('存在非对象条目')), errors.join('\n'));
+});
+test('a multi-choice option may not dominate the answers', () => {
+  const data = valid();
+  const answers = [[0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1, 2], [0, 1, 2], [0, 1, 2]];
+  data.mock.rag.slice(20).forEach((q, i) => { q.answer = answers[i]; });
+  expectError(data, '多选题选项 A 在 100% 的题目中为正确答案，超过 70%');
+});
+test('strict mode reports a domain without a mock target', () => {
+  const domains = [{ ...DOMAINS[0], id: 'unknown-domain' }];
+  const data = { domains, mock: { 'unknown-domain': [] } };
+  expectError(data, '未配置模拟题目标');
+  assert.deepEqual(validateMockData(data, { allowPartial: true }), []);
+});

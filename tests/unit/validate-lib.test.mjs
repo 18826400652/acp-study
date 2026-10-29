@@ -190,6 +190,19 @@ test('question sources may join several known chapters', () => {
   expectError(withQuestion({ source: '2_5_x、9_9_不存在' }), 'source 不是已知章节');
 });
 
+test('questionsOnly banks do not gain EXTRA_CHAPTERS', () => {
+  const domains = [{ id: 'iv-a', name: '甲', short: 'A', weight: 20, target: { single: 1, multi: 0 }, chapters: ['2_5_x'] }];
+  const question = q(1, { id: 'iv-a-001', domain: 'iv-a', source: '2_5_x、5_2_总结与展望' });
+  const errors = validateData({ domains, cards: {}, questions: { 'iv-a': [question] } }, { questionsOnly: true });
+  assert.ok(errors.some((e) => e.includes('source 不是已知章节')), errors.join('\n'));
+});
+
+test('non-object question entries are reported without throwing', () => {
+  const data = { ...valid(), questions: { rag: [null] } };
+  const errors = validateData(data, { allowPartial: true });
+  assert.ok(errors.some((e) => e.includes('存在非对象条目')), errors.join('\n'));
+});
+
 test('card source may join several known chapters with 、', () => {
   assert.deepEqual(validateData(withCard({ source: `2_5_x、${EXTRA_CHAPTERS[0]}` })), []);
   expectError(withCard({ source: '2_5_x、9_9_不存在' }), 'source 不是已知章节');

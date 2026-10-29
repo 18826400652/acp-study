@@ -229,7 +229,7 @@ function checkKeyLength(where, singles) {
 function checkBalance(domainId, qs) {
   const errs = [];
   const where = `questions/${domainId}.json`;
-  const withAnswer = qs.filter((q) => Array.isArray(q.answer) && q.answer.length);
+  const withAnswer = qs.filter((q) => q && Array.isArray(q.answer) && q.answer.length);
   const singles = withAnswer.filter((q) => q.type === 'single');
   if (singles.length >= BALANCE_MIN.single) {
     const counts = countBy(singles, (q) => q.answer[0]);
@@ -299,7 +299,7 @@ function checkMockQuestion(q, domainId, chapters, seen) {
 function checkMockBalance(domainId, qs) {
   const errs = [];
   const where = `mock/${domainId}.json`;
-  const withAnswer = qs.filter((q) => Array.isArray(q.answer) && q.answer.length);
+  const withAnswer = qs.filter((q) => q && Array.isArray(q.answer) && q.answer.length);
   const singles = withAnswer.filter((q) => q.type === 'single');
   if (singles.length >= BALANCE_MIN.single) {
     const counts = countBy(singles, (q) => q.answer[0]);
@@ -328,9 +328,21 @@ function checkMockBalance(domainId, qs) {
   return errs;
 }
 
+function checkMockIdSequence(domainId, qs) {
+  const prefix = `${domainId}-m`;
+  const re = new RegExp(`^${prefix}\\d{3}$`);
+  const nums = qs
+    .filter((q) => isObject(q) && typeof q.id === 'string' && re.test(q.id))
+    .map((q) => Number(q.id.slice(prefix.length)))
+    .sort((a, b) => a - b);
+  if (!nums.length) return [];
+  const continuous = nums.length === nums[nums.length - 1] && nums.every((n, i) => n === i + 1);
+  return continuous ? [] : [`mock/${domainId}.json: 题号应从 m001 连续编号`];
+}
+
 function checkMockCounts(domainId, qs) {
   const target = MOCK_TARGETS[domainId];
-  if (!target) return [];
+  if (!target) return [`mock/${domainId}.json: 未配置模拟题目标`];
   const errs = [];
   [['single', '单选题'], ['multi', '多选题']].forEach(([type, label]) => {
     const have = qs.filter((q) => q && q.type === type).length;
@@ -369,7 +381,7 @@ export function validateData({ domains, cards, questions, maps = {} }, { allowPa
       if (titles.has(c.title)) errors.push(`cards/${d.id}.json: 卡片标题重复：${c.title}`);
       titles.add(c.title);
     });
-    qs.forEach((q) => errors.push(...checkQuestion(q, d.id, cardChapters, seen)));
+    qs.forEach((q) => errors.push(...checkQuestion(q, d.id, questionsOnly ? chapters : cardChapters, seen)));
     cs.forEach((c) => errors.push(...checkCard(c, d.id, cardChapters, seen, strict)));
     errors.push(...checkBalance(d.id, qs));
     if (!questionsOnly) errors.push(...checkMap(maps[d.id], d.id, cs, strict));
@@ -390,6 +402,7 @@ export function validateMockData({ domains, mock = {} }, { allowPartial = false,
     if (raw !== undefined && !Array.isArray(raw)) errors.push(`mock/${d.id}.json: 题库必须是数组`);
     const qs = Array.isArray(raw) ? raw : [];
     qs.forEach((q) => errors.push(...checkMockQuestion(q, d.id, knownChapters, seen)));
+    errors.push(...checkMockIdSequence(d.id, qs));
     errors.push(...checkMockBalance(d.id, qs));
     if (countsFor(d.id)) errors.push(...checkMockCounts(d.id, qs));
   });
