@@ -5,7 +5,7 @@ import {
 
 test.use({ serviceWorkers: 'block' });
 
-test('the real V4 batch-two bank exposes 300 questions and new questions reach results and the wrong book', async ({ page }) => {
+test('the real V4 batch-four bank exposes 450 questions and new questions reach results and the wrong book', async ({ page }) => {
   page.on('dialog', (d) => d.accept());
   await page.addInitScript(() => {
     let seed = 231;
@@ -13,11 +13,11 @@ test('the real V4 batch-two bank exposes 300 questions and new questions reach r
   });
   const domains = await (await page.request.get('data/domains.json')).json();
   const bank = (await Promise.all(domains.map(async (d) => (await page.request.get(`data/mock/${d.id}.json`)).json()))).flat();
-  expect(bank).toHaveLength(300);
-  const legacySizes = { 'app-dev': 39, prompt: 33, rag: 45, finetune: 36, 'agent-mm': 36, production: 36 };
+  expect(bank).toHaveLength(450);
+  const legacySizes = { 'app-dev': 65, prompt: 55, rag: 75, finetune: 60, 'agent-mm': 60, production: 60 };
 
   await page.goto('./#/exam');
-  await expect(page.locator('.rules')).toContainText('每次从 300 道模拟题中最多抽 75 道');
+  await expect(page.locator('.rules')).toContainText('每次从 450 道模拟题中最多抽 75 道');
   await expect(page.locator('.alloc-table')).toContainText('智能体应用开发');
   await page.getByRole('button', { name: '开始模拟考' }).click();
   const first = await page.evaluate(() => JSON.parse(localStorage.getItem('acp-progress-v1')).examDraft.questionIds);

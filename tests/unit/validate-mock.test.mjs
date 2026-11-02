@@ -4,6 +4,8 @@ import { validateMockData } from '../../scripts/validate-lib.mjs';
 
 const DOMAINS = [{ id: 'rag', name: '检索增强', short: 'RAG', weight: 100, chapters: ['2_5_x'], target: { single: 5, multi: 3 } }];
 const EXPLAIN = '正确项因为符合场景约束；其余选项分别错在扩大范围、增加成本或改变数据范围。';
+const RAG_SINGLES = 60;
+const RAG_MULTIS = 30;
 const single = (n, over = {}) => ({
   id: `rag-m${String(n).padStart(3, '0')}`, domain: 'rag', type: 'single',
   stem: `场景 ${n}：以下哪种做法最合理？`, options: ['做甲', '做乙', '做丙', '做丁'],
@@ -17,7 +19,7 @@ const multi = (n, over = {}) => ({
 });
 const valid = () => ({
   domains: DOMAINS,
-  mock: { rag: [...Array.from({ length: 40 }, (_, i) => single(i + 1)), ...Array.from({ length: 20 }, (_, i) => multi(i + 41))] },
+  mock: { rag: [...Array.from({ length: RAG_SINGLES }, (_, i) => single(i + 1)), ...Array.from({ length: RAG_MULTIS }, (_, i) => multi(i + RAG_SINGLES + 1))] },
 });
 const bad = (over) => {
   const data = valid();
@@ -43,21 +45,21 @@ test('id, domain, type, options, answers and explanation are checked', () => {
 });
 test('multi answers must be 2 or 3', () => {
   const data = valid();
-  data.mock.rag[40] = { ...data.mock.rag[40], answer: [0] };
+  data.mock.rag[RAG_SINGLES] = { ...data.mock.rag[RAG_SINGLES], answer: [0] };
   expectError(data, '多选题必须有 2 或 3 个答案');
 });
 test('counts are exact in strict mode and skipped in partial mode', () => {
   const data = valid();
-  data.mock.rag = data.mock.rag.slice(0, 59);
+  data.mock.rag = data.mock.rag.slice(0, RAG_SINGLES + RAG_MULTIS - 1);
   assert.deepEqual(validateMockData(data, { allowPartial: true }), []);
-  expectError(data, 'rag 多选题 19，应为 20');
+  expectError(data, `rag 多选题 ${RAG_MULTIS - 1}，应为 ${RAG_MULTIS}`);
   const fewer = valid();
   fewer.mock.rag = fewer.mock.rag.filter((q) => q.type === 'single');
-  expectError(fewer, 'rag 多选题 0，应为 20');
+  expectError(fewer, `rag 多选题 0，应为 ${RAG_MULTIS}`);
 });
 test('answer distribution is balanced', () => {
   const data = valid();
-  data.mock.rag.slice(0, 40).forEach((q) => { q.answer = [0]; });
+  data.mock.rag.slice(0, RAG_SINGLES).forEach((q) => { q.answer = [0]; });
   expectError(data, '正确答案 A 占');
   const multis = valid();
   multis.mock.rag = multis.mock.rag.map((q, i) => (q.type === 'multi' ? { ...q, answer: [0, 1] } : q));
@@ -65,8 +67,8 @@ test('answer distribution is balanced', () => {
 });
 test('single keys that are usually the longest option are rejected', () => {
   const data = valid();
-  data.mock.rag.slice(0, 40).forEach((q, i) => {
-    if (i < 16) q.options[q.answer[0]] = '明显更长的正确选项文本';
+  data.mock.rag.slice(0, RAG_SINGLES).forEach((q, i) => {
+    if (i < RAG_SINGLES * 0.4) q.options[q.answer[0]] = '明显更长的正确选项文本';
   });
   expectError(data, '单选题中正确答案最长的占 40%，超过 35%');
 });
@@ -89,7 +91,7 @@ test('non-object entries are reported without throwing', () => {
 });
 test('a multi-choice option may not dominate the answers', () => {
   const data = valid();
-  data.mock.rag.slice(40).forEach((q, i) => { q.answer = i < 14 ? [0, 1] : [0, 1, 2]; });
+  data.mock.rag.slice(RAG_SINGLES).forEach((q, i) => { q.answer = i < Math.floor(RAG_MULTIS * 0.7) ? [0, 1] : [0, 1, 2]; });
   expectError(data, '多选题选项 A 在 100% 的题目中为正确答案，超过 70%');
 });
 test('strict mode reports a domain without a mock target', () => {
