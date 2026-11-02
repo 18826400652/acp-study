@@ -5,6 +5,49 @@ import {
 
 test.use({ serviceWorkers: 'block' });
 
+test('the real V4 bank exposes 225 questions and new questions reach results and the wrong book', async ({ page }) => {
+  page.on('dialog', (d) => d.accept());
+  await page.addInitScript(() => {
+    let seed = 231;
+    Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  });
+  const domains = await (await page.request.get('data/domains.json')).json();
+  const bank = (await Promise.all(domains.map(async (d) => (await page.request.get(`data/mock/${d.id}.json`)).json()))).flat();
+  expect(bank).toHaveLength(225);
+  const legacySizes = { 'app-dev': 26, prompt: 22, rag: 30, finetune: 24, 'agent-mm': 24, production: 24 };
+
+  await page.goto('./#/exam');
+  await expect(page.locator('.rules')).toContainText('每次从 225 道模拟题中最多抽 75 道');
+  await expect(page.locator('.alloc-table')).toContainText('智能体应用开发');
+  await page.getByRole('button', { name: '开始模拟考' }).click();
+  const first = await page.evaluate(() => JSON.parse(localStorage.getItem('acp-progress-v1')).examDraft.questionIds);
+  const fresh = bank.find((q) => first.includes(q.id) && Number(q.id.slice(-3)) > legacySizes[q.domain]);
+  expect(fresh).toBeTruthy();
+  await page.getByRole('button', { name: '答题卡' }).click();
+  await page.locator('.sheet-cell').nth(first.indexOf(fresh.id)).click();
+  await expect(page.locator('.question')).toHaveAttribute('data-qid', fresh.id);
+  await expect(page.locator('.question')).toContainText(fresh.stem);
+  await expectNoHorizontalOverflow(page);
+
+  // Leave this new question unanswered: it must be graded and enter the wrong book.
+  await page.getByRole('button', { name: '答题卡' }).click();
+  await page.locator('.sheet').getByRole('button', { name: '交卷' }).click();
+  await expect(page).toHaveURL(/#\/exam\/result\/\d+$/);
+  const wrong = await page.evaluate(() => JSON.parse(localStorage.getItem('acp-progress-v1')).wrong);
+  expect(fresh.id in wrong).toBe(true);
+  await page.goto('./#/wrong');
+  const item = page.locator('.review-list > li').filter({ hasText: fresh.stem });
+  await item.locator('summary').click();
+  await expect(item).toContainText(fresh.explanation.slice(0, 20));
+  await expectNoHorizontalOverflow(page);
+
+  await page.goto('./#/exam');
+  await page.getByRole('button', { name: '开始模拟考' }).click();
+  const second = await page.evaluate(() => JSON.parse(localStorage.getItem('acp-progress-v1')).examDraft.questionIds);
+  expect(second).toHaveLength(75);
+  expect(second.filter((id) => first.includes(id))).toEqual([]);
+});
+
 test('mock exam uses the mock bank, avoids the previous paper and feeds the wrong book', async ({ page }) => {
   page.on('dialog', (d) => d.accept());
   await serveMockPool(page);

@@ -19,8 +19,8 @@ export const MULTI_POSITION_MAX_SHARE = 0.75;
 export const KEY_LONGEST_MAX_SHARE = 0.35;
 // 模拟题库：各考点题量固定，答案分布要求比练习题更严
 export const MOCK_TARGETS = {
-  'app-dev': { single: 18, multi: 8 }, prompt: { single: 14, multi: 8 }, rag: { single: 20, multi: 10 },
-  finetune: { single: 16, multi: 8 }, 'agent-mm': { single: 16, multi: 8 }, production: { single: 16, multi: 8 },
+  'app-dev': { single: 27, multi: 12 }, prompt: { single: 21, multi: 12 }, rag: { single: 30, multi: 15 },
+  finetune: { single: 24, multi: 12 }, 'agent-mm': { single: 24, multi: 12 }, production: { single: 24, multi: 12 },
 };
 export const MOCK_EXPLAIN_MIN_CHARS = 20;
 const MOCK_OPTION_COUNT = 4;

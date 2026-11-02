@@ -11,7 +11,7 @@
   { "id": "finetune", "name": "大模型微调", "short": "微调", "weight": 16,
     "target": { "single": 32, "multi": 16 },
     "chapters": ["4_1_用蒸馏让小模型掌握专业能力", "4_2_部署模型"] },
-  { "id": "agent-mm", "name": "多Agent及多模态应用", "short": "多Agent", "weight": 16,
+  { "id": "agent-mm", "name": "智能体应用开发", "short": "智能体", "weight": 16,
     "target": { "single": 32, "multi": 16 },
     "chapters": ["3_2_让Agent学会规划与执行", "3_3_用多Agent实现团队协作", "3_4_用Memory让Agent积累经验", "3_5_用Skill将能力固化为可复用流程", "3_6_用评测驱动Agent开发", "3_7_Qwen_Code实践", "3_8_Harness_Loop打造可上线业务能力"] },
   { "id": "production", "name": "生产环境应用实践", "short": "生产实践", "weight": 16,

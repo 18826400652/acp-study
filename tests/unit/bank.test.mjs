@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { allocate, EXAM_SIZE } from '../../js/exam.js';
+import { buildExam } from '../../js/exam.js';
+import { seededRng } from './helpers.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
@@ -19,4 +21,28 @@ test('every domain has enough mock questions for two full papers', () => {
       assert.ok(have >= need[i] * VARIETY_FACTOR, `${d.id} ${type}: ${have} < ${need[i] * VARIETY_FACTOR}`);
     });
   });
+});
+
+test('V4 batch one supplies three paper quotas and retains the legacy ids', () => {
+  const domains = read('data/domains.json');
+  const weights = domains.map((d) => d.weight);
+  const counts = { single: allocate(weights, 50), multi: allocate(weights, 25) };
+  const legacySizes = { 'app-dev': 26, prompt: 22, rag: 30, finetune: 24, 'agent-mm': 24, production: 24 };
+  const pool = domains.flatMap((d, i) => {
+    const bank = read(`data/mock/${d.id}.json`);
+    for (const type of ['single', 'multi']) {
+      assert.equal(bank.filter((q) => q.type === type).length, counts[type][i] * 3, `${d.id} ${type}`);
+    }
+    const ids = new Set(bank.map((q) => q.id));
+    for (let n = 1; n <= legacySizes[d.id]; n += 1) assert.ok(ids.has(`${d.id}-m${String(n).padStart(3, '0')}`));
+    return bank;
+  });
+  assert.equal(pool.length, 225);
+  const first = buildExam(domains, pool, seededRng(231));
+  const second = buildExam(domains, pool, seededRng(232), { excludeIds: first.questionIds });
+  assert.equal(first.questionIds.length, 75);
+  assert.equal(second.questionIds.length, 75);
+  assert.equal(second.reusedCount, 0);
+  assert.deepEqual(second.questionIds.filter((id) => first.questionIds.includes(id)), []);
+  assert.ok(first.questionIds.some((id) => Number(id.slice(-3)) > legacySizes[id.replace(/-m\d{3}$/, '')]));
 });
