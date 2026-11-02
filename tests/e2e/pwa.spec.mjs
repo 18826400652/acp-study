@@ -14,7 +14,7 @@ test('the app still opens offline after the first visit', async ({ page, context
   // 预缓存的模拟题库也要能在断网后开考
   page.on('dialog', (d) => d.accept());
   await page.goto('./#/exam');
-  await expect(page.locator('.rules')).toContainText('每次从 225 道模拟题中最多抽 75 道');
+  await expect(page.locator('.rules')).toContainText('每次从 300 道模拟题中最多抽 75 道');
   await page.getByRole('button', { name: '开始模拟考' }).click();
   await expect(page.locator('.exam-timer')).toBeVisible();
   await page.getByRole('button', { name: '答题卡' }).click();
