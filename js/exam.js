@@ -52,8 +52,13 @@ export function buildExam(domains, questions, rng = Math.random, { excludeIds = 
   return { questionIds, shortfall, reusedCount: questionIds.filter((id) => excluded.has(id)).length };
 }
 
-export function remainingMs(startedAt, now) {
-  return Math.max(0, EXAM_DURATION_MS - (now - startedAt));
+export function examElapsedMs(draft, now) {
+  const active = draft.runningSince == null ? 0 : Math.max(0, now - draft.runningSince);
+  return Math.min(EXAM_DURATION_MS, (draft.elapsedMs || 0) + active);
+}
+
+export function remainingMs(draft, now) {
+  return EXAM_DURATION_MS - examElapsedMs(draft, now);
 }
 
 const pad2 = (n) => String(n).padStart(2, '0');

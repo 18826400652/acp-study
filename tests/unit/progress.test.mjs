@@ -78,6 +78,54 @@ test('answerExam and finishExam do nothing without a draft', () => {
   assert.equal(P.finishExam(p, [q('rag-001')], 1), p);
 });
 
+test('exam pause/resume keeps answers, counts only active time, and is idempotent', () => {
+  const started = P.answerExam(P.startExam(P.emptyProgress(), ['rag-001'], 1000), 'rag-001', [0]);
+  const paused = P.pauseExam(started, 66000);
+  assert.equal(paused.examDraft.elapsedMs, 65000);
+  assert.equal(paused.examDraft.runningSince, null);
+  assert.deepEqual(paused.examDraft.responses, { 'rag-001': [0] });
+  assert.equal(started.examDraft.runningSince, 1000);
+  assert.equal(P.pauseExam(paused, 100000000), paused);
+  const resumed = P.resumeExam(paused, 100000000);
+  assert.equal(P.resumeExam(resumed, 100000100), resumed);
+  const finished = P.finishExam(resumed, [q('rag-001')], 100002000);
+  assert.equal(finished.exams[0].durationMs, 67000);
+  assert.equal(finished.exams[0].startedAt, 1000);
+  assert.equal(finished.exams[0].score, 1);
+  assert.equal(P.pauseExam(finished, 100003000), finished);
+  assert.equal(P.resumeExam(finished, 100003000), finished);
+});
+
+test('finishing an already paused exam ignores all later wall time', () => {
+  const p = P.pauseExam(P.startExam(P.emptyProgress(), ['rag-001'], 1000), 4000);
+  assert.equal(P.finishExam(p, [q('rag-001')], 999999999).exams[0].durationMs, 3000);
+});
+
+test('restoring a saved exam uses its checkpoint and remains paused until opened', () => {
+  let p = P.startExam(P.emptyProgress(), ['rag-001'], 1000);
+  p = P.resumeExam(P.pauseExam(p, 66000), 66000);
+  const restored = P.validateImport(JSON.parse(JSON.stringify(p)));
+  assert.equal(restored.ok, true);
+  assert.equal(restored.value.examDraft.elapsedMs, 65000);
+  assert.equal(restored.value.examDraft.runningSince, null);
+});
+
+test('legacy unsubmitted drafts retain answers and receive a fresh paused timer', () => {
+  const old = { ...P.emptyProgress(), examDraft: { startedAt: 1, questionIds: ['rag-001'], responses: { 'rag-001': [0] } } };
+  const restored = P.validateImport(old);
+  assert.equal(restored.ok, true);
+  assert.deepEqual(restored.value.examDraft, { ...old.examDraft, elapsedMs: 0, runningSince: null });
+});
+
+test('invalid timer fields cannot be imported as a draft or result duration', () => {
+  const p = P.startExam(P.emptyProgress(), ['rag-001'], 1000);
+  for (const fields of [{ elapsedMs: -1 }, { elapsedMs: '100' }, { elapsedMs: Infinity }, { runningSince: '1000' }, { runningSince: NaN }]) {
+    assert.equal(P.validateImport({ ...p, examDraft: { ...p.examDraft, ...fields } }).ok, false);
+  }
+  const done = P.finishExam(p, [q('rag-001')], 2000);
+  assert.equal(P.validateImport({ ...done, exams: [{ ...done.exams[0], durationMs: -1 }] }).ok, false);
+});
+
 test('finishExam keeps only the last 20 exams', () => {
   let p = P.emptyProgress();
   for (let i = 0; i < 22; i += 1) {

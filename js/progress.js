@@ -1,4 +1,5 @@
 import { isCorrect, scoreExam } from './scoring.js';
+import { examElapsedMs } from './exam.js';
 
 export const SCHEMA_VERSION = 1;
 export const MAX_ATTEMPTS = 10;
@@ -70,7 +71,19 @@ export function setExamDate(progress, date) {
 // ---------- 模拟考 ----------
 
 export function startExam(progress, questionIds, startedAt) {
-  return { ...progress, examDraft: { startedAt, questionIds: questionIds.slice(), responses: {} } };
+  return { ...progress, examDraft: { startedAt, elapsedMs: 0, runningSince: startedAt, questionIds: questionIds.slice(), responses: {} } };
+}
+
+export function pauseExam(progress, now) {
+  const draft = progress.examDraft;
+  if (!draft || draft.runningSince == null) return progress;
+  return { ...progress, examDraft: { ...draft, elapsedMs: examElapsedMs(draft, now), runningSince: null } };
+}
+
+export function resumeExam(progress, now) {
+  const draft = progress.examDraft;
+  if (!draft || draft.runningSince != null) return progress;
+  return { ...progress, examDraft: { ...draft, elapsedMs: draft.elapsedMs || 0, runningSince: now } };
 }
 
 export function answerExam(progress, questionId, selected) {
@@ -86,6 +99,7 @@ export function finishExam(progress, questions, finishedAt) {
     id: String(finishedAt),
     startedAt: draft.startedAt,
     finishedAt,
+    durationMs: examElapsedMs(draft, finishedAt),
     questionIds: draft.questionIds,
     responses: draft.responses,
     ...scoreExam(questions, draft.responses),
@@ -149,8 +163,12 @@ export function exportFileName(date) {
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isAttempt = (a) => isObject(a) && typeof a.t === 'number' && typeof a.correct === 'boolean';
 const isDraft = (d) => isObject(d) && typeof d.startedAt === 'number' && Array.isArray(d.questionIds) && isObject(d.responses);
+const isDuration = (v) => Number.isFinite(v) && v >= 0;
+const isDraftClock = (d) => (d.elapsedMs === undefined && d.runningSince === undefined)
+  || (isDuration(d.elapsedMs) && (d.runningSince === null || isDuration(d.runningSince)));
 const isExamRecord = (e) => isDraft(e) && typeof e.id === 'string' && typeof e.score === 'number'
-  && typeof e.max === 'number' && typeof e.passed === 'boolean' && isObject(e.byDomain);
+  && typeof e.max === 'number' && typeof e.passed === 'boolean' && isObject(e.byDomain)
+  && (e.durationMs === undefined || isDuration(e.durationMs));
 
 const isIdMap = (v) => isObject(v) && Object.keys(v).every((k) => typeof v[k] === 'string');
 
@@ -182,7 +200,7 @@ function findProblem(raw) {
   const pos = positionsProblem(raw);
   if (pos) return pos;
   if (!Array.isArray(raw.exams) || !raw.exams.every(isExamRecord)) return '考试记录（exams）格式错误';
-  if (raw.examDraft != null && !isDraft(raw.examDraft)) return '考试草稿（examDraft）格式错误';
+  if (raw.examDraft != null && (!isDraft(raw.examDraft) || !isDraftClock(raw.examDraft))) return '考试草稿（examDraft）格式错误';
   if (raw.examDate != null && !(typeof raw.examDate === 'string' && DATE_RE.test(raw.examDate))) {
     return '考试日期（examDate）格式错误';
   }
@@ -205,7 +223,9 @@ export function validateImport(raw) {
       cardPos: raw.cardPos || {},
       practicePos: raw.practicePos || {},
       exams: raw.exams.slice(-MAX_EXAMS),
-      examDraft: raw.examDraft || null,
+      // Restored checkpoints stay paused: time while the app was closed is not exam time.
+      // Legacy drafts have no usable active-time checkpoint; retain answers with a fresh timer.
+      examDraft: raw.examDraft ? { ...raw.examDraft, elapsedMs: raw.examDraft.elapsedMs || 0, runningSince: null } : null,
       examDate: raw.examDate || null,
     },
   };

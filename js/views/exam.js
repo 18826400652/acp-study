@@ -1,6 +1,6 @@
 import { h, emptyState, scrollViewTop, formatDateTime } from '../ui.js';
 import { buildExam, allocate, remainingMs, formatClock, EXAM_SIZE } from '../exam.js';
-import { startExam, answerExam, finishExam } from '../progress.js';
+import { startExam, answerExam, finishExam, pauseExam, resumeExam } from '../progress.js';
 import { questionCard } from './question.js';
 
 const TICK_MS = 1000;
@@ -12,7 +12,7 @@ const RULES = [
   '限时 120 分钟，到时自动交卷',
   '满分 100 分，80 分及格',
   '多选题全部选对才得分',
-  '交卷前不显示对错；中途退出可回来继续',
+  '交卷前不显示对错；离开或切到后台暂停计时，回来继续',
 ];
 
 function submitExam(ctx) {
@@ -86,10 +86,11 @@ function running(ctx) {
   let pos = Math.max(0, ids.findIndex((id) => !(draft.responses[id] || []).length));
   let sheetOpen = false;
   let handle = null;
+  let stopped = false;
   const timer = h('span', { class: 'exam-timer', role: 'timer', 'aria-label': '剩余时间' });
   const counter = h('span', { class: 'exam-progress' });
   const body = h('div', { class: 'stack' });
-  const finish = () => { clearInterval(handle); submitExam(ctx); };
+  const finish = () => { stopped = true; clearInterval(handle); handle = null; submitExam(ctx); };
   const goTo = (i) => { pos = i; sheetOpen = false; draw(); scrollViewTop(); };
   const confirmSubmit = () => {
     const left = ids.filter((id) => !(responses()[id] || []).length).length;
@@ -119,16 +120,42 @@ function running(ctx) {
   }
 
   function tick() {
-    const ms = remainingMs(draft.startedAt, Date.now());
+    if (stopped || document.visibilityState === 'hidden') return;
+    const now = Date.now();
+    // Persist active time every second, so an abrupt app termination cannot count the absence.
+    ctx.update((p) => resumeExam(pauseExam(p, now), now));
+    const ms = remainingMs(ctx.getProgress().examDraft, now);
     timer.textContent = formatClock(ms);
     timer.classList.toggle('is-urgent', ms <= URGENT_MS);
     if (ms === 0) finish();
   }
 
+  function pause() {
+    clearInterval(handle);
+    handle = null;
+    ctx.update((p) => pauseExam(p, Date.now()));
+  }
+
+  function resume() {
+    if (stopped || document.visibilityState === 'hidden' || handle !== null) return;
+    ctx.update((p) => resumeExam(p, Date.now()));
+    tick();
+    if (!stopped) handle = setInterval(tick, TICK_MS);
+  }
+
+  const onVisibility = () => { if (document.visibilityState === 'hidden') pause(); else resume(); };
+  document.addEventListener('visibilitychange', onVisibility);
+  window.addEventListener('pagehide', pause);
+  window.addEventListener('pageshow', resume);
   draw();
-  tick();
-  handle = setInterval(tick, TICK_MS);
-  ctx.onLeave(() => clearInterval(handle));
+  resume();
+  ctx.onLeave(() => {
+    stopped = true;
+    pause();
+    document.removeEventListener('visibilitychange', onVisibility);
+    window.removeEventListener('pagehide', pause);
+    window.removeEventListener('pageshow', resume);
+  });
   return [h('div', { class: 'exam-bar' }, timer, counter, sheetBtn), body];
 }
 
@@ -138,7 +165,7 @@ export function renderExam(ctx) {
     root.textContent = '';
     const draft = ctx.getProgress().examDraft;
     if (!draft) root.append(...intro(ctx, show));
-    else if (remainingMs(draft.startedAt, Date.now()) === 0) submitExam(ctx);
+    else if (remainingMs(draft, Date.now()) === 0) submitExam(ctx);
     else root.append(...running(ctx));
   }
   show();

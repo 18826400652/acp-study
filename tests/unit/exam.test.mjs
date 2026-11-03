@@ -61,9 +61,17 @@ test('buildExam: the same seed gives the same exam', () => {
 });
 
 test('remainingMs counts down and never goes below zero', () => {
-  assert.equal(remainingMs(0, 0), EXAM_DURATION_MS);
-  assert.equal(remainingMs(0, 60000), EXAM_DURATION_MS - 60000);
-  assert.equal(remainingMs(0, EXAM_DURATION_MS + 5), 0);
+  const draft = { elapsedMs: 0, runningSince: 0 };
+  assert.equal(remainingMs(draft, 0), EXAM_DURATION_MS);
+  assert.equal(remainingMs(draft, 60000), EXAM_DURATION_MS - 60000);
+  assert.equal(remainingMs(draft, EXAM_DURATION_MS + 5), 0);
+});
+
+test('remainingMs excludes paused time and includes previously accumulated active time', () => {
+  const paused = { elapsedMs: 65000, runningSince: null };
+  assert.equal(remainingMs(paused, 100000000), EXAM_DURATION_MS - 65000);
+  assert.equal(remainingMs({ ...paused, runningSince: 100000000 }, 100002000), EXAM_DURATION_MS - 67000);
+  assert.equal(remainingMs({ elapsedMs: 0, runningSince: 5000 }, 4000), EXAM_DURATION_MS);
 });
 
 test('formatClock shows mm:ss, rounding seconds up', () => {

@@ -24,7 +24,7 @@ export function renderResult(ctx, id) {
     h('section', { class: record.passed ? 'result-hero is-pass' : 'result-hero' },
       h('p', { class: 'result-score' }, String(record.score), h('span', { class: 'result-max' }, ` / ${record.max}`)),
       h('p', { class: 'result-badge' }, record.passed ? '通过' : '未通过'),
-      h('p', { class: 'muted' }, `及格线 ${Math.ceil(record.max * PASS_RATIO)} 分 · 用时 ${formatDuration(record.finishedAt - record.startedAt)}`)),
+      h('p', { class: 'muted' }, `及格线 ${Math.ceil(record.max * PASS_RATIO)} 分 · 用时 ${formatDuration(record.durationMs ?? (record.finishedAt - record.startedAt))}`)),
     h('table', { class: 'domain-table' },
       h('thead', {}, h('tr', {}, h('th', {}, '考点'), h('th', {}, '得分'))),
       h('tbody', {}, rows)),

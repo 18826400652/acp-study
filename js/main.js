@@ -68,7 +68,7 @@ const TITLES = {
   wrongPractice: '错题练习',
 };
 const BANK_KEY = 'acp-bank';
-const LEAVE_EXAM_CONFIRM = '考试进行中，确定离开吗？作答已自动保存，回到「模拟考」可继续。';
+const LEAVE_EXAM_CONFIRM = '考试进行中，确定离开吗？作答已自动保存，计时将暂停，回到「模拟考」可继续。';
 
 const storage = browserStorage();
 const banks = {
@@ -115,7 +115,7 @@ function makeContext(bank) {
 
 function hasActiveExam() {
   const draft = banks.acp.progress.examDraft;
-  return draft !== null && remainingMs(draft.startedAt, Date.now()) > 0;
+  return draft !== null && draft.runningSince != null && remainingMs(draft, Date.now()) > 0;
 }
 
 function isLeavingExam(route) {

@@ -14,6 +14,7 @@ export function offerPendingUpdate() {
   showBanner('update', '内容已更新', {
     label: '点击刷新',
     onClick: () => {
+      if (examRunning()) return;
       userAccepted = true;
       worker.postMessage('SKIP_WAITING');
     },
